@@ -7,11 +7,11 @@
 
 | Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `parseWithLayers`  | `parseWithBlur`   | `parseWithTransform`    | `parseWithFilters`  | `parseWithCensorLayers` |
 |----------------|------------------------|---------------------------|--------------------|-------------------|-------------------------|---------------------|-------------------------|
-| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
-| iOS            | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
-| macOS          | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
-| Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
-| Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Android        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| iOS            | ✅                     | ⚠️                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
+| macOS          | ✅                     | ⚠️                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
+| Windows        | ✅                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Linux          | ✅                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
 | Web            | ✅                     | ✅                       | 🚫                 | 🚫               | 🚫                     | 🚫                  | 🚫                      |
 
 
@@ -19,7 +19,7 @@
 #### Legend
 - ✅ Supported and tested  
 - 🧪 Supported but visual output differs from Flutter
-- ⚠️ Supported but not tested
+- ⚠️ Supported but depend on ffmpeg
 - ❌ Not supported but planned
 - 🚫 Not supported and not planned
 

@@ -31,23 +31,18 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   }
 
   void _generateThumbnails() async {
-    await _setVideoInformation();
+    if (_informations == null) {
+      await _setVideoInformation();
+    }
     var info = _informations!;
-    var totalDuration = info.duration;
 
     if (!mounted) return;
-
-    double step = totalDuration.inMilliseconds / _exampleImageCount;
 
     var raw = await VideoUtilsService.instance.createVideoThumbnails(
       CreateVideoThumbnail(
         video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
         format: _thumbnailFormat,
-        timestamps: List.generate(_exampleImageCount, (i) {
-          return Duration(
-            milliseconds: ((step * i) + 1).toInt(),
-          );
-        }),
+        thumbnailLimit: _exampleImageCount,
         imageWidth: _imageSize *
             MediaQuery.devicePixelRatioOf(context) *
             info.resolution.aspectRatio,

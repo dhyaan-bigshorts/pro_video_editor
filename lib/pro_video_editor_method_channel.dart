@@ -51,19 +51,22 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   @override
   Future<List<Uint8List>> createVideoThumbnails(
       CreateVideoThumbnail value) async {
+    var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
       'createVideoThumbnails',
       {
         'videoBytes': videoBytes,
-        'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
         'imageWidth': value.imageWidth,
         'thumbnailFormat': value.format.name,
         'extension': _getFileExtension(videoBytes),
+        'maxThumbnails': value.thumbnailLimit,
       },
     );
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
+
+    print('Thumbnails generated in ${sp.elapsed.inMilliseconds}ms');
 
     return thumbnails;
   }
