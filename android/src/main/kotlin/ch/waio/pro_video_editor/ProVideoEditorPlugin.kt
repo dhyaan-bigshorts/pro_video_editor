@@ -69,14 +69,13 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
 
             "createVideoThumbnails" -> {
                 val videoBytes = call.argument<ByteArray>("videoBytes")
-                val rawTimestamps = call.argument<List<Number>>("timestamps")
+                val maxThumbnails = call.argument<Number>("maxThumbnails")?.toInt()
                 val thumbnailFormat = call.argument<String>("thumbnailFormat")
                 val imageWidth = call.argument<Number>("imageWidth")?.toInt()
                 val extension = call.argument<String>("extension")
 
-                val timestamps = rawTimestamps?.map { it.toLong() }
-
-                if (videoBytes == null || timestamps == null || thumbnailFormat == null || imageWidth == null || extension == null) {
+ 
+                if (videoBytes == null || maxThumbnails == null || thumbnailFormat == null || imageWidth == null || extension == null) {
                     result.error("INVALID_ARGUMENTS", "Missing or invalid arguments", null)
                     return
                 }
@@ -85,10 +84,10 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     try {
                         val thumbnails = thumbnailGenerator.generateThumbnails(
                             videoBytes = videoBytes,
-                            timestamps = timestamps,
-                            extension = extension,
                             thumbnailFormat = thumbnailFormat,
-                            width = imageWidth
+                            extension = extension,
+                            width = imageWidth,
+                            maxThumbnails = maxThumbnails
                         )
 
                         withContext(Dispatchers.Main) {

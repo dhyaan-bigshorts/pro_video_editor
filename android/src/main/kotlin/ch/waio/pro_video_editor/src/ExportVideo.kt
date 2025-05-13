@@ -4,10 +4,6 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.FFmpegKitConfig
-import com.arthenica.ffmpegkit.FFmpegSession
-import com.arthenica.ffmpegkit.ReturnCode
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.*
@@ -88,7 +84,7 @@ class ExportVideo(private val context: Context) {
         onError: (String) -> Unit,
         onProgress: ((Double) -> Unit)? = null
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        /* CoroutineScope(Dispatchers.IO).launch {
             try {
                 val videoFile = File.createTempFile("input_video", ".$inputFormat", context.cacheDir)
                 val imageFile = File.createTempFile("overlay_image", ".png", context.cacheDir)
@@ -196,6 +192,6 @@ class ExportVideo(private val context: Context) {
                     onError("Exception: ${e.message}")
                 }
             }
-        }
+        } */
     }
 }

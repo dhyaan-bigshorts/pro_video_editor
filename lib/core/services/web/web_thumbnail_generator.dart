@@ -49,7 +49,19 @@ class WebThumbnailGenerator {
 
     await video.onLoadedData.first;
 
-    for (final t in value.timestamps) {
+    final totalDuration = Duration(seconds: video.duration.floor());
+
+    /// Generate timestamps evenly spaced throughout the video
+    final List<Duration> timestamps = List.generate(
+      value.thumbnailLimit,
+      (index) {
+        final fraction = index / value.thumbnailLimit;
+        return Duration(
+            milliseconds: (totalDuration.inMilliseconds * fraction).round());
+      },
+    );
+
+    for (final t in timestamps) {
       video.currentTime = t.inSeconds;
 
       await video.onSeeked.first;

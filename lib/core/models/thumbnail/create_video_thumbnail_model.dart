@@ -8,12 +8,13 @@ class CreateVideoThumbnail {
   /// Creates a [CreateVideoThumbnail] configuration.
   ///
   /// [video] is the source video.
-  /// [timestamps] defines the frames to extract as thumbnails.
+  /// [thumbnailLimit] defines the maximum number of frames to extract as
+  /// thumbnails.
   /// [imageWidth] is the target width for each thumbnail in pixels.
   /// [format] specifies the output image format (defaults to [jpeg]).
   CreateVideoThumbnail({
     required this.video,
-    required this.timestamps,
+    required this.thumbnailLimit,
     required this.imageWidth,
     this.format = ThumbnailFormat.jpeg,
   });
@@ -21,8 +22,8 @@ class CreateVideoThumbnail {
   /// The video from which thumbnails will be generated.
   final EditorVideo video;
 
-  /// The list of timestamps for which thumbnails should be extracted.
-  final List<Duration> timestamps;
+  /// The maximum number of frames to extract as thumbnails.
+  final int thumbnailLimit;
 
   /// The width of each generated thumbnail image, in pixels.
   final double imageWidth;
