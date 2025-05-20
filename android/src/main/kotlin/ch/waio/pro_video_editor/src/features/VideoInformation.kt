@@ -1,4 +1,4 @@
-package ch.waio.pro_video_editor.src
+package ch.waio.pro_video_editor.src.features
 
 import android.content.Context
 import android.media.MediaMetadataRetriever

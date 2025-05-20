@@ -1,4 +1,4 @@
-package ch.waio.pro_video_editor.src
+package ch.waio.pro_video_editor.src.features
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,49 +14,54 @@ import java.io.FileOutputStream
 class ThumbnailGenerator(private val context: Context) {
 
     suspend fun getThumbnails(
-    videoBytes: ByteArray,
-    extension: String,
-    outputFormat: String,
-    boxFit: String,
-    outputWidth: Int,
-    outputHeight: Int,
-    timestampsUs: List<Long>
-): List<ByteArray> = withContext(Dispatchers.IO) {
-    val TAG = "CustomThumbnailGen"
-    val tempVideoFile = writeBytesToTempFile(videoBytes, extension)
-    val thumbnails = MutableList<ByteArray?>(timestampsUs.size) { null }
+        videoBytes: ByteArray,
+        extension: String,
+        outputFormat: String,
+        boxFit: String,
+        outputWidth: Int,
+        outputHeight: Int,
+        timestampsUs: List<Long>
+    ): List<ByteArray> = withContext(Dispatchers.IO) {
+        val TAG = "CustomThumbnailGen"
+        val tempVideoFile = writeBytesToTempFile(videoBytes, extension)
+        val thumbnails = MutableList<ByteArray?>(timestampsUs.size) { null }
 
-    val jobs = timestampsUs.mapIndexed { index, timeUs ->
-        async {
-            val startTime = System.currentTimeMillis()
-            var retriever: MediaMetadataRetriever? = null
-            try {
-                retriever = MediaMetadataRetriever().apply {
-                    setDataSource(tempVideoFile.absolutePath)
-                }
+        val jobs = timestampsUs.mapIndexed { index, timeUs ->
+            async {
+                val startTime = System.currentTimeMillis()
+                var retriever: MediaMetadataRetriever? = null
+                try {
+                    retriever = MediaMetadataRetriever().apply {
+                        setDataSource(tempVideoFile.absolutePath)
+                    }
 
-                val bitmap = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
-                if (bitmap != null) {
-                    val resized = resizeBitmapKeepingAspect(bitmap, outputWidth, outputHeight, boxFit)
-                    val bytes = compressBitmap(resized, outputFormat)
-                    thumbnails[index] = bytes
-                    val duration = System.currentTimeMillis() - startTime
-                    Log.d(TAG, "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)")
-                } else {
-                    Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
+                    val bitmap =
+                        retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
+                    if (bitmap != null) {
+                        val resized =
+                            resizeBitmapKeepingAspect(bitmap, outputWidth, outputHeight, boxFit)
+                        val bytes = compressBitmap(resized, outputFormat)
+                        thumbnails[index] = bytes
+                        val duration = System.currentTimeMillis() - startTime
+                        Log.d(
+                            TAG,
+                            "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
+                        )
+                    } else {
+                        Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
+                } finally {
+                    retriever?.release()
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
-            } finally {
-                retriever?.release()
             }
         }
-    }
 
-    jobs.awaitAll()
-    tempVideoFile.delete()
-    return@withContext thumbnails.filterNotNull()
-}
+        jobs.awaitAll()
+        tempVideoFile.delete()
+        return@withContext thumbnails.filterNotNull()
+    }
 
 
     suspend fun getKeyFrames(
@@ -70,7 +75,8 @@ class ThumbnailGenerator(private val context: Context) {
     ): List<ByteArray> = withContext(Dispatchers.IO) {
         val TAG = "KeyframeThumbnailGen"
         val tempVideoFile = writeBytesToTempFile(videoBytes, extension)
-        val keyframeTimestamps = extractKeyframeTimestamps(tempVideoFile.absolutePath, maxOutputFrames)
+        val keyframeTimestamps =
+            extractKeyframeTimestamps(tempVideoFile.absolutePath, maxOutputFrames)
         val thumbnails = MutableList<ByteArray?>(keyframeTimestamps.size) { null }
 
         val jobs = keyframeTimestamps.mapIndexed { index, timeUs ->
@@ -82,13 +88,18 @@ class ThumbnailGenerator(private val context: Context) {
                         setDataSource(tempVideoFile.absolutePath)
                     }
 
-                    val bitmap = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                    val bitmap =
+                        retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                     if (bitmap != null) {
-                        val resized = resizeBitmapKeepingAspect(bitmap, outputWidth, outputHeight, boxFit)
+                        val resized =
+                            resizeBitmapKeepingAspect(bitmap, outputWidth, outputHeight, boxFit)
                         val bytes = compressBitmap(resized, outputFormat)
                         thumbnails[index] = bytes
                         val duration = System.currentTimeMillis() - startTime
-                        Log.d(TAG, "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)")
+                        Log.d(
+                            TAG,
+                            "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
+                        )
                     } else {
                         Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
                     }
@@ -112,7 +123,8 @@ class ThumbnailGenerator(private val context: Context) {
         try {
             extractor.setDataSource(videoPath)
             val videoTrackIndex = (0 until extractor.trackCount).first {
-                extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("video/") == true
+                extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)
+                    ?.startsWith("video/") == true
             }
             extractor.selectTrack(videoTrackIndex)
 

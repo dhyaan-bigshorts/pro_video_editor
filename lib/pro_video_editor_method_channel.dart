@@ -7,7 +7,7 @@ import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
 import 'core/models/thumbnail/key_frames_configs.model.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
-import 'core/models/video/export_video_model.dart';
+import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
@@ -102,28 +102,33 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<Uint8List> exportVideo(ExportVideoModel value) async {
-    var format = lookupMimeType('', headerBytes: value.videoBytes);
+  Future<Uint8List> renderVideo(RenderVideoModel value) async {
+    var extension = lookupMimeType('', headerBytes: value.videoBytes);
     String inputFormat = 'mp4';
-    List<String>? sp = format?.split('/');
+    List<String>? sp = extension?.split('/');
     if (sp?.length == 1) inputFormat = sp![1];
 
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
-      'exportVideo',
+      'renderVideo',
       {
-        'codecArgs': value.encoding.toFFmpegArgs(
-          outputFormat: value.outputFormat,
-          enableAudio: value.enableAudio,
-        ),
         'videoBytes': value.videoBytes,
         'imageBytes': value.imageBytes,
-        'videoDuration': value.videoDuration.inMilliseconds,
-        'inputFormat': inputFormat,
+        'rotateTurns': value.transform.rotateTurns,
+        'flipX': value.transform.flipX,
+        'flipY': value.transform.flipY,
+        'enableAudio': value.enableAudio,
+        'playbackSpeed': value.playbackSpeed,
+        'startTime': value.startTime?.inMicroseconds,
+        'endTime': value.endTime?.inMicroseconds,
+        'cropWidth': value.transform.width,
+        'cropHeight': value.transform.height,
+        'cropX': value.transform.x,
+        'cropY': value.transform.y,
+        'scaleX': value.transform.scaleX,
+        'scaleY': value.transform.scaleY,
+        'colorMatrixList': value.colorMatrixList,
         'outputFormat': value.outputFormat.name,
-        'startTime': value.startTime?.inSeconds,
-        'endTime': value.endTime?.inSeconds,
-        'filters': value.complexFilter,
-        'colorMatrices': value.colorFilters,
+        'inputFormat': inputFormat,
       },
     );
 

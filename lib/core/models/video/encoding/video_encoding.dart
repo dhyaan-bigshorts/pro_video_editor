@@ -1,6 +1,4 @@
-import '../export_video_model.dart';
 import 'avi_encoding_config.dart';
-import 'base_encoding_config.dart';
 import 'gif_encoding_config.dart';
 import 'mkv_encoding_config.dart';
 import 'mov_encoding_config.dart';
@@ -50,7 +48,7 @@ class VideoEncoding {
   final AviEncodingConfig aviEncodingConfig;
 
   /// Returns the FFmpeg arguments for the specified [outputFormat].
-  List<String> toFFmpegArgs({
+/*   List<String> toFFmpegArgs({
     required VideoOutputFormat outputFormat,
     required bool enableAudio,
   }) {
@@ -62,8 +60,6 @@ class VideoEncoding {
     switch (outputFormat) {
       case VideoOutputFormat.mp4:
         return mp4EncodingConfig;
-      case VideoOutputFormat.mov:
-        return movEncodingConfig;
       case VideoOutputFormat.mkv:
         return mkvEncodingConfig;
       case VideoOutputFormat.webm:
@@ -73,7 +69,7 @@ class VideoEncoding {
       case VideoOutputFormat.gif:
         return gifEncodingConfig;
     }
-  }
+  } */
 
   /// Returns a copy of this config with the given fields replaced.
   VideoEncoding copyWith({

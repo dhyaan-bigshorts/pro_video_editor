@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/features/export/video_export_page.dart';
+import 'package:pro_video_editor_example/features/render/video_renderer_page.dart';
 import 'package:pro_video_editor_example/features/information/video_information_example_page.dart';
 
 import 'features/thumbnail/thumbnail_example_page.dart';
@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.image_outlined),
-                  title: const Text('Thumbnail generation'),
+                  title: const Text('Thumbnails'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
@@ -114,14 +114,14 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.import_export_rounded),
-                  title: const Text('Video Export'),
+                  leading: const Icon(Icons.developer_board_outlined),
+                  title: const Text('Video-Renderer'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const VideoExportPage()),
+                          builder: (_) => const VideoRendererPage()),
                     );
                   },
                 ),

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:pro_video_editor/core/models/video/export_video_model.dart';
+import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 
 import '../models/thumbnail/key_frames_configs.model.dart';
 import '../models/thumbnail/thumbnail_configs.model.dart';
@@ -44,12 +44,8 @@ class VideoUtilsService {
     return ProVideoEditorPlatform.instance.getKeyFrames(value);
   }
 
-  /// Exports a video using the given [value] configuration.
-  ///
-  /// Delegates the export to the platform-specific implementation and returns
-  /// the resulting video bytes.
-  Future<Uint8List> exportVideo(ExportVideoModel value) {
-    return ProVideoEditorPlatform.instance.exportVideo(value);
+  Future<Uint8List> renderVideo(RenderVideoModel value) {
+    return ProVideoEditorPlatform.instance.renderVideo(value);
   }
 
   /// A stream that emits export progress updates as a double from 0.0 to 1.0.

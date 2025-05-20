@@ -17,6 +17,8 @@ class ExportTransform {
     this.y,
     this.flipX = false,
     this.flipY = false,
+    this.scaleX,
+    this.scaleY,
   });
 
   /// Output width in pixels. If null, original width is used.
@@ -28,11 +30,14 @@ class ExportTransform {
   /// Number of clockwise 90° rotations to apply (0 = no rotation).
   final int rotateTurns;
 
-  /// Horizontal offset (FFmpeg expression, e.g., `'main_w/2'`).
-  final String? x;
+  /// Horizontal offset
+  final int? x;
 
-  /// Vertical offset (FFmpeg expression, e.g., `'main_h/2'`).
-  final String? y;
+  /// Vertical offset
+  final int? y;
+
+  final double? scaleX;
+  final double? scaleY;
 
   /// Whether to flip horizontally.
   final bool flipX;
@@ -45,8 +50,8 @@ class ExportTransform {
     int? width,
     int? height,
     int? rotateTurns,
-    String? x,
-    String? y,
+    int? x,
+    int? y,
     bool? flipX,
     bool? flipY,
   }) {

@@ -4,7 +4,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'core/models/thumbnail/key_frames_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
-import '/core/models/video/export_video_model.dart';
+import 'core/models/video/render_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'pro_video_editor_method_channel.dart';
@@ -58,8 +58,8 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
   ///
   /// Delegates the export to the platform-specific implementation and returns
   /// the resulting video bytes.
-  Future<Uint8List> exportVideo(ExportVideoModel value) {
-    throw UnimplementedError('exportVideo() has not been implemented.');
+  Future<Uint8List> renderVideo(RenderVideoModel value) {
+    throw UnimplementedError('renderVideo() has not been implemented.');
   }
 
   /// A stream that emits export progress updates as a double from 0.0 to 1.0.

@@ -1,22 +1,19 @@
 import 'package:flutter/foundation.dart';
 
 import '/core/models/video/export_transform_model.dart';
-import 'encoding/video_encoding.dart';
 
-/// A model that holds all required data for exporting a video.
-///
-/// This includes the original video and image bytes, the desired output
-/// format, quality settings, and duration.
-class ExportVideoModel {
-  /// Creates an [ExportVideoModel] instance.
-  ///
-  /// [outputFormat], [videoBytes], [imageBytes], and [videoDuration] are
-  /// required. [outputQuality] and [encodingPreset] default to reasonable
-  /// values.
-  ExportVideoModel({
+class RenderVideoModel {
+  RenderVideoModel({
     required this.outputFormat,
     required this.videoBytes,
-    required this.imageBytes,
+    this.imageBytes,
+    this.transform = const ExportTransform(),
+    this.enableAudio = true,
+    this.playbackSpeed,
+    this.startTime,
+    this.endTime,
+    this.colorMatrixList = const [],
+/*     
     required this.videoDuration,
     required this.devicePixelRatio,
     this.outputQuality = OutputQuality.medium,
@@ -24,19 +21,17 @@ class ExportVideoModel {
     this.startTime,
     this.endTime,
     this.blur = 0,
-    this.enableAudio = true,
-    this.transform = const ExportTransform(),
     this.colorFilters = const [],
     this.customFilter = '',
-    this.encoding = const VideoEncoding(),
-  })  : assert(
+    this.encoding = const VideoEncoding(), */
+  }) : assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
-        ),
+        ); /*  ,
         assert(
           blur >= 0,
           'Blur must be greater than or equal to 0',
-        );
+        ) */
 
   /// The target format for the exported video.
   final VideoOutputFormat outputFormat;
@@ -44,47 +39,8 @@ class ExportVideoModel {
   /// The original video data in bytes.
   final Uint8List videoBytes;
 
-  /// A reference image (e.g., thumbnail or overlay) in bytes.
-  final Uint8List imageBytes;
-
-  /// The duration of the output video.
-  final Duration videoDuration;
-
-  /// Desired visual quality for the output video.
-  final OutputQuality outputQuality;
-
-  /// FFmpeg encoding preset balancing speed and compression.
-  final EncodingPreset encodingPreset;
-
-  /// The timestamp where the export should begin, if trimming is needed.
-  ///
-  /// If null, the export will start from the beginning of the video.
-  final Duration? startTime;
-
-  /// The timestamp where the export should end, if trimming is needed.
-  ///
-  /// If null, the export will continue to the end of the video.
-  final Duration? endTime;
-
-  /// A 4x5 matrix used to apply color filters (e.g., saturation, brightness).
-  ///
-  /// This is typically passed to FFmpeg as a color matrix filter.
-  final List<List<double>> colorFilters;
-
-  /// Amount of blur to apply (in logical pixels).
-  ///
-  /// Higher values result in a stronger blur effect.
-  final double blur;
-
-  /// Whether to include audio in the exported video.
-  ///
-  /// **Default**: `true`
-  final bool enableAudio;
-
-  /// The device pixel ratio used for rendering accuracy and scale adjustments.
-  ///
-  /// This helps maintain consistent visual results across screen densities.
-  final double devicePixelRatio;
+  /// A transparent image which will overlay the video.
+  final Uint8List? imageBytes;
 
   /// Transformation settings like resize, rotation, offset, and flipping.
   ///
@@ -92,14 +48,26 @@ class ExportVideoModel {
   /// export.
   final ExportTransform transform;
 
-  /// Optional custom FFmpeg filter string to append to the filter chain.
+  /// Whether to include audio in the exported video.
   ///
-  /// This allows advanced users to inject their own filter logic in addition to
-  /// built-in effects like blur or crop.
-  final String customFilter;
+  /// **Default**: `true`
+  final bool enableAudio;
 
-  /// The encoding settings used for exporting the video.
-  final VideoEncoding encoding;
+  final double? playbackSpeed;
+  final Duration? startTime;
+  final Duration? endTime;
+
+  /// A 4x5 matrix used to apply color filters (e.g., saturation, brightness).
+  final List<List<double>> colorMatrixList;
+
+  /*
+ 
+
+  /// Amount of blur to apply (in logical pixels).
+  ///
+  /// Higher values result in a stronger blur effect.
+  final double blur;
+
 
   /// The FFmpeg constant rate factor (CRF) for the selected [outputQuality].
   ///
@@ -203,7 +171,7 @@ class ExportVideoModel {
   }
 
   /// Returns a copy of this config with the given fields replaced.
-  ExportVideoModel copyWith({
+  RenderVideoModel copyWith({
     VideoOutputFormat? outputFormat,
     Uint8List? videoBytes,
     Uint8List? imageBytes,
@@ -220,7 +188,7 @@ class ExportVideoModel {
     String? customFilter,
     VideoEncoding? encoding,
   }) {
-    return ExportVideoModel(
+    return RenderVideoModel(
       outputFormat: outputFormat ?? this.outputFormat,
       videoBytes: videoBytes ?? this.videoBytes,
       imageBytes: imageBytes ?? this.imageBytes,
@@ -243,7 +211,7 @@ class ExportVideoModel {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ExportVideoModel &&
+    return other is RenderVideoModel &&
         other.outputFormat == outputFormat &&
         other.videoBytes == videoBytes &&
         other.imageBytes == imageBytes &&
@@ -278,7 +246,7 @@ class ExportVideoModel {
         transform.hashCode ^
         customFilter.hashCode ^
         encoding.hashCode;
-  }
+  } */
 }
 
 /// Supported video output formats for export.
@@ -289,20 +257,8 @@ enum VideoOutputFormat {
   /// MPEG-4 Part 14, widely supported.
   mp4,
 
-  /// QuickTime Movie format, common on Apple devices.
-  mov,
-
   /// WebM format, optimized for web use.
   webm,
-
-  /// Matroska format, flexible and open standard.
-  mkv,
-
-  /// Audio Video Interleave, a legacy format with wide support.
-  avi,
-
-  /// Graphics Interchange Format, used for short animations.
-  gif,
 }
 
 /// Describes the desired output quality for exported videos.
