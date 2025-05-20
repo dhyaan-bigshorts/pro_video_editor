@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:pro_video_editor/core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'package:pro_video_editor/core/models/thumbnail/key_frames_configs.model.dart';
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:pro_video_editor/core/models/video/export_video_model.dart';
 import 'package:pro_video_editor/core/models/video/video_information_model.dart';
@@ -17,7 +17,7 @@ class MockProVideoEditorPlatform
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
+  Future<List<Uint8List>> createVideoThumbnails(KeyFramesConfigs value) {
     return Future.value([]);
   }
 

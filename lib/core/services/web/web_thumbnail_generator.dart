@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'package:pro_video_editor/core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'package:pro_video_editor/core/models/thumbnail/key_frames_configs.model.dart';
 import 'package:pro_video_editor/core/utils/web_canvas_utils.dart';
 import 'package:web/web.dart' as web;
 
@@ -20,9 +20,9 @@ class WebThumbnailGenerator {
   ///
   /// Returns a [Future] that completes with a list of [Uint8List]
   /// objects, each representing an image thumbnail in bytes.
-  Future<List<Uint8List>> generateThumbnails(CreateVideoThumbnail value) async {
+  Future<List<Uint8List>> generateThumbnails(KeyFramesConfigs value) async {
     var videoBytes = await value.video.safeByteArray();
-    var width = value.imageWidth.toInt();
+    var width = value.outputSize.width.toInt();
     if (width == 0) return [];
 
     final blob = Blob.fromUint8List(videoBytes);
@@ -53,9 +53,9 @@ class WebThumbnailGenerator {
 
     /// Generate timestamps evenly spaced throughout the video
     final List<Duration> timestamps = List.generate(
-      value.thumbnailLimit,
+      value.maxOutputFrames,
       (index) {
-        final fraction = index / value.thumbnailLimit;
+        final fraction = index / value.maxOutputFrames;
         return Duration(
             milliseconds: (totalDuration.inMilliseconds * fraction).round());
       },
@@ -73,7 +73,7 @@ class WebThumbnailGenerator {
 
       ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
 
-      final blob = await canvas.toBlobAsync('image/${value.format}');
+      final blob = await canvas.toBlobAsync('image/${value.outputFormat}');
       final data = await _blobToUint8List(blob);
       thumbnails.add(data);
     }

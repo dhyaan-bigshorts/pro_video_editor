@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:pro_video_editor_example/features/export/video_export_page.dart';
+import 'package:pro_video_editor_example/features/information/video_information_example_page.dart';
 
 import 'features/thumbnail/thumbnail_example_page.dart';
 
@@ -88,6 +89,18 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: ListView(
               children: [
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('Video-Informations'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const VideoInformationExamplePage()),
+                    );
+                  },
+                ),
                 ListTile(
                   leading: const Icon(Icons.image_outlined),
                   title: const Text('Thumbnail generation'),

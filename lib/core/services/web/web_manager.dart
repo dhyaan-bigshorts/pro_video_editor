@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import '../../models/thumbnail/key_frames_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import '/core/services/web/web_thumbnail_generator.dart';
@@ -37,10 +37,10 @@ class WebManager {
 
   /// Generates thumbnails from a video using web-based processing.
   ///
-  /// Accepts a [CreateVideoThumbnail] configuration and returns a list
+  /// Accepts a [KeyFramesConfigs] configuration and returns a list
   /// of [Uint8List] image bytes representing the generated thumbnails.
   Future<List<Uint8List>> createVideoThumbnails(
-    CreateVideoThumbnail value,
+    KeyFramesConfigs value,
   ) async {
     return await WebThumbnailGenerator().generateThumbnails(value);
   }

@@ -2,10 +2,11 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'core/models/thumbnail/key_frames_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/export_video_model.dart';
 import '/core/models/video/video_information_model.dart';
+import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'pro_video_editor_method_channel.dart';
 
 /// An abstract class that defines the platform interface for the
@@ -45,12 +46,12 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     throw UnimplementedError('getVideoInformation() has not been implemented.');
   }
 
-  /// Generates thumbnails for a video.
-  ///
-  /// Throws an [UnimplementedError] if not implemented.
-  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
-    throw UnimplementedError(
-        'createVideoThumbnails() has not been implemented.');
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
+    throw UnimplementedError('getThumbnails() has not been implemented.');
+  }
+
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
+    throw UnimplementedError('getKeyFrames() has not been implemented.');
   }
 
   /// Exports a video using the given [value] configuration.

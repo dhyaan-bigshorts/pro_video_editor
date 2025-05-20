@@ -5,7 +5,8 @@ import 'package:mime/mime.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
-import 'core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'core/models/thumbnail/key_frames_configs.model.dart';
+import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'core/models/video/export_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
@@ -49,26 +50,55 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<List<Uint8List>> createVideoThumbnails(
-      CreateVideoThumbnail value) async {
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
     var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
-      'createVideoThumbnails',
+      'getThumbnails',
       {
         'videoBytes': videoBytes,
-        'imageWidth': value.imageWidth,
-        'thumbnailFormat': value.format.name,
         'extension': _getFileExtension(videoBytes),
-        'maxThumbnails': value.thumbnailLimit,
+        'boxFit': value.boxFit.name,
+        'outputFormat': value.outputFormat.name,
+        'outputWidth': value.outputSize.width,
+        'outputHeight': value.outputSize.height,
+        'timestamps': value.timestamps
+            .map(
+              (timestamp) => timestamp.inMicroseconds,
+            )
+            .toList(),
       },
     );
-    final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
+    final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
 
     print('Thumbnails generated in ${sp.elapsed.inMilliseconds}ms');
 
-    return thumbnails;
+    return result;
+  }
+
+  @override
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
+    var sp = Stopwatch()..start();
+    var videoBytes = await value.video.safeByteArray();
+
+    final response = await methodChannel.invokeMethod<List<dynamic>>(
+      'getKeyFrames',
+      {
+        'videoBytes': videoBytes,
+        'extension': _getFileExtension(videoBytes),
+        'boxFit': value.boxFit.name,
+        'outputFormat': value.outputFormat.name,
+        'outputWidth': value.outputSize.width,
+        'outputHeight': value.outputSize.height,
+        'maxOutputFrames': value.maxOutputFrames,
+      },
+    );
+    final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
+
+    print('KeyFrames generated in ${sp.elapsed.inMilliseconds}ms');
+
+    return result;
   }
 
   @override

@@ -2,7 +2,8 @@ import 'dart:typed_data';
 
 import 'package:pro_video_editor/core/models/video/export_video_model.dart';
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import '../models/thumbnail/key_frames_configs.model.dart';
+import '../models/thumbnail/thumbnail_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import '/pro_video_editor_platform_interface.dart';
@@ -35,16 +36,12 @@ class VideoUtilsService {
     return ProVideoEditorPlatform.instance.getVideoInformation(value);
   }
 
-  /// Creates thumbnails from the given video based on the specified config.
-  ///
-  /// [value] is a [CreateVideoThumbnail] object that includes the video and
-  /// desired timestamps and output format.
-  ///
-  /// Returns a [Future] containing a list of image bytes as [Uint8List].
-  Future<List<Uint8List>> createVideoThumbnails(
-    CreateVideoThumbnail value,
-  ) {
-    return ProVideoEditorPlatform.instance.createVideoThumbnails(value);
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
+    return ProVideoEditorPlatform.instance.getThumbnails(value);
+  }
+
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
+    return ProVideoEditorPlatform.instance.getKeyFrames(value);
   }
 
   /// Exports a video using the given [value] configuration.

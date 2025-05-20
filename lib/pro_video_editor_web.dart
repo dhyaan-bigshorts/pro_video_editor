@@ -10,7 +10,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:pro_video_editor/core/services/web/web_manager.dart';
 import 'package:web/web.dart' as web;
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'core/models/thumbnail/key_frames_configs.model.dart';
 import 'core/models/video/editor_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
@@ -41,7 +41,7 @@ class ProVideoEditorWeb extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
+  Future<List<Uint8List>> createVideoThumbnails(KeyFramesConfigs value) {
     return _manager.createVideoThumbnails(value);
   }
 }

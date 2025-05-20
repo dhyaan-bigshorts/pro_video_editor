@@ -1,0 +1,4 @@
+enum ThumbnailBoxFit {
+  cover,
+  contain,
+}
