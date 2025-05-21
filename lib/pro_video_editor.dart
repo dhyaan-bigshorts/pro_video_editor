@@ -1,5 +1,6 @@
+// ignore_for_file: directives_ordering
+
 export 'core/models/video/editor_video_model.dart';
-export 'core/models/video/encoding/video_encoding.dart';
 export 'core/models/video/export_transform_model.dart';
 export 'core/models/video/render_video_model.dart';
 export 'core/models/video/video_information_model.dart';

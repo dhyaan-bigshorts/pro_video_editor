@@ -167,6 +167,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val cropY = call.argument<Number>("cropY")?.toInt()
                 val scaleX = call.argument<Number>("scaleX")?.toFloat()
                 val scaleY = call.argument<Number>("scaleY")?.toFloat()
+                val blur = call.argument<Number>("blur")?.toDouble()
                 val flipX = call.argument<Boolean>("flipX") ?: false
                 val flipY = call.argument<Boolean>("flipY") ?: false
                 val enableAudio = call.argument<Boolean>("enableAudio") ?: true
@@ -206,6 +207,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     startUs = startUs,
                     endUs = endUs,
                     colorMatrixList = colorMatrixList,
+                    blur = blur,
                     onProgress = { progress ->
                         Handler(Looper.getMainLooper()).post {
                             eventSink?.success(progress)

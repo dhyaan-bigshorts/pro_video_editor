@@ -5,23 +5,23 @@
 
 ### Platform Support
 
-| Platform       | `metadata`  | `thumbnails`   | `transformations`  | `layers`   | `filters`  | `censorLayers` |
-|----------------|-------------|----------------|--------------------|------------|------------|----------------|
-| Android        | ✅          | ✅            | ✅                 | ✅        | ❌        | ❌             |
-| iOS            | ✅          | ❌            | ❌                 | ❌        | ❌        | ❌             |
-| macOS          | ✅          | ❌            | ❌                 | ❌        | ❌        | ❌             |
-| Windows        | ✅          | ❌            | ❌                 | ❌        | ❌        | ❌             |
-| Linux          | ✅          | ❌            | ❌                 | ❌        | ❌        | ❌             |
-| Web            | ✅          | ❌            | 🚫                 | 🚫        | 🚫        | 🚫             |
+| Platform       | `metadata`  | `thumbnails` | `transformations` | `layers` | `colorMatrix 4x5 "filters"` | `background-blur` | `censorLayers` |
+|----------------|-------------|--------------|-------------------|----------|-----------------------------|-------------------|----------------|
+| Android        | ✅          | ✅          | ✅                | ✅      | ✅                         | 🧪                | ❌            |
+| iOS            | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
+| macOS          | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
+| Windows        | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
+| Linux          | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
+| Web            | ✅          | ❌          | 🚫                | 🚫      | 🚫                         | 🚫                | 🚫            |
 
 
 
 #### Legend
-- ✅ Supported and tested  
-- 🧪 Supported but visual output differs from Flutter
+- ✅ Supported with Native-Code 
+- 🧪 Supported but visual output can differs from Flutter
 - ⚠️ Supported but depend on ffmpeg
 - ❌ Not supported but planned
-- 🚫 Not supported and not planned
+- 🚫 Not supported and currently not planned
 
 <br/>
 

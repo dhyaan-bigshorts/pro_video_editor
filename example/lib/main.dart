@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/features/render/video_renderer_page.dart';
-import 'package:pro_video_editor_example/features/information/video_information_example_page.dart';
 
+import 'features/information/video_information_example_page.dart';
+import 'features/render/video_renderer_page.dart';
 import 'features/thumbnail/thumbnail_example_page.dart';
 
 void main() {

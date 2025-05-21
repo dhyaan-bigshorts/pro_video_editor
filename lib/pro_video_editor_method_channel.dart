@@ -51,7 +51,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
-    var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
@@ -72,14 +71,11 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     );
     final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
 
-    print('Thumbnails generated in ${sp.elapsed.inMilliseconds}ms');
-
     return result;
   }
 
   @override
   Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
-    var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
@@ -96,8 +92,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     );
     final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
 
-    print('KeyFrames generated in ${sp.elapsed.inMilliseconds}ms');
-
     return result;
   }
 
@@ -111,23 +105,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
       'renderVideo',
       {
-        'videoBytes': value.videoBytes,
-        'imageBytes': value.imageBytes,
-        'rotateTurns': value.transform.rotateTurns,
-        'flipX': value.transform.flipX,
-        'flipY': value.transform.flipY,
-        'enableAudio': value.enableAudio,
-        'playbackSpeed': value.playbackSpeed,
-        'startTime': value.startTime?.inMicroseconds,
-        'endTime': value.endTime?.inMicroseconds,
-        'cropWidth': value.transform.width,
-        'cropHeight': value.transform.height,
-        'cropX': value.transform.x,
-        'cropY': value.transform.y,
-        'scaleX': value.transform.scaleX,
-        'scaleY': value.transform.scaleY,
-        'colorMatrixList': value.colorMatrixList,
-        'outputFormat': value.outputFormat.name,
+        ...value.toMap(),
         'inputFormat': inputFormat,
       },
     );

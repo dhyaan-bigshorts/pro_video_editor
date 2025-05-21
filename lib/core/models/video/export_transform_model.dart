@@ -36,7 +36,16 @@ class ExportTransform {
   /// Vertical offset
   final int? y;
 
+  /// Horizontal scale factor for resizing the video or overlay image.
+  ///
+  /// A value of `1.0` means no scaling. Values greater than `1.0` enlarge
+  /// the content, while values between `0.0` and `1.0` shrink it.
   final double? scaleX;
+
+  /// Vertical scale factor for resizing the video or overlay image.
+  ///
+  /// A value of `1.0` means no scaling. Values greater than `1.0` enlarge
+  /// the content, while values between `0.0` and `1.0` shrink it.
   final double? scaleY;
 
   /// Whether to flip horizontally.

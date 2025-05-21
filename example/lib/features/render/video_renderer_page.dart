@@ -8,7 +8,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
-import '../../core/constants/example_filters.dart';
+import '/core/constants/example_filters.dart';
 import '/shared/utils/bytes_formatter.dart';
 import '/shared/widgets/filter_generator.dart';
 
@@ -36,8 +36,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
   Duration _generationTime = Duration.zero;
 
-  final double _blur = 0;
-  final _transform = const ExportTransform();
+  final double _blurFactor = 0;
   final List<List<double>> _colorFilters = [];
   // kBasicFilterMatrix   kComplexFilterMatrix
 
@@ -166,9 +165,33 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     await _renderVideo(data);
   }
 
-  Future<void> _multipleChanges() async {
-    // TODO:
+  Future<void> _blur() async {
+    var data = RenderVideoModel(
+      outputFormat: VideoOutputFormat.mp4,
+      videoBytes: await _getVideoBytes(),
+      blur: 5,
+    );
+
+    await _renderVideo(data);
   }
+
+  Future<void> _multipleChanges() async {
+    final imageBytes = await _captureLayerContent();
+    var data = RenderVideoModel(
+      outputFormat: VideoOutputFormat.mp4,
+      videoBytes: await _getVideoBytes(),
+      transform: const ExportTransform(
+        flipX: true,
+      ),
+      colorMatrixList: kBasicFilterMatrix,
+      enableAudio: false,
+      imageBytes: imageBytes,
+      endTime: const Duration(seconds: 20),
+    );
+
+    await _renderVideo(data);
+  }
+
   Future<void> _renderVideo(RenderVideoModel value) async {
     setState(() => _isExporting = true);
 
@@ -198,59 +221,6 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
     return byteData!.buffer.asUint8List();
   }
-
-/*   Future<void> _startExport() async {
-    setState(() => _isExporting = true);
-
-    var sp = Stopwatch()..start();
-
-    final imageBytes = await _captureLayerContent();
-    final videoBytes = await loadAssetImageAsUint8List('assets/demo.mp4');
-
-    final infos = await VideoUtilsService.instance.getVideoInformation(
-      EditorVideo(byteArray: videoBytes),
-    );
-
-    if (!mounted) return;
-
-    var data = RenderVideoModel(
-      videoBytes: videoBytes,
-      imageBytes: imageBytes,
-      outputFormat: VideoOutputFormat.mp4,
-      videoDuration: infos.duration,
-      devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
-      // startTime: const Duration(seconds: 15),
-      // endTime: const Duration(seconds: 25),
-      encodingPreset: EncodingPreset.ultrafast,
-      // outputQuality: OutputQuality.lossless,
-      blur: _blur,
-      transform: _transform,
-      colorFilters: _colorFilters,
-      // encoding: const VideoEncoding(
-      //   aviEncodingConfig: AviEncodingConfig(),
-      //   gifEncodingConfig: GifEncodingConfig(),
-      //   mkvEncodingConfig: MkvEncodingConfig(),
-      //   movEncodingConfig: MovEncodingConfig(),
-      //   mp4EncodingConfig: Mp4EncodingConfig(),
-      //   webMEncodingConfig: WebMEncodingConfig(),
-      // ),
-    );
-
-    final result = await VideoUtilsService.instance.renderVideo(data);
-
-    _generationTime = sp.elapsed;
-
-    _outputVideoInformation = (await VideoUtilsService.instance
-        .getVideoInformation(EditorVideo(byteArray: result)));
-
-    await _playerPreview.open(await Media.memory(result));
-    await _playerPreview.play();
-
-    setState(() {
-      _isExporting = false;
-      _videoBytes = result;
-    });
-  } */
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +258,8 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
                 child: ClipRect(
                   clipBehavior: Clip.hardEdge,
                   child: BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
+                    filter: ui.ImageFilter.blur(
+                        sigmaX: _blurFactor, sigmaY: _blurFactor),
                     child: Container(
                       alignment: Alignment.center,
                       color: Colors.white.withValues(alpha: 0.0),
@@ -433,6 +404,11 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
           onTap: _colorMatrix,
           leading: const Icon(Icons.lens_blur_outlined),
           title: const Text('Apply ColorMatrix'),
+        ),
+        ListTile(
+          onTap: _blur,
+          leading: const Icon(Icons.blur_circular_outlined),
+          title: const Text('Blur'),
         ),
         ListTile(
           onTap: _multipleChanges,

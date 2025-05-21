@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
-import 'package:pro_video_editor/core/models/video/video_information_model.dart';
-import 'package:pro_video_editor/core/services/video_utils_service.dart';
-import 'package:pro_video_editor_example/core/constants/example_constants.dart';
+import 'package:pro_video_editor/pro_video_editor.dart';
 
+import '/core/constants/example_constants.dart';
 import '../../shared/utils/bytes_formatter.dart';
 
+/// A sample page demonstrating how to extract and display video
+/// information using Flutter widgets. This widget is stateful,
+/// allowing dynamic updates based on video data interactions.
 class VideoInformationExamplePage extends StatefulWidget {
+  /// Creates a [VideoInformationExamplePage] widget.
+  ///
+  /// This constructor optionally takes a key to uniquely identify
+  /// the widget in the widget tree.
   const VideoInformationExamplePage({super.key});
 
   @override

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:pro_video_editor/core/models/thumbnail/key_frames_configs.model.dart';
+import 'package:pro_video_editor/core/models/thumbnail/thumbnail_configs.model.dart';
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 import 'package:pro_video_editor/core/models/video/video_information_model.dart';
@@ -15,11 +16,6 @@ class MockProVideoEditorPlatform
     implements ProVideoEditorPlatform {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
-
-  @override
-  Future<List<Uint8List>> createVideoThumbnails(KeyFramesConfigs value) {
-    return Future.value([]);
-  }
 
   @override
   Future<VideoInformation> getVideoInformation(EditorVideo value) {
@@ -37,6 +33,16 @@ class MockProVideoEditorPlatform
   @override
   Future<Uint8List> renderVideo(RenderVideoModel value) {
     return Future.value(Uint8List(0));
+  }
+
+  @override
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
+    return Future.value([]);
+  }
+
+  @override
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
+    return Future.value([]);
   }
 }
 

@@ -2,11 +2,11 @@ import 'dart:typed_data';
 
 import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 
-import '../models/thumbnail/key_frames_configs.model.dart';
-import '../models/thumbnail/thumbnail_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import '/pro_video_editor_platform_interface.dart';
+import '../models/thumbnail/key_frames_configs.model.dart';
+import '../models/thumbnail/thumbnail_configs.model.dart';
 
 /// A utility service for video-related operations.
 ///
@@ -36,14 +36,17 @@ class VideoUtilsService {
     return ProVideoEditorPlatform.instance.getVideoInformation(value);
   }
 
+  /// Generates a list of thumbnails from the given [ThumbnailConfigs].
   Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
     return ProVideoEditorPlatform.instance.getThumbnails(value);
   }
 
+  /// Extracts key frames from a video using the given [KeyFramesConfigs].
   Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
     return ProVideoEditorPlatform.instance.getKeyFrames(value);
   }
 
+  /// Renders a video using the provided [RenderVideoModel] configuration.
   Future<Uint8List> renderVideo(RenderVideoModel value) {
     return ProVideoEditorPlatform.instance.renderVideo(value);
   }

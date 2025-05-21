@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/core/constants/example_constants.dart';
+import '/core/constants/example_constants.dart';
 
 /// A sample page demonstrating video thumbnail generation on the web.
 ///
