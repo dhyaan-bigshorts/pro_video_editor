@@ -7,11 +7,13 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:pro_video_editor/core/services/web/web_manager.dart';
 import 'package:web/web.dart' as web;
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import '/core/services/web/web_manager.dart';
+import 'core/models/thumbnail/key_frames_configs.model.dart';
+import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'core/models/video/editor_video_model.dart';
+import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
@@ -36,12 +38,27 @@ class ProVideoEditorWeb extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<VideoInformation> getVideoInformation(EditorVideo value) async {
-    return _manager.getVideoInformation(value);
+  Future<VideoMetadata> getMetadata(EditorVideo value) async {
+    return _manager.getMetadata(value);
   }
 
   @override
-  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
-    return _manager.createVideoThumbnails(value);
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
+    return _manager.getThumbnails(value);
+  }
+
+  @override
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
+    return _manager.getKeyFrames(value);
+  }
+
+  @override
+  Future<Uint8List> renderVideo(RenderVideoModel value) {
+    throw UnimplementedError('renderVideo() has not been implemented.');
+  }
+
+  @override
+  Stream<double> get renderProgressStream {
+    throw UnimplementedError('renderProgressStream has not been implemented.');
   }
 }

@@ -48,9 +48,20 @@ android {
     }
 
     dependencies {
-        implementation 'com.arthenica:ffmpeg-kit-full-gpl:6.0-2'
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
+        
+        // Media3 dependencies
+        implementation "androidx.media3:media3-common:1.4.1"
+        implementation("androidx.media3:media3-transformer:1.4.1")
+        implementation("androidx.media3:media3-effect:1.4.1")
+        implementation("androidx.media3:media3-muxer:1.4.1")
+        
+        // Coroutines
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+        implementation ("com.otaliastudios:transcoder:0.10.5")
     }
 
     testOptions {

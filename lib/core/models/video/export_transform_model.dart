@@ -3,12 +3,6 @@
 /// This includes resizing, rotation, flipping, and positional offsets.
 class ExportTransform {
   /// Creates an [ExportTransform] with optional transformations.
-  ///
-  /// If [width] and [height] are provided, the output will be resized.
-  /// [rotateTurns] defines clockwise 90° rotation steps (0–3).
-  /// x and y allow shifting the video/image position using FFmpeg
-  /// expressions.
-  /// [flipX] and [flipY] control horizontal and vertical flipping.
   const ExportTransform({
     this.width,
     this.height,
@@ -17,6 +11,8 @@ class ExportTransform {
     this.y,
     this.flipX = false,
     this.flipY = false,
+    this.scaleX,
+    this.scaleY,
   });
 
   /// Output width in pixels. If null, original width is used.
@@ -28,11 +24,23 @@ class ExportTransform {
   /// Number of clockwise 90° rotations to apply (0 = no rotation).
   final int rotateTurns;
 
-  /// Horizontal offset (FFmpeg expression, e.g., `'main_w/2'`).
-  final String? x;
+  /// Horizontal offset
+  final int? x;
 
-  /// Vertical offset (FFmpeg expression, e.g., `'main_h/2'`).
-  final String? y;
+  /// Vertical offset
+  final int? y;
+
+  /// Horizontal scale factor for resizing the video or overlay image.
+  ///
+  /// A value of `1.0` means no scaling. Values greater than `1.0` enlarge
+  /// the content, while values between `0.0` and `1.0` shrink it.
+  final double? scaleX;
+
+  /// Vertical scale factor for resizing the video or overlay image.
+  ///
+  /// A value of `1.0` means no scaling. Values greater than `1.0` enlarge
+  /// the content, while values between `0.0` and `1.0` shrink it.
+  final double? scaleY;
 
   /// Whether to flip horizontally.
   final bool flipX;
@@ -45,8 +53,8 @@ class ExportTransform {
     int? width,
     int? height,
     int? rotateTurns,
-    String? x,
-    String? y,
+    int? x,
+    int? y,
     bool? flipX,
     bool? flipY,
   }) {

@@ -23,7 +23,6 @@ A new Flutter plugin project.
   # s.resource_bundles = {'pro_video_editor_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
-  s.dependency 'ffmpeg-kit-macos-full-gpl'
 
   s.platform = :osx, '10.15'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }

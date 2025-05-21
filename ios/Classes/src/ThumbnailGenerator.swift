@@ -1,5 +1,4 @@
 import Foundation
-import ffmpegkit
 
 class ThumbnailGenerator {
 
@@ -11,7 +10,7 @@ class ThumbnailGenerator {
         width: NSNumber,
         completion: @escaping ([Data]) -> Void
     ) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        /* DispatchQueue.global(qos: .userInitiated).async {
             let tempVideoURL = writeBytesToTempFile(videoBytes, ext: ext)
             var thumbnails: [Data?] = Array(repeating: nil, count: timestamps.count)
             let group = DispatchGroup()
@@ -49,7 +48,7 @@ class ThumbnailGenerator {
             DispatchQueue.main.async {
                 completion(thumbnails.compactMap { $0 })
             }
-        }
+        } */
     }
 
     private static func writeBytesToTempFile(_ bytes: Data, ext: String) -> URL {

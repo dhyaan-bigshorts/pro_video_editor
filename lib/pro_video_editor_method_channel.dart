@@ -5,8 +5,9 @@ import 'package:mime/mime.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
-import 'core/models/thumbnail/create_video_thumbnail_model.dart';
-import 'core/models/video/export_video_model.dart';
+import 'core/models/thumbnail/key_frames_configs.model.dart';
+import 'core/models/thumbnail/thumbnail_configs.model.dart';
+import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
@@ -25,7 +26,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<VideoInformation> getVideoInformation(EditorVideo value) async {
+  Future<VideoMetadata> getMetadata(EditorVideo value) async {
     var videoBytes = await value.safeByteArray();
 
     var extension = _getFileExtension(videoBytes);
@@ -37,7 +38,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         }) ??
         {};
 
-    return VideoInformation(
+    return VideoMetadata(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
       extension: extension,
       fileSize: response['fileSize'] ?? 0,
@@ -49,48 +50,63 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<List<Uint8List>> createVideoThumbnails(
-      CreateVideoThumbnail value) async {
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
-      'createVideoThumbnails',
+      'getThumbnails',
       {
         'videoBytes': videoBytes,
-        'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
-        'imageWidth': value.imageWidth,
-        'thumbnailFormat': value.format.name,
         'extension': _getFileExtension(videoBytes),
+        'boxFit': value.boxFit.name,
+        'outputFormat': value.outputFormat.name,
+        'outputWidth': value.outputSize.width,
+        'outputHeight': value.outputSize.height,
+        'timestamps': value.timestamps
+            .map(
+              (timestamp) => timestamp.inMicroseconds,
+            )
+            .toList(),
       },
     );
-    final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
+    final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
 
-    return thumbnails;
+    return result;
   }
 
   @override
-  Future<Uint8List> exportVideo(ExportVideoModel value) async {
-    var format = lookupMimeType('', headerBytes: value.videoBytes);
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
+    var videoBytes = await value.video.safeByteArray();
+
+    final response = await methodChannel.invokeMethod<List<dynamic>>(
+      'getKeyFrames',
+      {
+        'videoBytes': videoBytes,
+        'extension': _getFileExtension(videoBytes),
+        'boxFit': value.boxFit.name,
+        'outputFormat': value.outputFormat.name,
+        'outputWidth': value.outputSize.width,
+        'outputHeight': value.outputSize.height,
+        'maxOutputFrames': value.maxOutputFrames,
+      },
+    );
+    final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
+
+    return result;
+  }
+
+  @override
+  Future<Uint8List> renderVideo(RenderVideoModel value) async {
+    var extension = lookupMimeType('', headerBytes: value.videoBytes);
     String inputFormat = 'mp4';
-    List<String>? sp = format?.split('/');
+    List<String>? sp = extension?.split('/');
     if (sp?.length == 1) inputFormat = sp![1];
 
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
-      'exportVideo',
+      'renderVideo',
       {
-        'codecArgs': value.encoding.toFFmpegArgs(
-          outputFormat: value.outputFormat,
-          enableAudio: value.enableAudio,
-        ),
-        'videoBytes': value.videoBytes,
-        'imageBytes': value.imageBytes,
-        'videoDuration': value.videoDuration.inMilliseconds,
+        ...value.toMap(),
         'inputFormat': inputFormat,
-        'outputFormat': value.outputFormat.name,
-        'startTime': value.startTime?.inSeconds,
-        'endTime': value.endTime?.inSeconds,
-        'filters': value.complexFilter,
-        'colorMatrices': value.colorFilters,
       },
     );
 
@@ -102,7 +118,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Stream<double> get exportProgressStream {
+  Stream<double> get renderProgressStream {
     return _progressChannel
         .receiveBroadcastStream()
         .map((event) => event as double);

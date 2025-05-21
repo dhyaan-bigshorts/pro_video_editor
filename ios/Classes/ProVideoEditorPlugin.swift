@@ -26,7 +26,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
         return
       }
 
-      let output = VideoProcessor.processVideo(videoData: videoData.data, ext: ext)
+      let output = VideoMetadata.processVideo(videoData: videoData.data, ext: ext)
       result(output)
 
     case "createVideoThumbnails":

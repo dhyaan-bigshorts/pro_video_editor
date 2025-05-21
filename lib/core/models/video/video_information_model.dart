@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 /// A class that holds metadata information about a video.
-class VideoInformation {
-  /// Creates a [VideoInformation] instance.
+class VideoMetadata {
+  /// Creates a [VideoMetadata] instance.
   ///
   /// - [duration]: The total playback time of the video.
   /// - [extension]: The file format of the video (e.g., "mp4", "avi").
   /// - [fileSize]: The size of the video file in bytes.
   /// - [resolution]: The width and height of the video in pixels.
-  VideoInformation({
+  VideoMetadata({
     required this.duration,
     required this.extension,
     required this.fileSize,
@@ -38,13 +38,13 @@ class VideoInformation {
   final String extension;
 
   /// Returns a copy of this config with the given fields replaced.
-  VideoInformation copyWith({
+  VideoMetadata copyWith({
     int? fileSize,
     Size? resolution,
     Duration? duration,
     String? extension,
   }) {
-    return VideoInformation(
+    return VideoMetadata(
       fileSize: fileSize ?? this.fileSize,
       resolution: resolution ?? this.resolution,
       duration: duration ?? this.duration,
@@ -56,7 +56,7 @@ class VideoInformation {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is VideoInformation &&
+    return other is VideoMetadata &&
         other.fileSize == fileSize &&
         other.resolution == resolution &&
         other.duration == duration &&

@@ -8,11 +8,10 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import ch.waio.pro_video_editor.src.ExportVideo
-import ch.waio.pro_video_editor.src.VideoProcessor
-import ch.waio.pro_video_editor.src.ThumbnailGenerator
+import ch.waio.pro_video_editor.src.features.RenderVideo
+import ch.waio.pro_video_editor.src.features.VideoInformation
+import ch.waio.pro_video_editor.src.features.ThumbnailGenerator
 import kotlinx.coroutines.*
-import java.io.File
 
 /** ProVideoEditorPlugin */
 class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
@@ -20,8 +19,8 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var eventChannel: EventChannel
     private var eventSink: EventChannel.EventSink? = null
 
-    private lateinit var exportVideo: ExportVideo
-    private lateinit var videoProcessor: VideoProcessor
+    private lateinit var renderVideo: RenderVideo
+    private lateinit var videoInformation: VideoInformation
     private lateinit var thumbnailGenerator: ThumbnailGenerator
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -42,8 +41,8 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
             }
         })
 
-        exportVideo = ExportVideo(flutterPluginBinding.applicationContext);
-        videoProcessor = VideoProcessor(flutterPluginBinding.applicationContext)
+        renderVideo = RenderVideo(flutterPluginBinding.applicationContext);
+        videoInformation = VideoInformation(flutterPluginBinding.applicationContext)
         thumbnailGenerator = ThumbnailGenerator(flutterPluginBinding.applicationContext)
     }
 
@@ -58,7 +57,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val extension = call.argument<String>("extension")
 
                 if (videoBytes != null && extension != null) {
-                    val info = videoProcessor.processVideo(videoBytes, extension)
+                    val info = videoInformation.processVideo(videoBytes, extension)
                     result.success(info)
                 } else {
                     result.error(
@@ -67,28 +66,39 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 }
             }
 
-            "createVideoThumbnails" -> {
+            "getThumbnails" -> {
                 val videoBytes = call.argument<ByteArray>("videoBytes")
-                val rawTimestamps = call.argument<List<Number>>("timestamps")
-                val thumbnailFormat = call.argument<String>("thumbnailFormat")
-                val imageWidth = call.argument<Number>("imageWidth")?.toInt()
                 val extension = call.argument<String>("extension")
+                val boxFit = call.argument<String>("boxFit")
+                val outputFormat = call.argument<String>("outputFormat")
+                val outputWidth = call.argument<Number>("outputWidth")?.toInt()
+                val outputHeight = call.argument<Number>("outputHeight")?.toInt()
+                val rawTimestamps = call.argument<List<Number>>("timestamps") ?: emptyList()
+                val timestampsUs = rawTimestamps.map { it.toLong() }
 
-                val timestamps = rawTimestamps?.map { it.toLong() }
 
-                if (videoBytes == null || timestamps == null || thumbnailFormat == null || imageWidth == null || extension == null) {
+                if (videoBytes == null ||
+                    extension == null ||
+                    boxFit == null ||
+                    outputFormat == null ||
+                    outputWidth == null ||
+                    outputHeight == null ||
+                    timestampsUs == null
+                ) {
                     result.error("INVALID_ARGUMENTS", "Missing or invalid arguments", null)
                     return
                 }
 
                 coroutineScope.launch {
                     try {
-                        val thumbnails = thumbnailGenerator.generateThumbnails(
+                        val thumbnails = thumbnailGenerator.getThumbnails(
                             videoBytes = videoBytes,
-                            timestamps = timestamps,
                             extension = extension,
-                            thumbnailFormat = thumbnailFormat,
-                            width = imageWidth
+                            outputFormat = outputFormat,
+                            boxFit = boxFit,
+                            outputWidth = outputWidth,
+                            outputHeight = outputHeight,
+                            timestampsUs = timestampsUs
                         )
 
                         withContext(Dispatchers.Main) {
@@ -102,19 +112,74 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 }
             }
 
-            "exportVideo" -> {
+            "getKeyFrames" -> {
                 val videoBytes = call.argument<ByteArray>("videoBytes")
-                val imageBytes = call.argument<ByteArray>("imageBytes")
-                val videoDuration = call.argument<Int>("videoDuration")
-                val startTime = call.argument<Int>("startTime")
-                val endTime = call.argument<Int>("endTime")
-                val filters = call.argument<String>("filters") ?: ""
-                val colorMatrices = call.argument<List<List<Double>>>("colorMatrices")
+                val extension = call.argument<String>("extension")
+                val boxFit = call.argument<String>("boxFit")
+                val outputFormat = call.argument<String>("outputFormat")
+                val outputWidth = call.argument<Number>("outputWidth")?.toInt()
+                val outputHeight = call.argument<Number>("outputHeight")?.toInt()
+                val maxOutputFrames = call.argument<Number>("maxOutputFrames")?.toInt()
+
+
+                if (videoBytes == null ||
+                    extension == null ||
+                    boxFit == null ||
+                    outputFormat == null ||
+                    outputWidth == null ||
+                    outputHeight == null ||
+                    maxOutputFrames == null
+                ) {
+                    result.error("INVALID_ARGUMENTS", "Missing or invalid arguments", null)
+                    return
+                }
+
+                coroutineScope.launch {
+                    try {
+                        val thumbnails = thumbnailGenerator.getKeyFrames(
+                            videoBytes = videoBytes,
+                            extension = extension,
+                            outputFormat = outputFormat,
+                            boxFit = boxFit,
+                            outputWidth = outputWidth,
+                            outputHeight = outputHeight,
+                            maxOutputFrames = maxOutputFrames
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            result.success(thumbnails)
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            result.error("THUMBNAIL_ERROR", e.message, null)
+                        }
+                    }
+                }
+            }
+
+            "renderVideo" -> {
+                val videoBytes = call.argument<ByteArray>("videoBytes")
+                val imageBytes = call.argument<ByteArray?>("imageBytes")
+                val rotateTurns = call.argument<Number>("rotateTurns")?.toInt()
+                val cropWidth = call.argument<Number>("cropWidth")?.toInt()
+                val cropHeight = call.argument<Number>("cropHeight")?.toInt()
+                val cropX = call.argument<Number>("cropX")?.toInt()
+                val cropY = call.argument<Number>("cropY")?.toInt()
+                val scaleX = call.argument<Number>("scaleX")?.toFloat()
+                val scaleY = call.argument<Number>("scaleY")?.toFloat()
+                val blur = call.argument<Number>("blur")?.toDouble()
+                val flipX = call.argument<Boolean>("flipX") ?: false
+                val flipY = call.argument<Boolean>("flipY") ?: false
+                val enableAudio = call.argument<Boolean>("enableAudio") ?: true
+                val playbackSpeed = call.argument<Number>("playbackSpeed")?.toFloat()
+                val startUs = call.argument<Number>("startTime")?.toLong()
+                val endUs = call.argument<Number>("endTime")?.toLong()
                 val inputFormat = call.argument<String>("inputFormat") ?: "mp4"
                 val outputFormat = call.argument<String>("outputFormat") ?: "mp4"
-                val codecArgs = call.argument<List<String>>("codecArgs")
-                
-                if (videoBytes == null || imageBytes == null || videoDuration == null || codecArgs == null) {
+                val colorMatrixList = call.argument<List<List<Double>>>("colorMatrixList")
+                    ?: emptyList<List<Double>>()
+
+                if (videoBytes == null) {
                     result.error(
                         "INVALID_ARGUMENTS",
                         "Missing parameters",
@@ -123,8 +188,42 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     return
                 }
 
-                exportVideo.generate(videoBytes = videoBytes,
+                renderVideo.render(
+                    videoBytes = videoBytes,
                     imageBytes = imageBytes,
+                    inputFormat = inputFormat,
+                    outputFormat = outputFormat,
+                    rotateTurns = rotateTurns,
+                    flipX = flipX,
+                    flipY = flipY,
+                    scaleX = scaleX,
+                    scaleY = scaleY,
+                    cropWidth = cropWidth,
+                    cropHeight = cropHeight,
+                    cropX = cropX,
+                    cropY = cropY,
+                    enableAudio = enableAudio,
+                    playbackSpeed = playbackSpeed,
+                    startUs = startUs,
+                    endUs = endUs,
+                    colorMatrixList = colorMatrixList,
+                    blur = blur,
+                    onProgress = { progress ->
+                        Handler(Looper.getMainLooper()).post {
+                            eventSink?.success(progress)
+                        }
+                    },
+                    onComplete = { resultBytes ->
+                        Handler(Looper.getMainLooper()).post {
+                            result.success(resultBytes)
+                        }
+                    },
+                    onError = { error ->
+                        // Log.e("VideoRender", "Error rendering video: ${error.message}")
+                    }
+                    /*  videoBytes = videoBytes,
+                    rotateTurns = rotateTurns,
+                   imageBytes = imageBytes,
                     codecArgs = codecArgs,
                     inputFormat = inputFormat,
                     outputFormat = outputFormat,
@@ -142,14 +241,14 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     },
                     onError = { errorMsg ->
                         Handler(Looper.getMainLooper()).post {
-                            result.error("FFMPEG_ERROR", errorMsg, null)
+                            result.error("ERROR", errorMsg, null)
                         }
                     },
                     onProgress = { progress ->
                         Handler(Looper.getMainLooper()).post {
                             eventSink?.success(progress)
                         }
-                    })
+                    } */)
             }
 
             else -> {

@@ -2,28 +2,106 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'package:pro_video_editor/core/models/thumbnail/create_video_thumbnail_model.dart';
-import 'package:pro_video_editor/core/utils/web_canvas_utils.dart';
 import 'package:web/web.dart' as web;
 
-import '../../utils/web_blob_utils.dart';
+import '/core/models/thumbnail/key_frames_configs.model.dart';
+import '/core/models/thumbnail/thumbnail_configs.model.dart';
+import '/core/utils/web_blob_utils.dart';
+import '/core/utils/web_canvas_utils.dart';
 
-/// A utility class to generate video thumbnails in web environments.
-///
-/// Uses browser APIs to capture frames from a video file and return them
-/// as image thumbnails.
+/// A utility class for extracting thumbnails and key frames from video data
+/// in Flutter Web using HTML video and canvas APIs.
 class WebThumbnailGenerator {
-  /// Generates thumbnails from a video using the given [value] parameters.
+  /// Generates thumbnails from specific timestamps of a video.
   ///
-  /// The [value] should contain the video data and any configuration
-  /// needed for extracting thumbnails, such as timestamps or frame count.
+  /// Uses the provided [ThumbnailConfigs] to load the video, seek to
+  /// each timestamp, draw the frame to a canvas, and export it as an
+  /// image in the specified format.
   ///
-  /// Returns a [Future] that completes with a list of [Uint8List]
-  /// objects, each representing an image thumbnail in bytes.
-  Future<List<Uint8List>> generateThumbnails(CreateVideoThumbnail value) async {
-    var videoBytes = await value.video.safeByteArray();
-    var width = value.imageWidth.toInt();
-    if (width == 0) return [];
+  /// Returns a list of [Uint8List] images corresponding to the given
+  /// timestamps.
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
+    final setup = await _prepareVideoRendering(
+      videoBytes: await value.video.safeByteArray(),
+      outputWidth: value.outputSize.width.toInt(),
+    );
+    if (setup == null) return [];
+
+    final (video, canvas, ctx, width, height, objectUrl) = setup;
+    List<Uint8List> thumbnails = [];
+
+    await video.onLoadedData.first;
+
+    for (final t in value.timestamps) {
+      video.currentTime = t.inSeconds;
+      await video.onSeeked.first;
+      await Future.delayed(const Duration(milliseconds: 1));
+
+      ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
+      final blob = await canvas.toBlobAsync('image/${value.outputFormat}');
+      thumbnails.add(await _blobToUint8List(blob));
+    }
+
+    video.remove();
+    web.URL.revokeObjectURL(objectUrl);
+
+    return thumbnails;
+  }
+
+  /// Extracts evenly spaced key frames from a video.
+  ///
+  /// Uses [KeyFramesConfigs] to define how many frames to extract,
+  /// and what size and format to use. The frames are taken at evenly
+  /// spaced time intervals throughout the video's duration.
+  ///
+  /// Returns a list of [Uint8List] images.
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
+    final setup = await _prepareVideoRendering(
+      videoBytes: await value.video.safeByteArray(),
+      outputWidth: value.outputSize.width.toInt(),
+    );
+    if (setup == null) return [];
+
+    final (video, canvas, ctx, width, height, objectUrl) = setup;
+    List<Uint8List> frames = [];
+
+    final duration = video.duration;
+    final step = duration / value.maxOutputFrames;
+
+    await video.onLoadedData.first;
+
+    for (int i = 0; i < value.maxOutputFrames; i++) {
+      final time = i * step;
+      if (time >= duration) break;
+
+      video.currentTime = time;
+      await video.onSeeked.first;
+      await Future.delayed(const Duration(milliseconds: 1));
+
+      ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
+      final blob = await canvas.toBlobAsync('image/${value.outputFormat}');
+      frames.add(await _blobToUint8List(blob));
+    }
+
+    video.remove();
+    web.URL.revokeObjectURL(objectUrl);
+
+    return frames;
+  }
+
+  Future<
+      (
+        web.HTMLVideoElement,
+        web.HTMLCanvasElement,
+        web.CanvasRenderingContext2D,
+        int,
+        int,
+        String
+      )?> _prepareVideoRendering({
+    required Uint8List videoBytes,
+    required int outputWidth,
+  }) async {
+    if (outputWidth == 0) return null;
 
     final blob = Blob.fromUint8List(videoBytes);
     final objectUrl = web.URL.createObjectURL(blob);
@@ -37,39 +115,15 @@ class WebThumbnailGenerator {
     web.document.body!.append(video);
     await video.onLoadedMetadata.first;
 
-    final scale = width / video.videoWidth;
-    final height = (video.videoHeight * scale).round();
+    final scale = outputWidth / video.videoWidth;
+    final outputHeight = (video.videoHeight * scale).round();
 
     final canvas = web.HTMLCanvasElement()
-      ..width = width
-      ..height = height;
+      ..width = outputWidth
+      ..height = outputHeight;
     final ctx = canvas.context2D;
 
-    List<Uint8List> thumbnails = [];
-
-    await video.onLoadedData.first;
-
-    for (final t in value.timestamps) {
-      video.currentTime = t.inSeconds;
-
-      await video.onSeeked.first;
-
-      /// Short delay is important that the video frame is correctly loaded.
-      /// Without that delay is the possibility high that the video frame from
-      /// before is recorded again.
-      await Future.delayed(const Duration(milliseconds: 1));
-
-      ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
-
-      final blob = await canvas.toBlobAsync('image/${value.format}');
-      final data = await _blobToUint8List(blob);
-      thumbnails.add(data);
-    }
-
-    video.remove();
-    web.URL.revokeObjectURL(objectUrl);
-
-    return thumbnails;
+    return (video, canvas, ctx, outputWidth, outputHeight, objectUrl);
   }
 
   Future<Uint8List> _blobToUint8List(web.Blob blob) {
@@ -82,7 +136,6 @@ class WebThumbnailGenerator {
       if (result != null) {
         var nativeBuffer = reader.result as JSArrayBuffer;
         var dartBuffer = nativeBuffer.toDart;
-
         completer.complete(dartBuffer.asUint8List());
       } else {
         completer.completeError(Exception('Failed to read blob data'));

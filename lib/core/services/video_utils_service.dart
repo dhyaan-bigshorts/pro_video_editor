@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:pro_video_editor/core/models/video/export_video_model.dart';
+import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 
-import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import '/pro_video_editor_platform_interface.dart';
+import '../models/thumbnail/key_frames_configs.model.dart';
+import '../models/thumbnail/thumbnail_configs.model.dart';
 
 /// A utility service for video-related operations.
 ///
@@ -30,35 +31,30 @@ class VideoUtilsService {
   /// [value] is an [EditorVideo] instance that can point to a file, memory,
   /// network URL, or asset.
   ///
-  /// Returns a [Future] containing [VideoInformation] about the video.
-  Future<VideoInformation> getVideoInformation(EditorVideo value) {
-    return ProVideoEditorPlatform.instance.getVideoInformation(value);
+  /// Returns a [Future] containing [VideoMetadata] about the video.
+  Future<VideoMetadata> getVideoInformation(EditorVideo value) {
+    return ProVideoEditorPlatform.instance.getMetadata(value);
   }
 
-  /// Creates thumbnails from the given video based on the specified config.
-  ///
-  /// [value] is a [CreateVideoThumbnail] object that includes the video and
-  /// desired timestamps and output format.
-  ///
-  /// Returns a [Future] containing a list of image bytes as [Uint8List].
-  Future<List<Uint8List>> createVideoThumbnails(
-    CreateVideoThumbnail value,
-  ) {
-    return ProVideoEditorPlatform.instance.createVideoThumbnails(value);
+  /// Generates a list of thumbnails from the given [ThumbnailConfigs].
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
+    return ProVideoEditorPlatform.instance.getThumbnails(value);
   }
 
-  /// Exports a video using the given [value] configuration.
-  ///
-  /// Delegates the export to the platform-specific implementation and returns
-  /// the resulting video bytes.
-  Future<Uint8List> exportVideo(ExportVideoModel value) {
-    return ProVideoEditorPlatform.instance.exportVideo(value);
+  /// Extracts key frames from a video using the given [KeyFramesConfigs].
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
+    return ProVideoEditorPlatform.instance.getKeyFrames(value);
+  }
+
+  /// Renders a video using the provided [RenderVideoModel] configuration.
+  Future<Uint8List> renderVideo(RenderVideoModel value) {
+    return ProVideoEditorPlatform.instance.renderVideo(value);
   }
 
   /// A stream that emits export progress updates as a double from 0.0 to 1.0.
   ///
   /// Useful for showing progress indicators during the export process.
   Stream<double> get exportProgressStream {
-    return ProVideoEditorPlatform.instance.exportProgressStream;
+    return ProVideoEditorPlatform.instance.renderProgressStream;
   }
 }

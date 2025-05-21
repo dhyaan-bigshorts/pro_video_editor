@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "pro_video_editor_plugin_private.h"
-#include "src/video_processor.h"
+#include "src/video_metadata.h"
 #include "src/thumbnail_generator.h"
 
 #define PRO_VIDEO_EDITOR_PLUGIN(obj) \

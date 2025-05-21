@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/core/constants/example_constants.dart';
-import 'package:pro_video_editor_example/shared/utils/bytes_formatter.dart';
+import '/core/constants/example_constants.dart';
 
 /// A sample page demonstrating video thumbnail generation on the web.
 ///
@@ -17,11 +16,12 @@ class ThumbnailExamplePage extends StatefulWidget {
 
 class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   List<MemoryImage> _thumbnails = [];
+  List<MemoryImage> _keyFrames = [];
 
-  final int _exampleImageCount = 10;
+  final int _exampleImageCount = 8;
   final double _imageSize = 50;
   final ThumbnailFormat _thumbnailFormat = ThumbnailFormat.jpeg;
-  VideoInformation? _informations;
+  VideoMetadata? _informations;
 
   Future<void> _setVideoInformation() async {
     _informations = await VideoUtilsService.instance.getVideoInformation(
@@ -31,30 +31,46 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   }
 
   void _generateThumbnails() async {
-    await _setVideoInformation();
-    var info = _informations!;
-    var totalDuration = info.duration;
+    var outputSize = _imageSize * MediaQuery.devicePixelRatioOf(context);
 
-    if (!mounted) return;
+    if (_informations == null) await _setVideoInformation();
 
-    double step = totalDuration.inMilliseconds / _exampleImageCount;
-
-    var raw = await VideoUtilsService.instance.createVideoThumbnails(
-      CreateVideoThumbnail(
+    var raw = await VideoUtilsService.instance.getThumbnails(
+      ThumbnailConfigs(
         video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
-        format: _thumbnailFormat,
-        timestamps: List.generate(_exampleImageCount, (i) {
-          return Duration(
-            milliseconds: ((step * i) + 1).toInt(),
-          );
-        }),
-        imageWidth: _imageSize *
-            MediaQuery.devicePixelRatioOf(context) *
-            info.resolution.aspectRatio,
+        outputFormat: _thumbnailFormat,
+        timestamps: List.generate(
+          _exampleImageCount,
+          (i) => Duration(
+            milliseconds: (_informations!.duration.inMilliseconds /
+                    _exampleImageCount *
+                    (i + 1))
+                .toInt(),
+          ),
+        ),
+        outputSize: Size(outputSize, outputSize),
+        boxFit: ThumbnailBoxFit.cover,
       ),
     );
 
     _thumbnails = raw.map(MemoryImage.new).toList();
+    setState(() {});
+  }
+
+  void _generateKeyFrames() async {
+    var outputSize = _imageSize * MediaQuery.devicePixelRatioOf(context);
+
+    var raw = await VideoUtilsService.instance.getKeyFrames(
+      KeyFramesConfigs(
+        video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
+        outputFormat: _thumbnailFormat,
+        maxOutputFrames: _exampleImageCount,
+        outputSize: Size(outputSize, outputSize),
+        boxFit: ThumbnailBoxFit.cover,
+      ),
+    );
+
+    _keyFrames = raw.map(MemoryImage.new).toList();
     setState(() {});
   }
 
@@ -63,52 +79,42 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Thumbnails')),
       body: ListView(
-        padding: const EdgeInsets.all(12),
         children: [
-          Center(
-            child: FilledButton(
-              onPressed: _setVideoInformation,
-              child: const Text('Log video informations'),
-            ),
+          ListTile(
+            onTap: _generateThumbnails,
+            leading: const Icon(Icons.image_outlined),
+            title: const Text('Generate Thumbnails'),
           ),
-          const SizedBox(height: 16),
-          if (_informations != null)
-            Column(
-              children: [
-                Text('FileSize: ${formatBytes(_informations!.fileSize)}'),
-                Text('Format: ${_informations!.extension}'),
-                Text('Resolution: ${_informations!.resolution}'),
-                Text('Duration: ${_informations!.duration.inMilliseconds}ms'),
-              ],
-            ),
-          const SizedBox(height: 40),
-          Center(
-            child: FilledButton(
-              onPressed: _generateThumbnails,
-              child: const Text('Generate Thumbnails'),
-            ),
+          _buildThumbnails(_thumbnails),
+          ListTile(
+            onTap: _generateKeyFrames,
+            leading: const Icon(Icons.animation_rounded),
+            title: const Text('Generate Keyframes'),
           ),
-          const SizedBox(height: 16),
-          Wrap(
-            alignment: WrapAlignment.center,
-            runAlignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: _thumbnails
-                .map(
-                  (item) => Container(
-                    width: _imageSize,
-                    height: _imageSize,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    child: Image(image: item, fit: BoxFit.cover),
-                  ),
-                )
-                .toList(),
-          ),
+          _buildThumbnails(_keyFrames),
         ],
       ),
+    );
+  }
+
+  Widget _buildThumbnails(List<MemoryImage> data) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      runAlignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: data
+          .map(
+            (item) => Container(
+              width: _imageSize,
+              height: _imageSize,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Image(image: item, fit: BoxFit.cover),
+            ),
+          )
+          .toList(),
     );
   }
 }
