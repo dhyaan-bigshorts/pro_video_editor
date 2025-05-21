@@ -1,3 +1,7 @@
+
+## 0.0.10
+- **FEAT**(native-code): Remove the ffmpeg package and start implementing native code.
+
 ## 0.0.9
 - **REFACTOR**(encoding): Export encoding models for easier import from main package
 
