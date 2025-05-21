@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
-import 'features/information/video_information_example_page.dart';
+import 'features/metadata/video_metadata_example_page.dart';
 import 'features/render/video_renderer_page.dart';
 import 'features/thumbnail/thumbnail_example_page.dart';
 
@@ -91,13 +91,13 @@ class _HomePageState extends State<HomePage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: const Text('Video-Informations'),
+                  title: const Text('Video-Metadata'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const VideoInformationExamplePage()),
+                          builder: (_) => const VideoMetadataExamplePage()),
                     );
                   },
                 ),

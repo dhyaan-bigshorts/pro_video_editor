@@ -14,7 +14,7 @@ set(PLUGIN_NAME "pro_video_editor_plugin")
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
   "pro_video_editor_plugin.cc"
-  "src/video_processor.cpp"
+  "src/video_metadata.cpp"
   "src/thumbnail_generator.cpp"
 )
 

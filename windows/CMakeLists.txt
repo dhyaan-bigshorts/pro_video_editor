@@ -20,8 +20,8 @@ set(PLUGIN_NAME "pro_video_editor_plugin")
 list(APPEND PLUGIN_SOURCES
   "pro_video_editor_plugin.cpp"
   "pro_video_editor_plugin.h"
-  "src/video_processor.cpp"
-  "src/video_processor.h"
+  "src/video_metadata.cpp"
+  "src/video_metadata.h"
   "src/thumbnail_generator.cpp"
   "src/thumbnail_generator.h"
 )
@@ -65,11 +65,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 set(pro_video_editor_bundled_libraries
   ""
   PARENT_SCOPE
-)
-
-
-add_custom_command(TARGET ${PLUGIN_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
 )
 
 # === Tests ===

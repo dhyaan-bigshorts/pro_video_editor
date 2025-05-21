@@ -1,4 +1,4 @@
-// src/video_processor.h
+// src/video_metadata.h
 #pragma once
 
 #include <flutter/standard_method_codec.h>

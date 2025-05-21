@@ -15,7 +15,7 @@
 #include <vector>
 #include <wincodec.h> 
 #include <initguid.h>
-#include "src/video_processor.h"
+#include "src/video_metadata.h"
 #include "src/thumbnail_generator.h"
 
 #pragma comment(lib, "mfplat.lib")
@@ -81,13 +81,14 @@ namespace pro_video_editor {
 			pro_video_editor::HandleGetVideoInformation(*args, std::move(result));
 		}
 		else if (method_call.method_name().compare("createVideoThumbnails") == 0) {
-			const auto* args = std::get_if<flutter::EncodableMap>(method_call.arguments());
+			result->NotImplemented();
+		/* 	const auto* args = std::get_if<flutter::EncodableMap>(method_call.arguments());
 			if (!args) {
 				result->Error("InvalidArgument", "Expected a map");
 				return;
 			}
 
-			pro_video_editor::HandleGenerateThumbnails(*args, std::move(result));
+			pro_video_editor::HandleGenerateThumbnails(*args, std::move(result)); */
 		}
 		else {
 			result->NotImplemented();

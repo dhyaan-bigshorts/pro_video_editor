@@ -15,7 +15,7 @@
 namespace fs = std::filesystem;
 
 namespace pro_video_editor {
-
+/* 
 	std::wstring GenerateTempFilename(const std::wstring& prefix, const std::wstring& extension) {
 		wchar_t tempPath[MAX_PATH];
 		GetTempPathW(MAX_PATH, tempPath);
@@ -173,6 +173,6 @@ namespace pro_video_editor {
 
 		DeleteFileW(tempVideoPath.c_str());
 		result->Success(thumbnails);
-	}
+	} */
 
 }  // namespace pro_video_editor

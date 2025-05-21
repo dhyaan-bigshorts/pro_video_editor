@@ -7,20 +7,19 @@ import '../../shared/utils/bytes_formatter.dart';
 /// A sample page demonstrating how to extract and display video
 /// information using Flutter widgets. This widget is stateful,
 /// allowing dynamic updates based on video data interactions.
-class VideoInformationExamplePage extends StatefulWidget {
-  /// Creates a [VideoInformationExamplePage] widget.
+class VideoMetadataExamplePage extends StatefulWidget {
+  /// Creates a [VideoMetadataExamplePage] widget.
   ///
   /// This constructor optionally takes a key to uniquely identify
   /// the widget in the widget tree.
-  const VideoInformationExamplePage({super.key});
+  const VideoMetadataExamplePage({super.key});
 
   @override
-  State<VideoInformationExamplePage> createState() =>
-      _VideoInformationExamplePageState();
+  State<VideoMetadataExamplePage> createState() =>
+      _VideoMetadataExamplePageState();
 }
 
-class _VideoInformationExamplePageState
-    extends State<VideoInformationExamplePage> {
+class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
   VideoMetadata? _informations;
 
   Future<void> _setVideoInformation() async {
@@ -33,13 +32,13 @@ class _VideoInformationExamplePageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Video-Informations')),
+      appBar: AppBar(title: const Text('Video-Metadata')),
       body: ListView(
         children: [
           ListTile(
             onTap: _setVideoInformation,
             leading: const Icon(Icons.find_in_page_outlined),
-            title: const Text('Read video informations'),
+            title: const Text('Read metadata'),
           ),
           if (_informations != null)
             Padding(
