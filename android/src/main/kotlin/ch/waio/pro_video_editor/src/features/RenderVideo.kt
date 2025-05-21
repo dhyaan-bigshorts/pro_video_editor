@@ -169,7 +169,7 @@ class RenderVideo(private val context: Context) {
             Log.d(TAG, "Applying Gaussian blur with sigma: $blur")
 
             // Create a GaussianBlur effect with the specified sigma
-            val blurEffect = GaussianBlur(blur.toFloat() *  2.5f)
+            val blurEffect = GaussianBlur(blur.toFloat() * 2.5f)
 
             // Add the blur effect to the list of video effects
             videoEffects += blurEffect
