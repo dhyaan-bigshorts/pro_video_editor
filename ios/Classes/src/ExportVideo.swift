@@ -1,5 +1,4 @@
 import Foundation
-import ffmpegkit
 
 class ExportVideo {
 
@@ -75,7 +74,7 @@ class ExportVideo {
         onError: @escaping (String) -> Void,
         onProgress: ((Double) -> Void)? = nil
     ) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        /* DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let tempDir = FileManager.default.temporaryDirectory
 
@@ -174,6 +173,6 @@ class ExportVideo {
                     onError("Exception: \(error.localizedDescription)")
                 }
             }
-        }
+        } */
     }
 }

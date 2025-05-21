@@ -1,5 +1,4 @@
 import Foundation
-import ffmpegkit
 
 class ExportVideo {
 
@@ -8,11 +7,8 @@ class ExportVideo {
         for i in 0...3 {
             for j in 0...4 {
                 result[i * 5 + j] =
-                    m1[i * 5 + 0] * m2[0 + j] +
-                    m1[i * 5 + 1] * m2[5 + j] +
-                    m1[i * 5 + 2] * m2[10 + j] +
-                    m1[i * 5 + 3] * m2[15 + j] +
-                    (j == 4 ? m1[i * 5 + 4] : 0.0)
+                    m1[i * 5 + 0] * m2[0 + j] + m1[i * 5 + 1] * m2[5 + j] + m1[i * 5 + 2]
+                    * m2[10 + j] + m1[i * 5 + 3] * m2[15 + j] + (j == 4 ? m1[i * 5 + 4] : 0.0)
             }
         }
         return result
@@ -33,12 +29,12 @@ class ExportVideo {
         let fileURL = tempDir.appendingPathComponent(fileName)
 
         var content = """
-        TITLE "Flutter Matrix LUT"
-        LUT_3D_SIZE \(size)
-        DOMAIN_MIN 0.0 0.0 0.0
-        DOMAIN_MAX 1.0 1.0 1.0
+            TITLE "Flutter Matrix LUT"
+            LUT_3D_SIZE \(size)
+            DOMAIN_MIN 0.0 0.0 0.0
+            DOMAIN_MAX 1.0 1.0 1.0
 
-        """
+            """
 
         for b in 0..<size {
             for g in 0..<size {
@@ -47,11 +43,18 @@ class ExportVideo {
                     let gf = Double(g) / Double(size - 1)
                     let bf = Double(b) / Double(size - 1)
 
-                    let rr = (matrix[0]*rf + matrix[1]*gf + matrix[2]*bf + matrix[3]) + matrix[4]/255.0
-                    let gg = (matrix[5]*rf + matrix[6]*gf + matrix[7]*bf + matrix[8]) + matrix[9]/255.0
-                    let bb = (matrix[10]*rf + matrix[11]*gf + matrix[12]*bf + matrix[13]) + matrix[14]/255.0
+                    let rr =
+                        (matrix[0] * rf + matrix[1] * gf + matrix[2] * bf + matrix[3]) + matrix[4]
+                        / 255.0
+                    let gg =
+                        (matrix[5] * rf + matrix[6] * gf + matrix[7] * bf + matrix[8]) + matrix[9]
+                        / 255.0
+                    let bb =
+                        (matrix[10] * rf + matrix[11] * gf + matrix[12] * bf + matrix[13]) + matrix[
+                            14] / 255.0
 
-                    content += "\(min(max(rr, 0.0), 1.0)) \(min(max(gg, 0.0), 1.0)) \(min(max(bb, 0.0), 1.0))\n"
+                    content +=
+                        "\(min(max(rr, 0.0), 1.0)) \(min(max(gg, 0.0), 1.0)) \(min(max(bb, 0.0), 1.0))\n"
                 }
             }
         }
@@ -75,24 +78,24 @@ class ExportVideo {
         onError: @escaping (String) -> Void,
         onProgress: ((Double) -> Void)? = nil
     ) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        /* DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let tempDir = FileManager.default.temporaryDirectory
-
+        
                 let videoURL = tempDir.appendingPathComponent("input_video.\(inputFormat)")
                 let imageURL = tempDir.appendingPathComponent("overlay_image.png")
                 let outputURL = tempDir.appendingPathComponent("output_video.\(outputFormat)")
-
+        
                 try videoBytes.write(to: videoURL)
                 try imageBytes.write(to: imageURL)
-
+        
                 var lutFilter: String? = nil
                 if let matrices = colorMatrices, !matrices.isEmpty {
                     let combined = combineColorMatrices(matrices)
                     let lutURL = try writeCubeLutFile(matrix: combined, fileName: "flutter_matrix.cube")
                     lutFilter = "lut3d='\(lutURL.path)'"
                 }
-
+        
                 var filterGraph = "[0:v]format=rgb24"
                 if let lut = lutFilter {
                     filterGraph += ",\(lut)"
@@ -103,32 +106,32 @@ class ExportVideo {
                 filterGraph += "[vid];"
                 filterGraph += "[1:v][vid]scale2ref=w=iw:h=ih[ovr][base];"
                 filterGraph += "[base][ovr]overlay=0:0"
-
+        
                 var ffmpegCommand: [String] = []
-
+        
                 if let start = startTime {
                     ffmpegCommand += ["-ss", "\(start)"]
                 }
                 if let end = endTime {
                     ffmpegCommand += ["-to", "\(end)"]
                 }
-
+        
                 ffmpegCommand += [
                     "-y",
                     "-i", videoURL.path,
                     "-i", imageURL.path,
                     "-filter_complex", filterGraph,
                 ]
-
+        
                 // Append codec arguments from Dart or predefined
                 ffmpegCommand += codecArgs
-                
+        
                 // Append output file path
                 ffmpegCommand.append(outputURL.path)
-
+        
                 let command = ffmpegCommand.joined(separator: " ")
                 print("FFmpeg command: \(command)")
-
+        
                 FFmpegKit.executeAsync(command, withCompleteCallback: { session in
                     let returnCode = session?.getReturnCode()
                     if ReturnCode.isSuccess(returnCode) {
@@ -158,7 +161,7 @@ class ExportVideo {
                             return videoDuration
                         }
                     }()
-
+        
                     if trimmedDuration > 0 && time > 0 {
                         let progress = Double(time) / Double(trimmedDuration)
                         DispatchQueue.main.async {
@@ -166,12 +169,12 @@ class ExportVideo {
                         }
                     }
                 })
-
+        
             } catch {
                 DispatchQueue.main.async {
                     onError("Exception: \(error.localizedDescription)")
                 }
             }
-        }
+        } */
     }
 }

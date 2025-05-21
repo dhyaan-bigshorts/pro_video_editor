@@ -1,7 +1,7 @@
 import Foundation
 import AVFoundation
 
-class VideoProcessor {
+class VideoMetadata {
 
     static func processVideo(videoData: Data, ext: String) -> [String: Any] {
         guard let tempFileURL = createTempFile(videoData: videoData, ext: ext) else {
