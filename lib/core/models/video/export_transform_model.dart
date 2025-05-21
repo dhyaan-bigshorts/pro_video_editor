@@ -3,12 +3,6 @@
 /// This includes resizing, rotation, flipping, and positional offsets.
 class ExportTransform {
   /// Creates an [ExportTransform] with optional transformations.
-  ///
-  /// If [width] and [height] are provided, the output will be resized.
-  /// [rotateTurns] defines clockwise 90° rotation steps (0–3).
-  /// x and y allow shifting the video/image position using FFmpeg
-  /// expressions.
-  /// [flipX] and [flipY] control horizontal and vertical flipping.
   const ExportTransform({
     this.width,
     this.height,

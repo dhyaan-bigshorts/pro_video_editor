@@ -39,10 +39,10 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  /// Fetches information about a video.
+  /// Fetches metadata about the video.
   ///
   /// Throws an [UnimplementedError] if not implemented.
-  Future<VideoInformation> getVideoInformation(EditorVideo value) {
+  Future<VideoMetadata> getMetadata(EditorVideo value) {
     throw UnimplementedError('getVideoInformation() has not been implemented.');
   }
 
@@ -66,10 +66,10 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     throw UnimplementedError('renderVideo() has not been implemented.');
   }
 
-  /// A stream that emits export progress updates as a double from 0.0 to 1.0.
+  /// A stream that emits render progress updates as a double from 0.0 to 1.0.
   ///
   /// Useful for showing progress indicators during the export process.
-  Stream<double> get exportProgressStream {
-    throw UnimplementedError('exportProgressStream has not been implemented.');
+  Stream<double> get renderProgressStream {
+    throw UnimplementedError('renderProgressStream has not been implemented.');
   }
 }

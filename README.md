@@ -5,33 +5,126 @@
 
 ### Platform Support
 
-| Platform       | `metadata`  | `thumbnails` | `transformations` | `layers` | `colorMatrix 4x5 "filters"` | `background-blur` | `censorLayers` |
-|----------------|-------------|--------------|-------------------|----------|-----------------------------|-------------------|----------------|
-| Android        | ✅          | ✅          | ✅                | ✅      | ✅                         | 🧪                | ❌            |
-| iOS            | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
-| macOS          | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
-| Windows        | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
-| Linux          | ✅          | ❌          | ❌                | ❌      | ❌                         | ❌                | ❌            |
-| Web            | ✅          | ❌          | 🚫                | 🚫      | 🚫                         | 🚫                | 🚫            |
+| Method                     | Android | iOS  | macOS  | Windows  | Linux  | Web   |
+|----------------------------|---------|------|--------|----------|--------|-------|
+| `Metadata`                 | ✅      | ❌  | ❌     | ❌      | ❌     | ✅   |
+| `Thumbnails`               | ✅      | ❌  | ❌     | ❌      | ❌     | ✅   |
+| `KeyFrames`                | ✅      | ❌  | ❌     | ❌      | ❌     | ✅   |
+| `Rotate`                   | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Flip`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Crop`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Scale`                    | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Trim`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Playback-Speed`           | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Remove-Audio`             | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Overlay Layers`           | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Multiple ColorMatrix 4x5` | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Blur background`          | 🧪      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `Censor-Layers "Pixelate"` | ❌      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+
 
 
 
 #### Legend
 - ✅ Supported with Native-Code 
 - 🧪 Supported but visual output can differs from Flutter
-- ⚠️ Supported but depend on ffmpeg
 - ❌ Not supported but planned
 - 🚫 Not supported and currently not planned
 
-<br/>
 
-### ❗ Important Note
+## Metadata
 
-This plugin uses [FFmpegKit](https://github.com/arthenica/ffmpeg-kit), specifically the `ffmpeg-kit-full-gpl` build, which includes components licensed under the **GNU General Public License (GPL v3)**.
+```dart
+VideoMetadata result = await VideoUtilsService.instance.getVideoInformation(
+    EditorVideo(
+        assetPath: 'assets/my-video.mp4',
+        /// byteArray: ,
+        /// file: ,
+        /// networkUrl: ,
+        ),
+);
+```
 
-By using this plugin, you agree to comply with the terms of the GPL license.
+## Thumbnails 
 
-> [Read more about GPL licensing here](https://www.gnu.org/licenses/gpl-3.0.en.html)
+```dart
+List<Uint8List> result = await VideoUtilsService.instance.getThumbnails(
+    ThumbnailConfigs(
+        video: EditorVideo(
+            assetPath: 'assets/my-video.mp4',
+            /// byteArray: ,
+            /// file: ,
+            /// networkUrl: ,
+        ),
+        outputFormat: ThumbnailFormat.jpeg,
+        timestamps: const [
+            Duration(seconds: 10),
+            Duration(seconds: 15),
+            Duration(seconds: 22),
+        ],
+        outputSize: const Size(200, 200),
+        boxFit: ThumbnailBoxFit.cover,
+    ),
+);
+```
 
-⚠️ **Future Licensing Plan**:  
-To allow more flexible and permissive use (including closed-source commercial apps), a future version of this plugin will switch to an alternative solution using **LGPL-compliant FFmpeg builds** or **native platform APIs** (such as `MediaCodec`, `AVFoundation`, or `Media Foundation`) to avoid GPL restrictions entirely.
+## Keyframes
+
+```dart
+List<Uint8List> result = await VideoUtilsService.instance.getKeyFrames(
+    KeyFramesConfigs(
+        video: EditorVideo(
+            assetPath: 'assets/my-video.mp4',
+            /// byteArray: ,
+            /// file: ,
+            /// networkUrl: ,
+        ),
+        outputFormat: ThumbnailFormat.jpeg,
+        maxOutputFrames: 20,
+        outputSize: const Size(200, 200),
+        boxFit: ThumbnailBoxFit.cover,
+    ),
+);
+```
+
+## Render
+
+```dart
+var video = EditorVideo(
+    assetPath: 'assets/my-video.mp4',
+    /// byteArray: ,
+    /// file: ,
+    /// networkUrl: ,
+);
+
+/// Every option except videoBytes is optional.
+var data = RenderVideoModel(
+    videoBytes: await video.safeByteArray(),
+
+    /// A image "Layer" which will overlay the video.
+    imageBytes: imageBytes,
+    outputFormat: VideoOutputFormat.mp4,
+    transform: const ExportTransform(
+        flipX: true,
+        flipY: true,
+        x: 10,
+        y: 20,
+        width: 300,
+        height: 400,
+        rotateTurns: 3,
+        scaleX: .5,
+        scaleY: .5,
+    ),
+    colorMatrixList: [
+         [ 1.0, 0.0, 0.0, 0.0, 50.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 ],
+         [ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 ],
+    ],
+    enableAudio: false,
+    playbackSpeed: 2,
+    startTime: const Duration(seconds: 5),
+    endTime: const Duration(seconds: 20),
+    blur: 10,
+);
+
+Uint8List result = await VideoUtilsService.instance.renderVideo(data);
+```

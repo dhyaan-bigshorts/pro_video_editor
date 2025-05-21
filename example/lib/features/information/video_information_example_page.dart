@@ -21,7 +21,7 @@ class VideoInformationExamplePage extends StatefulWidget {
 
 class _VideoInformationExamplePageState
     extends State<VideoInformationExamplePage> {
-  VideoInformation? _informations;
+  VideoMetadata? _informations;
 
   Future<void> _setVideoInformation() async {
     _informations = await VideoUtilsService.instance.getVideoInformation(

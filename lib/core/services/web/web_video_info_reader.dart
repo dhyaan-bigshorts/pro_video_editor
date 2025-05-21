@@ -1,34 +1,31 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:mime/mime.dart';
+import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:web/web.dart' as web;
 
+import '../../../shared/utils/parser/double_parser.dart';
+import '../../../shared/utils/parser/int_parser.dart';
+import '../../models/video/video_information_model.dart';
 import '../../utils/web_blob_utils.dart';
 
-/// A utility class for reading basic video metadata in web environments.
+/// A helper class that extracts video metadata in a Flutter Web environment.
 ///
-/// This class uses the browser's `HTMLVideoElement` and Blob API to
-/// extract metadata such as duration, dimensions, and format from a
-/// video represented as [Uint8List] bytes.
-class WebVideoInfoReader {
-  /// Processes a video file provided as [videoBytes] and extracts metadata.
+/// This uses an [HTMLVideoElement] to read properties such as duration,
+/// resolution, file size, and format directly in the browser.
+class WebMetaDataReader {
+  /// Reads metadata from the given [editorVideo].
   ///
-  /// Optionally accepts a [fileName] which may help determine the MIME type.
-  ///
-  /// Returns a [Future] containing a map with the following keys:
-  /// - `fileSize`: The size of the video in bytes.
-  /// - `duration`: Duration of the video in milliseconds.
-  /// - `width`: Width of the video in pixels.
-  /// - `height`: Height of the video in pixels.
-  /// - `format`: The video format (e.g. `mp4`, `webm`).
-  ///
-  /// If an error occurs while loading metadata, the result will contain:
-  /// - `error`: A string describing the failure.
-  Future<Map<String, dynamic>> processVideoWeb(
-    Uint8List videoBytes, {
+  /// Optionally accepts a [fileName] (not required on web).
+  /// Returns a [VideoMetadata] object containing duration, resolution,
+  /// file size, and extension.
+  Future<VideoMetadata> getMetaData(
+    EditorVideo editorVideo, {
     String? fileName,
   }) async {
+    var videoBytes = await editorVideo.safeByteArray();
+
     final blob = Blob.fromUint8List(videoBytes);
 
     final objectUrl = web.URL.createObjectURL(blob);
@@ -42,7 +39,7 @@ class WebVideoInfoReader {
 
     var mimeType = lookupMimeType('', headerBytes: videoBytes);
     var sp = mimeType?.split('/') ?? [];
-    var format = sp.length == 2 ? sp[1] : 'mp4';
+    var extension = sp.length == 2 ? sp[1] : 'mp4';
 
     video.onLoadedMetadata.listen((_) {
       final result = {
@@ -50,7 +47,7 @@ class WebVideoInfoReader {
         'duration': video.duration * 1000, // ms
         'width': video.videoWidth,
         'height': video.videoHeight,
-        'format': format,
+        'extension': extension,
       };
       cleanup();
       completer.complete(result);
@@ -61,6 +58,16 @@ class WebVideoInfoReader {
       completer.complete({'error': 'Failed to load video metadata'});
     });
 
-    return completer.future;
+    var result = await completer.future;
+
+    return VideoMetadata(
+      duration: Duration(milliseconds: safeParseInt(result['duration'])),
+      extension: result['extension'] ?? 'unknown',
+      fileSize: safeParseInt(result['fileSize']),
+      resolution: Size(
+        safeParseDouble(result['width']),
+        safeParseDouble(result['height']),
+      ),
+    );
   }
 }

@@ -1,12 +1,10 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import '/core/models/thumbnail/key_frames_configs.model.dart';
+import '/core/models/thumbnail/thumbnail_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import '/core/services/web/web_thumbnail_generator.dart';
-import '/shared/utils/parser/double_parser.dart';
-import '/shared/utils/parser/int_parser.dart';
 import 'web_video_info_reader.dart';
 
 /// A platform-specific implementation for handling video operations on web.
@@ -19,29 +17,24 @@ class WebManager {
   /// Loads the video using an HTML video element and extracts duration,
   /// resolution, file size, and format.
   ///
-  /// Returns a [VideoInformation] object.
-  Future<VideoInformation> getVideoInformation(EditorVideo value) async {
-    var result =
-        await WebVideoInfoReader().processVideoWeb(await value.safeByteArray());
-
-    return VideoInformation(
-      duration: Duration(milliseconds: safeParseInt(result['duration'])),
-      extension: result['format'] ?? 'unknown',
-      fileSize: safeParseInt(result['fileSize']),
-      resolution: Size(
-        safeParseDouble(result['width']),
-        safeParseDouble(result['height']),
-      ),
-    );
+  /// Returns a [VideoMetadata] object.
+  Future<VideoMetadata> getMetadata(EditorVideo value) async {
+    return await WebMetaDataReader().getMetaData(value);
   }
 
-  /// Generates thumbnails from a video using web-based processing.
+  /// Generates thumbnails for a video based on the given [ThumbnailConfigs].
   ///
-  /// Accepts a [KeyFramesConfigs] configuration and returns a list
-  /// of [Uint8List] image bytes representing the generated thumbnails.
-  Future<List<Uint8List>> createVideoThumbnails(
-    KeyFramesConfigs value,
-  ) async {
-    return await WebThumbnailGenerator().generateThumbnails(value);
+  /// Extracts frames from specified timestamps and returns them as a list of
+  /// image data in [Uint8List] format.
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
+    return await WebThumbnailGenerator().getThumbnails(value);
+  }
+
+  /// Extracts evenly spaced key frames using the [KeyFramesConfigs] settings.
+  ///
+  /// Returns a list of [Uint8List] image data captured at calculated
+  /// intervals throughout the video.
+  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
+    return await WebThumbnailGenerator().getKeyFrames(value);
   }
 }

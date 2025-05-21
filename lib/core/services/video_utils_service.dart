@@ -31,9 +31,9 @@ class VideoUtilsService {
   /// [value] is an [EditorVideo] instance that can point to a file, memory,
   /// network URL, or asset.
   ///
-  /// Returns a [Future] containing [VideoInformation] about the video.
-  Future<VideoInformation> getVideoInformation(EditorVideo value) {
-    return ProVideoEditorPlatform.instance.getVideoInformation(value);
+  /// Returns a [Future] containing [VideoMetadata] about the video.
+  Future<VideoMetadata> getVideoInformation(EditorVideo value) {
+    return ProVideoEditorPlatform.instance.getMetadata(value);
   }
 
   /// Generates a list of thumbnails from the given [ThumbnailConfigs].
@@ -55,6 +55,6 @@ class VideoUtilsService {
   ///
   /// Useful for showing progress indicators during the export process.
   Stream<double> get exportProgressStream {
-    return ProVideoEditorPlatform.instance.exportProgressStream;
+    return ProVideoEditorPlatform.instance.renderProgressStream;
   }
 }

@@ -93,9 +93,6 @@ class RenderVideoModel {
 }
 
 /// Supported video output formats for export.
-///
-/// These formats are passed to FFmpeg using the appropriate container flags.
-/// The compatibility of each format may vary by platform and codec support.
 enum VideoOutputFormat {
   /// MPEG-4 Part 14, widely supported.
   mp4,

@@ -18,8 +18,8 @@ class MockProVideoEditorPlatform
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<VideoInformation> getVideoInformation(EditorVideo value) {
-    return Future.value(VideoInformation(
+  Future<VideoMetadata> getMetadata(EditorVideo value) {
+    return Future.value(VideoMetadata(
       duration: Duration.zero,
       extension: 'mp4',
       fileSize: 1,
@@ -28,7 +28,7 @@ class MockProVideoEditorPlatform
   }
 
   @override
-  Stream<double> get exportProgressStream => const Stream.empty();
+  Stream<double> get renderProgressStream => const Stream.empty();
 
   @override
   Future<Uint8List> renderVideo(RenderVideoModel value) {

@@ -40,7 +40,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   final List<List<double>> _colorFilters = [];
   // kBasicFilterMatrix   kComplexFilterMatrix
 
-  VideoInformation? _outputVideoInformation;
+  VideoMetadata? _outputVideoInformation;
 
   Uint8List? _temporaryVideoBytes;
 

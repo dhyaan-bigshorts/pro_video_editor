@@ -26,7 +26,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<VideoInformation> getVideoInformation(EditorVideo value) async {
+  Future<VideoMetadata> getMetadata(EditorVideo value) async {
     var videoBytes = await value.safeByteArray();
 
     var extension = _getFileExtension(videoBytes);
@@ -38,7 +38,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         }) ??
         {};
 
-    return VideoInformation(
+    return VideoMetadata(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
       extension: extension,
       fileSize: response['fileSize'] ?? 0,
@@ -118,7 +118,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Stream<double> get exportProgressStream {
+  Stream<double> get renderProgressStream {
     return _progressChannel
         .receiveBroadcastStream()
         .map((event) => event as double);

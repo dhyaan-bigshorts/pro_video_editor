@@ -21,7 +21,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   final int _exampleImageCount = 8;
   final double _imageSize = 50;
   final ThumbnailFormat _thumbnailFormat = ThumbnailFormat.jpeg;
-  VideoInformation? _informations;
+  VideoMetadata? _informations;
 
   Future<void> _setVideoInformation() async {
     _informations = await VideoUtilsService.instance.getVideoInformation(
