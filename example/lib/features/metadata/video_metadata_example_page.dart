@@ -80,6 +80,15 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.only(right: 10),
+                        child: Text('Rotation:'),
+                      ),
+                      Text('${_informations!.rotation}deg'),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
                         child: Text('Duration:'),
                       ),
                       Text('${_informations!.duration.inSeconds}s'),

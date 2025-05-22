@@ -8,11 +8,13 @@ class VideoMetadata {
   /// - [extension]: The file format of the video (e.g., "mp4", "avi").
   /// - [fileSize]: The size of the video file in bytes.
   /// - [resolution]: The width and height of the video in pixels.
+  /// - [rotation]: The rotation of the video in degrees.
   VideoMetadata({
     required this.duration,
     required this.extension,
     required this.fileSize,
     required this.resolution,
+    required this.rotation,
   });
 
   /// The size of the video file in bytes.
@@ -25,6 +27,9 @@ class VideoMetadata {
   /// Size(1920, 1080) // Full HD resolution
   /// ```
   final Size resolution;
+
+  /// The rotation of the video.
+  final int rotation;
 
   /// The duration of the video.
   ///
@@ -43,12 +48,14 @@ class VideoMetadata {
     Size? resolution,
     Duration? duration,
     String? extension,
+    int? rotation,
   }) {
     return VideoMetadata(
       fileSize: fileSize ?? this.fileSize,
       resolution: resolution ?? this.resolution,
       duration: duration ?? this.duration,
       extension: extension ?? this.extension,
+      rotation: rotation ?? this.rotation,
     );
   }
 
@@ -60,7 +67,8 @@ class VideoMetadata {
         other.fileSize == fileSize &&
         other.resolution == resolution &&
         other.duration == duration &&
-        other.extension == extension;
+        other.extension == extension &&
+        other.rotation == rotation;
   }
 
   @override
@@ -68,6 +76,7 @@ class VideoMetadata {
     return fileSize.hashCode ^
         resolution.hashCode ^
         duration.hashCode ^
-        extension.hashCode;
+        extension.hashCode ^
+        rotation.hashCode;
   }
 }

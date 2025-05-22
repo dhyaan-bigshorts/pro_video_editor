@@ -46,6 +46,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         safeParseDouble(response['width']),
         safeParseDouble(response['height']),
       ),
+      rotation: safeParseInt(response['rotation']),
     );
   }
 

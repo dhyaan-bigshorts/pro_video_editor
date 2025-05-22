@@ -48,6 +48,7 @@ class WebMetaDataReader {
         'width': video.videoWidth,
         'height': video.videoHeight,
         'extension': extension,
+        'rotation': 0,
       };
       cleanup();
       completer.complete(result);
@@ -68,6 +69,7 @@ class WebMetaDataReader {
         safeParseDouble(result['width']),
         safeParseDouble(result['height']),
       ),
+      rotation: safeParseInt(result['rotation']),
     );
   }
 }
