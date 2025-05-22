@@ -32,7 +32,7 @@ class VideoUtilsService {
   /// network URL, or asset.
   ///
   /// Returns a [Future] containing [VideoMetadata] about the video.
-  Future<VideoMetadata> getVideoInformation(EditorVideo value) {
+  Future<VideoMetadata> getMetadata(EditorVideo value) {
     return ProVideoEditorPlatform.instance.getMetadata(value);
   }
 

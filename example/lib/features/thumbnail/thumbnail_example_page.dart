@@ -24,7 +24,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   VideoMetadata? _informations;
 
   Future<void> _setVideoInformation() async {
-    _informations = await VideoUtilsService.instance.getVideoInformation(
+    _informations = await VideoUtilsService.instance.getMetadata(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
     setState(() {});

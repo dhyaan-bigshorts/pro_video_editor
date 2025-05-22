@@ -35,7 +35,7 @@
 ## Metadata
 
 ```dart
-VideoMetadata result = await VideoUtilsService.instance.getVideoInformation(
+VideoMetadata result = await VideoUtilsService.instance.getMetadata(
     EditorVideo(
         assetPath: 'assets/my-video.mp4',
         /// byteArray: ,

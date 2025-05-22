@@ -202,7 +202,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     _generationTime = sp.elapsed;
 
     _outputVideoInformation = (await VideoUtilsService.instance
-        .getVideoInformation(EditorVideo(byteArray: result)));
+        .getMetadata(EditorVideo(byteArray: result)));
 
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();

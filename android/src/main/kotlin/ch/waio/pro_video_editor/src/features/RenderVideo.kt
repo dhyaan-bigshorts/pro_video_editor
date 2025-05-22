@@ -169,22 +169,6 @@ class RenderVideo(private val context: Context) {
             videoEffects += blurEffect
         }
 
-
-        val mediaItem = mediaItemBuilder.build()
-
-        val audioEffects = mutableListOf<AudioProcessor>()
-
-        // Apply playback speed
-        if (playbackSpeed != null && playbackSpeed > 0f) {
-            Log.d(TAG, "Applying speed change: $playbackSpeed×")
-            videoEffects += SpeedChangeEffect(playbackSpeed)
-
-            val audio = SonicAudioProcessor()
-            audio.setSpeed(playbackSpeed)
-
-            audioEffects += audio
-        }
-
         // Load and apply transparent image overlay
         if (imageBytes != null) {
             val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
@@ -201,6 +185,20 @@ class RenderVideo(private val context: Context) {
             val overlayEffect = OverlayEffect(ImmutableList.of(bitmapOverlay))
 
             videoEffects += overlayEffect
+        }
+
+        val mediaItem = mediaItemBuilder.build()
+        val audioEffects = mutableListOf<AudioProcessor>()
+
+        // Apply playback speed
+        if (playbackSpeed != null && playbackSpeed > 0f) {
+            Log.d(TAG, "Applying speed change: $playbackSpeed×")
+            videoEffects += SpeedChangeEffect(playbackSpeed)
+
+            val audio = SonicAudioProcessor()
+            audio.setSpeed(playbackSpeed)
+
+            audioEffects += audio
         }
 
 
@@ -247,7 +245,6 @@ class RenderVideo(private val context: Context) {
 
         // Start transformation
         transformer.start(editedMediaItem, outputFile.absolutePath)
-
 
         // Progress tracking setup
         val progressHolder = androidx.media3.transformer.ProgressHolder()

@@ -52,7 +52,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
 
-            "getVideoInformation" -> {
+            "getMetadata" -> {
                 val videoBytes = call.argument<ByteArray>("videoBytes")
                 val extension = call.argument<String>("extension")
 

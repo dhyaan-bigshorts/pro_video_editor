@@ -78,7 +78,7 @@ static void pro_video_editor_plugin_handle_method_call(
   if (strcmp(method, "getPlatformVersion") == 0) {
     response = get_platform_version();
 
-  } else if (strcmp(method, "getVideoInformation") == 0) {
+  } else if (strcmp(method, "getMetadata") == 0) {
     pro_video_editor::HandleGetVideoInformation(
         args_map,
         std::make_unique<flutter::MethodResultFunctions<flutter::EncodableValue>>(

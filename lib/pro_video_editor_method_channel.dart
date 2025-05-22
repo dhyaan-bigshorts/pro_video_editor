@@ -31,12 +31,12 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
     var extension = _getFileExtension(videoBytes);
 
-    final response = await methodChannel
-            .invokeMethod<Map<dynamic, dynamic>>('getVideoInformation', {
-          'videoBytes': videoBytes,
-          'extension': extension,
-        }) ??
-        {};
+    final response =
+        await methodChannel.invokeMethod<Map<dynamic, dynamic>>('getMetadata', {
+              'videoBytes': videoBytes,
+              'extension': extension,
+            }) ??
+            {};
 
     return VideoMetadata(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),

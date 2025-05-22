@@ -71,7 +71,7 @@ namespace pro_video_editor {
 			}
 			result->Success(flutter::EncodableValue(version_stream.str()));
 		}
-		else if (method_call.method_name().compare("getVideoInformation") == 0) {
+		else if (method_call.method_name().compare("getMetadata") == 0) {
 			const auto* args = std::get_if<flutter::EncodableMap>(method_call.arguments());
 			if (!args) {
 				result->Error("InvalidArgument", "Expected a map");

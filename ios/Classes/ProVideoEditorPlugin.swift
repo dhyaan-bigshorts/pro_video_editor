@@ -18,7 +18,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
     case "getPlatformVersion":
       result("iOS " + UIDevice.current.systemVersion)
 
-    case "getVideoInformation":
+    case "getMetadata":
       guard let args = call.arguments as? [String: Any],
             let videoData = args["videoBytes"] as? FlutterStandardTypedData,
             let ext = args["extension"] as? String else {

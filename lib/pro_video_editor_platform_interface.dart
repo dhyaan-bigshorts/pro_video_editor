@@ -43,7 +43,7 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
   ///
   /// Throws an [UnimplementedError] if not implemented.
   Future<VideoMetadata> getMetadata(EditorVideo value) {
-    throw UnimplementedError('getVideoInformation() has not been implemented.');
+    throw UnimplementedError('getMetadata() has not been implemented.');
   }
 
   /// Returns a list of video thumbnails based on the provided
