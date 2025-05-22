@@ -1,3 +1,6 @@
+## 0.0.13
+- **FIX**(crop): Resolve issues that crop not working.
+
 ## 0.0.12
 - **FIX**(layer): Fixed incorrect layer scaling caused by misinterpreted video dimensions.
 
