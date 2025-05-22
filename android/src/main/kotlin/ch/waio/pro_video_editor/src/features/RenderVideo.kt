@@ -26,9 +26,6 @@ import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
 import androidx.media3.transformer.Effects
 import androidx.media3.effect.SingleColorLut
-import androidx.media3.effect.GlEffect
-import androidx.media3.effect.GlShaderProgram
-import androidx.media3.effect.SeparableConvolutionShaderProgram
 import com.google.common.collect.ImmutableList
 
 @UnstableApi
@@ -92,7 +89,10 @@ class RenderVideo(private val context: Context) {
             val retriever = MediaMetadataRetriever()
             try {
                 retriever.setDataSource(inputFile.absolutePath)
-                val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(inputFile)
+                val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
+                    inputFile,
+                    rotationDegrees
+                )
 
                 if (videoWidth > 0 && videoHeight > 0) {
                     // Default to full frame if values are not provided
@@ -190,9 +190,12 @@ class RenderVideo(private val context: Context) {
         if (imageBytes != null) {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(inputFile.absolutePath)
-            val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(inputFile)
-
+            val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
+                inputFile,
+                rotationDegrees
+            )
             retriever.release()
+            Log.d(TAG, "Applying layer image with the size $videoWidth x $videoHeight")
 
             val overlayBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             val scaledOverlay =
@@ -280,7 +283,10 @@ class RenderVideo(private val context: Context) {
         }
     }
 
-    private fun getRotatedVideoDimensions(videoFile: File): Triple<Int, Int, Int> {
+    private fun getRotatedVideoDimensions(
+        videoFile: File,
+        rotationDegrees: Float
+    ): Triple<Int, Int, Int> {
         val retriever = MediaMetadataRetriever()
         return try {
             retriever.setDataSource(videoFile.absolutePath)
@@ -294,7 +300,7 @@ class RenderVideo(private val context: Context) {
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
                     ?.toIntOrNull() ?: 0
 
-            val normalizedRotation = rotation % 360
+            val normalizedRotation = (rotation + rotationDegrees.toInt()) % 360
             val (width, height) = if (normalizedRotation == 90 || normalizedRotation == 270) {
                 heightRaw to widthRaw
             } else {
