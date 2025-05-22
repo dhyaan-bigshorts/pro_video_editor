@@ -107,7 +107,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
       videoBytes: await _getVideoBytes(),
-      transform: const ExportTransform(scaleX: 0.5, scaleY: 0.5),
+      transform: const ExportTransform(scaleX: 0.2, scaleY: 0.2),
     );
 
     await _renderVideo(data);

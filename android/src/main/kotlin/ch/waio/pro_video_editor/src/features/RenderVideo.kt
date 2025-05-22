@@ -86,13 +86,14 @@ class RenderVideo(private val context: Context) {
 
         // Apply crop
         if (cropX != null || cropY != null || cropWidth != null || cropHeight != null) {
-            val retriever = MediaMetadataRetriever()
             try {
-                retriever.setDataSource(inputFile.absolutePath)
-                val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
+                val (rawVideoWidth, rawVideoHeight, videoRotation) = getRotatedVideoDimensions(
                     inputFile,
                     rotationDegrees
                 )
+
+                val videoWidth = rawVideoWidth.toFloat();
+                val videoHeight = rawVideoHeight.toFloat();
 
                 if (videoWidth > 0 && videoHeight > 0) {
                     // Default to full frame if values are not provided
@@ -117,8 +118,6 @@ class RenderVideo(private val context: Context) {
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to apply cropping: ${e.message}")
-            } finally {
-                retriever.release()
             }
         }
 
@@ -188,13 +187,10 @@ class RenderVideo(private val context: Context) {
 
         // Load and apply transparent image overlay
         if (imageBytes != null) {
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(inputFile.absolutePath)
             val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
                 inputFile,
                 rotationDegrees
             )
-            retriever.release()
             Log.d(TAG, "Applying layer image with the size $videoWidth x $videoHeight")
 
             val overlayBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
