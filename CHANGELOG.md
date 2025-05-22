@@ -1,3 +1,5 @@
+## 0.0.11
+- **FIX**(rotation): Resolve various issues when video is rotated.
 
 ## 0.0.10
 - **FEAT**(native-code): Remove the ffmpeg package and start implementing native code.
