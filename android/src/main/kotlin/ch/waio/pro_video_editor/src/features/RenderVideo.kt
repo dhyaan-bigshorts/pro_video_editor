@@ -92,14 +92,9 @@ class RenderVideo(private val context: Context) {
             val retriever = MediaMetadataRetriever()
             try {
                 retriever.setDataSource(inputFile.absolutePath)
-                val videoWidth =
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                        ?.toFloatOrNull()
-                val videoHeight =
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                        ?.toFloatOrNull()
+                val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(inputFile)
 
-                if (videoWidth != null && videoHeight != null && videoWidth > 0 && videoHeight > 0) {
+                if (videoWidth > 0 && videoHeight > 0) {
                     // Default to full frame if values are not provided
                     val cropX = cropX ?: 0
                     val cropY = cropY ?: 0
@@ -195,12 +190,8 @@ class RenderVideo(private val context: Context) {
         if (imageBytes != null) {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(inputFile.absolutePath)
-            val videoWidth =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toInt()
-                    ?: 0
-            val videoHeight =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toInt()
-                    ?: 0
+            val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(inputFile)
+
             retriever.release()
 
             val overlayBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
@@ -286,6 +277,35 @@ class RenderVideo(private val context: Context) {
             "h265", "hevc" -> MimeTypes.VIDEO_H265
             "av1" -> MimeTypes.VIDEO_AV1
             else -> MimeTypes.VIDEO_MP4 // fallback default
+        }
+    }
+
+    private fun getRotatedVideoDimensions(videoFile: File): Triple<Int, Int, Int> {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(videoFile.absolutePath)
+            val widthRaw =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                    ?.toIntOrNull() ?: 0
+            val heightRaw =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                    ?.toIntOrNull() ?: 0
+            val rotation =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
+                    ?.toIntOrNull() ?: 0
+
+            val normalizedRotation = rotation % 360
+            val (width, height) = if (normalizedRotation == 90 || normalizedRotation == 270) {
+                heightRaw to widthRaw
+            } else {
+                widthRaw to heightRaw
+            }
+
+            Triple(width, height, rotation)
+        } catch (e: Exception) {
+            Triple(0, 0, 0)
+        } finally {
+            retriever.release()
         }
     }
 

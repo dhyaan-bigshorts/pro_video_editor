@@ -24,6 +24,7 @@ class MockProVideoEditorPlatform
       extension: 'mp4',
       fileSize: 1,
       resolution: Size.zero,
+      rotation: 0,
     ));
   }
 

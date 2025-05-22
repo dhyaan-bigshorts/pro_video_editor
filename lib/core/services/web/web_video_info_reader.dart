@@ -68,6 +68,7 @@ class WebMetaDataReader {
         safeParseDouble(result['width']),
         safeParseDouble(result['height']),
       ),
+      rotation: safeParseInt(result['rotation']),
     );
   }
 }

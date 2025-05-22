@@ -19,26 +19,33 @@ class VideoInformation(private val context: Context) {
         var durationMs = 0.0
         var width = 0
         var height = 0
+        var rotation = 0
         var mimeType = "unknown"
 
         try {
             metadataRetriever.setDataSource(tempFile.absolutePath)
 
-            mimeType =
-                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-                    ?: "unknown"
+            mimeType = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_MIMETYPE
+            ) ?: "unknown"
 
-            val durationStr =
-                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            val durationStr = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_DURATION
+            )
+            val widthStr = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
+            )
+            val heightStr = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+            )
+            val rotationStr = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
+            )
+
             durationMs = durationStr?.toDoubleOrNull() ?: 0.0
-
-            val widthStr =
-                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
             width = widthStr?.toIntOrNull() ?: 0
-
-            val heightStr =
-                metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
             height = heightStr?.toIntOrNull() ?: 0
+            rotation = rotationStr?.toIntOrNull() ?: 0
 
         } catch (e: Exception) {
             return mapOf("error" to "Failed to retrieve metadata: ${e.message}")
@@ -50,7 +57,8 @@ class VideoInformation(private val context: Context) {
             "fileSize" to fileSize,
             "duration" to durationMs,
             "width" to width,
-            "height" to height
+            "height" to height,
+            "rotation" to rotation
         )
     }
 

@@ -31,6 +31,7 @@ class VideoProcessor {
         // Get dimensions
         var width = 0
         var height = 0
+        var rotation = 0
         if #available(macOS 13.0, *) {
             let videoTracks = try await asset.loadTracks(withMediaType: .video)
             if let track = videoTracks.first {
@@ -39,12 +40,22 @@ class VideoProcessor {
                 let transformedSize = size.applying(transform)
                 width = Int(abs(transformedSize.width))
                 height = Int(abs(transformedSize.height))
+
+                let angle = atan2(transform.b, transform.a)
+                let degrees = Int(round(angle * 180 / .pi))
+                let normalizedDegrees = (degrees + 360) % 360
+                rotation = normalizedDegrees
             }
         } else {
             if let track = asset.tracks(withMediaType: .video).first {
                 let size = track.naturalSize.applying(track.preferredTransform)
                 width = Int(abs(size.width))
                 height = Int(abs(size.height))
+
+                let angle = atan2(transform.b, transform.a)
+                let degrees = Int(round(angle * 180 / .pi))
+                let normalizedDegrees = (degrees + 360) % 360
+                rotation = normalizedDegrees
             }
         }
 
@@ -53,6 +64,7 @@ class VideoProcessor {
             "duration": durationMs,
             "width": width,
             "height": height,
+            "rotation": rotation,
         ]
     }
 
