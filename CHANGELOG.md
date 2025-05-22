@@ -1,3 +1,6 @@
+## 0.0.12
+- **FIX**(layer): Fixed incorrect layer scaling caused by misinterpreted video dimensions.
+
 ## 0.0.11
 - **FIX**(rotation): Resolve various issues when video is rotated.
 
