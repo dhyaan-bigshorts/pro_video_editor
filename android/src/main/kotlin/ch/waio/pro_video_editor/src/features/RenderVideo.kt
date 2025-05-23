@@ -87,20 +87,29 @@ class RenderVideo(private val context: Context) {
         // Apply crop
         if (cropX != null || cropY != null || cropWidth != null || cropHeight != null) {
             try {
-                val (rawVideoWidth, rawVideoHeight, videoRotation) = getRotatedVideoDimensions(
+                val (originalVideoWidth, originalVideoHeight, videoRotation) = getRotatedVideoDimensions(
                     inputFile,
                     rotationDegrees
                 )
 
-                val videoWidth = rawVideoWidth.toFloat();
-                val videoHeight = rawVideoHeight.toFloat();
+                val videoWidth = originalVideoWidth.toFloat();
+                val videoHeight = originalVideoHeight.toFloat();
 
                 if (videoWidth > 0 && videoHeight > 0) {
                     // Default to full frame if values are not provided
                     val cropX = cropX ?: 0
                     val cropY = cropY ?: 0
-                    val cropWidth = cropWidth ?: (videoWidth - cropX).toInt()
-                    val cropHeight = cropHeight ?: (videoHeight - cropY).toInt()
+                    var cropWidth = cropWidth ?: (videoWidth - cropX).toInt()
+                    var cropHeight = cropHeight ?: (videoHeight - cropY).toInt()
+
+                    //  Swap crop dimensions if rotated 90° or 270°
+                    when (rotationDegrees.toInt() % 360) {
+                        90, 270 -> {
+                            val temp = cropWidth
+                            cropWidth = cropHeight
+                            cropHeight = temp
+                        }
+                    }
 
                     // Convert to NDC
                     val leftNDC = (cropX / videoWidth) * 2f - 1f
@@ -171,10 +180,17 @@ class RenderVideo(private val context: Context) {
 
         // Load and apply transparent image overlay
         if (imageBytes != null) {
-            val (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
+            var (videoWidth, videoHeight, videoRotation) = getRotatedVideoDimensions(
                 inputFile,
                 rotationDegrees
             )
+
+            if (cropWidth != null) videoWidth = cropWidth;
+            if (cropHeight != null) videoHeight = cropHeight;
+
+            if (scaleX != null) videoWidth = (videoWidth * scaleX).toInt()
+            if (scaleY != null) videoHeight = (videoHeight * scaleY).toInt()
+
             Log.d(TAG, "Applying layer image with the size $videoWidth x $videoHeight")
 
             val overlayBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)

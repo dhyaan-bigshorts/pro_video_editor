@@ -200,6 +200,8 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
     var exportModel = RenderVideoModel(
       id: _taskId,
       videoBytes: videoBytes,
+      outputFormat: outputFormat,
+      enableAudio: proVideoController?.isAudioEnabled ?? true,
       imageBytes: parameters.image,
       blur: parameters.blur,
       colorMatrixList: parameters.colorFilters,
@@ -214,8 +216,6 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
         flipX: parameters.flipX,
         flipY: parameters.flipY,
       ),
-      enableAudio: proVideoController?.isAudioEnabled ?? true,
-      outputFormat: outputFormat,
     );
     exportedVideo = await VideoUtilsService.instance.renderVideo(exportModel);
     videoGenerationTime = stopwatch.elapsed;
