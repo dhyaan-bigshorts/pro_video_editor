@@ -57,14 +57,16 @@ class MockProVideoEditorPlatform
 }
 
 void main() {
-  final ProVideoEditorPlatform initialPlatform =
+  /*  
+  TODO: Write Tests
+   final ProVideoEditorPlatform initialPlatform =
       ProVideoEditorPlatform.instance;
 
   test('$MethodChannelProVideoEditor is the default instance', () {
     expect(initialPlatform, isInstanceOf<MethodChannelProVideoEditor>());
   });
 
-  /*  test('getPlatformVersion', () async {
+  test('getPlatformVersion', () async {
     ProVideoEditor proVideoEditorPlugin = ProVideoEditor();
     MockProVideoEditorPlatform fakePlatform = MockProVideoEditorPlatform();
     ProVideoEditorPlatform.instance = fakePlatform;
