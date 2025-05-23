@@ -4,12 +4,19 @@ version: 0.0.14
 homepage: https://github.com/hm21/pro_video_editor/
 repository: https://github.com/hm21/pro_video_editor/
 documentation: https://github.com/hm21/pro_video_editor/
+funding:
+  - https://github.com/sponsors/hm21
+
 
 topics:
   - video-editor
   - video
   - movie
   - editor
+
+screenshots:
+  - description: "Showcase from the video editor with simple design"
+    path: assets/showcase.jpg
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
