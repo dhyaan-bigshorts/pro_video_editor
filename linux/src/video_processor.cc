@@ -39,7 +39,7 @@ bool WriteBytesToFile(const std::string& path, const std::vector<uint8_t>& bytes
     return true;
 }
 
-void HandleGetVideoInformation(
+void HandleGetMetadata(
     const flutter::EncodableMap& args,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
 

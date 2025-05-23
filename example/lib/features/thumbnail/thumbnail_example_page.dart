@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import '/core/constants/example_constants.dart';
 
@@ -23,7 +24,10 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   final ThumbnailFormat _thumbnailFormat = ThumbnailFormat.jpeg;
   VideoMetadata? _informations;
 
-  Future<void> _setVideoInformation() async {
+  final _thumbnailTaskId = 'ThumbnailTaskId';
+  final _keyFramesTaskId = 'KeyFramesTaskId';
+
+  Future<void> _setMetadata() async {
     _informations = await VideoUtilsService.instance.getMetadata(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
@@ -33,10 +37,11 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   void _generateThumbnails() async {
     var outputSize = _imageSize * MediaQuery.devicePixelRatioOf(context);
 
-    if (_informations == null) await _setVideoInformation();
+    if (_informations == null) await _setMetadata();
 
     var raw = await VideoUtilsService.instance.getThumbnails(
       ThumbnailConfigs(
+        id: _thumbnailTaskId,
         video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
         outputFormat: _thumbnailFormat,
         timestamps: List.generate(
@@ -62,6 +67,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
 
     var raw = await VideoUtilsService.instance.getKeyFrames(
       KeyFramesConfigs(
+        id: _keyFramesTaskId,
         video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
         outputFormat: _thumbnailFormat,
         maxOutputFrames: _exampleImageCount,
@@ -84,12 +90,14 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
             onTap: _generateThumbnails,
             leading: const Icon(Icons.image_outlined),
             title: const Text('Generate Thumbnails'),
+            trailing: _buildProgress(_thumbnailTaskId),
           ),
           _buildThumbnails(_thumbnails),
           ListTile(
             onTap: _generateKeyFrames,
             leading: const Icon(Icons.animation_rounded),
             title: const Text('Generate Keyframes'),
+            trailing: _buildProgress(_keyFramesTaskId),
           ),
           _buildThumbnails(_keyFrames),
         ],
@@ -115,6 +123,36 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
             ),
           )
           .toList(),
+    );
+  }
+
+  Widget _buildProgress(String taskId) {
+    return FittedBox(
+      child: StreamBuilder<ProgressModel>(
+        key: ValueKey(taskId),
+        stream: VideoUtilsService.instance.progressStream
+            .where((item) => item.id == taskId),
+        builder: (context, snapshot) {
+          double progress = snapshot.data?.progress ?? 0;
+
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: progress),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, animatedValue, _) {
+              return Column(
+                children: [
+                  CircularProgressIndicator(
+                    value: animatedValue,
+                    // ignore: deprecated_member_use
+                    year2023: false,
+                  ),
+                  Text('${(animatedValue * 100).toStringAsFixed(1)} / 100'),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

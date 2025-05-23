@@ -19,7 +19,7 @@
 
 namespace pro_video_editor {
 
-	void HandleGetVideoInformation(
+	void HandleGetMetadata(
 		const flutter::EncodableMap& args,
 		std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
 		// Extract videoBytes

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 
 import '/core/models/video/editor_video_model.dart';
@@ -51,10 +52,10 @@ class VideoUtilsService {
     return ProVideoEditorPlatform.instance.renderVideo(value);
   }
 
-  /// A stream that emits export progress updates as a double from 0.0 to 1.0.
+  /// Stream of progress updates from native video tasks.
   ///
-  /// Useful for showing progress indicators during the export process.
-  Stream<double> get exportProgressStream {
-    return ProVideoEditorPlatform.instance.renderProgressStream;
+  /// Emits updates tied to task IDs, useful for tracking multiple tasks.
+  Stream<ProgressModel> get progressStream {
+    return ProVideoEditorPlatform.instance.progressStream;
   }
 }

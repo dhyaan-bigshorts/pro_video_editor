@@ -58,7 +58,5 @@ class ProVideoEditorWeb extends ProVideoEditorPlatform {
   }
 
   @override
-  Stream<double> get renderProgressStream {
-    throw UnimplementedError('renderProgressStream has not been implemented.');
-  }
+  void initializeStream() {}
 }

@@ -22,7 +22,7 @@ class VideoMetadataExamplePage extends StatefulWidget {
 class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
   VideoMetadata? _informations;
 
-  Future<void> _setVideoInformation() async {
+  Future<void> _setMetadata() async {
     _informations = await VideoUtilsService.instance.getMetadata(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
@@ -36,7 +36,7 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
       body: ListView(
         children: [
           ListTile(
-            onTap: _setVideoInformation,
+            onTap: _setMetadata,
             leading: const Icon(Icons.find_in_page_outlined),
             title: const Text('Read metadata'),
           ),

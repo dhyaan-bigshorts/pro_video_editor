@@ -1,5 +1,6 @@
 package ch.waio.pro_video_editor.src.features
 
+import PACKAGE_TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -30,6 +31,8 @@ import com.google.common.collect.ImmutableList
 
 @UnstableApi
 class RenderVideo(private val context: Context) {
+    private val TAG = "$PACKAGE_TAG-Renderer"
+
     fun render(
         videoBytes: ByteArray,
         imageBytes: ByteArray?,
@@ -54,9 +57,6 @@ class RenderVideo(private val context: Context) {
         onComplete: (ByteArray?) -> Unit,
         onError: (Throwable) -> Unit
     ) {
-        // Tag for logging
-        val TAG = "RenderVideo"
-
         val inputFile =
             File(context.cacheDir, "video_input_${System.currentTimeMillis()}.$inputFormat").apply {
                 writeBytes(videoBytes)
@@ -215,11 +215,14 @@ class RenderVideo(private val context: Context) {
 
         val editedMediaItem = editedMediaItemBuilder.build()
 
+        var shouldStopPolling = false
+
         val outputMimeType = mapFormatToMimeType(outputFormat)
         val transformer = Transformer.Builder(context)
             .setVideoMimeType(outputMimeType)
             .addListener(object : Transformer.Listener {
                 override fun onCompleted(composition: Composition, result: ExportResult) {
+                    shouldStopPolling = true;
                     try {
                         val resultBytes = outputFile.readBytes()
                         onComplete(resultBytes)
@@ -236,6 +239,7 @@ class RenderVideo(private val context: Context) {
                     result: ExportResult,
                     exception: ExportException
                 ) {
+                    shouldStopPolling = true;
                     onError(exception)
                     inputFile.delete()
                     outputFile.delete()
@@ -252,13 +256,15 @@ class RenderVideo(private val context: Context) {
 
         mainHandler.post(object : Runnable {
             override fun run() {
+                if (shouldStopPolling) return
+
                 val progressState = transformer.getProgress(progressHolder)
                 if (progressHolder.progress >= 0) {
                     onProgress(progressHolder.progress / 100.0)
                 }
 
                 // Continue polling if transformer started
-                if (progressState != Transformer.PROGRESS_STATE_NOT_STARTED) {
+                if (!shouldStopPolling && progressState != Transformer.PROGRESS_STATE_NOT_STARTED) {
                     mainHandler.postDelayed(this, 200)
                 }
             }

@@ -19,7 +19,9 @@ class RenderVideoModel {
     this.endTime,
     this.blur,
     this.colorMatrixList = const [],
-  })  : assert(
+    String? id,
+  })  : id = id ?? DateTime.now().toString(),
+        assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
         ),
@@ -27,6 +29,9 @@ class RenderVideoModel {
           blur == null || blur >= 0,
           'Blur must be greater than or equal to 0',
         );
+
+  /// Unique ID for the task, useful when running multiple tasks at once.
+  final String id;
 
   /// The target format for the exported video.
   final VideoOutputFormat outputFormat;
@@ -70,6 +75,7 @@ class RenderVideoModel {
   /// Converts the model into a serializable map.
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'videoBytes': videoBytes,
       'imageBytes': imageBytes,
       'rotateTurns': transform.rotateTurns,
@@ -89,6 +95,35 @@ class RenderVideoModel {
       'outputFormat': outputFormat.name,
       'blur': blur,
     };
+  }
+
+  /// Creates a copy with updated values.
+  RenderVideoModel copyWith({
+    String? id,
+    VideoOutputFormat? outputFormat,
+    Uint8List? videoBytes,
+    Uint8List? imageBytes,
+    ExportTransform? transform,
+    bool? enableAudio,
+    double? playbackSpeed,
+    Duration? startTime,
+    Duration? endTime,
+    List<List<double>>? colorMatrixList,
+    double? blur,
+  }) {
+    return RenderVideoModel(
+      id: id ?? this.id,
+      outputFormat: outputFormat ?? this.outputFormat,
+      videoBytes: videoBytes ?? this.videoBytes,
+      imageBytes: imageBytes ?? this.imageBytes,
+      transform: transform ?? this.transform,
+      enableAudio: enableAudio ?? this.enableAudio,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      colorMatrixList: colorMatrixList ?? this.colorMatrixList,
+      blur: blur ?? this.blur,
+    );
   }
 }
 

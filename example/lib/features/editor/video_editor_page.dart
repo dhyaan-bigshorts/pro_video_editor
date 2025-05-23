@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:pro_image_editor/core/models/complete_parameters.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:video_player/video_player.dart';
@@ -65,6 +64,8 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Duration videoGenerationTime = Duration.zero;
   late VideoPlayerController _videoController;
 
+  String _taskId = DateTime.now().toString();
+
   @override
   void initState() {
     super.initState();
@@ -112,7 +113,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       thumbnails = temporaryThumbnails;
 
       if (proVideoController != null) {
-        //FIXME: proVideoController!.thumbnails = thumbnails;
+        proVideoController!.thumbnails = thumbnails;
       }
     });
   }
@@ -139,7 +140,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       initialResolution: videoMetadata.resolution,
       videoDuration: videoMetadata.duration,
       fileSize: videoMetadata.fileSize,
-      thumbnails: [], // FIXME: thumbnails,
+      thumbnails: thumbnails,
     );
 
     _videoController.addListener(_onDurationChange);
@@ -194,8 +195,10 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
     final stopwatch = Stopwatch()..start();
 
     var videoBytes = await video.safeByteArray();
+    _taskId = DateTime.now().toString();
 
     var exportModel = RenderVideoModel(
+      id: _taskId,
       videoBytes: videoBytes,
       imageBytes: parameters.image,
       blur: parameters.blur,
@@ -235,6 +238,8 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
           ),
         ),
       );
+    } else {
+      return Navigator.pop(context);
     }
   }
 
@@ -271,7 +276,9 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       configs: ProImageEditorConfigs(
         dialogConfigs: DialogConfigs(
           widgets: DialogWidgets(
-            loadingDialog: (message, configs) => const VideoProgressAlert(),
+            loadingDialog: (message, configs) => VideoProgressAlert(
+              taskId: _taskId,
+            ),
           ),
         ),
         mainEditor: MainEditorConfigs(

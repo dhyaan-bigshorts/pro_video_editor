@@ -7,7 +7,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class VideoInformation(private val context: Context) {
+class Metadata(private val context: Context) {
 
     fun processVideo(videoData: ByteArray, extension: String): Map<String, Any> {
         val tempFile = createTempFile(videoData, extension)

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -6,6 +7,7 @@ import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
 import 'core/models/thumbnail/key_frames_configs.model.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
+import 'core/models/video/progress_model.dart';
 import 'core/models/video/render_video_model.dart';
 import 'pro_video_editor_method_channel.dart';
 
@@ -13,7 +15,9 @@ import 'pro_video_editor_method_channel.dart';
 /// Pro Video Editor plugin.
 abstract class ProVideoEditorPlatform extends PlatformInterface {
   /// Constructs a ProVideoEditorPlatform.
-  ProVideoEditorPlatform() : super(token: _token);
+  ProVideoEditorPlatform() : super(token: _token) {
+    initializeStream();
+  }
 
   static final Object _token = Object();
 
@@ -66,10 +70,16 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     throw UnimplementedError('renderVideo() has not been implemented.');
   }
 
-  /// A stream that emits render progress updates as a double from 0.0 to 1.0.
+  /// Sets up the native progress stream connection.
   ///
-  /// Useful for showing progress indicators during the export process.
-  Stream<double> get renderProgressStream {
-    throw UnimplementedError('renderProgressStream has not been implemented.');
+  /// Must be implemented to receive progress updates from native code.
+  void initializeStream() {
+    throw UnimplementedError('[initializeStream()] has not been implemented.');
   }
+
+  /// Emits progress updates for running tasks.
+  final progressCtrl = StreamController<ProgressModel>.broadcast();
+
+  /// Stream of progress updates.
+  Stream<ProgressModel> get progressStream => progressCtrl.stream;
 }

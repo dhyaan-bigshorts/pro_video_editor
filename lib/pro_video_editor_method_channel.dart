@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
@@ -6,7 +8,9 @@ import '/core/models/video/editor_video_model.dart';
 import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
 import 'core/models/thumbnail/key_frames_configs.model.dart';
+import 'core/models/thumbnail/thumbnail_base.abstract.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
+import 'core/models/video/progress_model.dart';
 import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
@@ -50,8 +54,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     );
   }
 
-  @override
-  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
+  Future<List<Uint8List>> _extractThumbnails(ThumbnailBase value) async {
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
@@ -59,15 +62,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
       {
         'videoBytes': videoBytes,
         'extension': _getFileExtension(videoBytes),
-        'boxFit': value.boxFit.name,
-        'outputFormat': value.outputFormat.name,
-        'outputWidth': value.outputSize.width,
-        'outputHeight': value.outputSize.height,
-        'timestamps': value.timestamps
-            .map(
-              (timestamp) => timestamp.inMicroseconds,
-            )
-            .toList(),
+        ...value.toMap(),
       },
     );
     final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
@@ -76,24 +71,13 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
+  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
+    return await _extractThumbnails(value);
+  }
+
+  @override
   Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
-    var videoBytes = await value.video.safeByteArray();
-
-    final response = await methodChannel.invokeMethod<List<dynamic>>(
-      'getKeyFrames',
-      {
-        'videoBytes': videoBytes,
-        'extension': _getFileExtension(videoBytes),
-        'boxFit': value.boxFit.name,
-        'outputFormat': value.outputFormat.name,
-        'outputWidth': value.outputSize.width,
-        'outputHeight': value.outputSize.height,
-        'maxOutputFrames': value.maxOutputFrames,
-      },
-    );
-    final List<Uint8List> result = response?.cast<Uint8List>() ?? [];
-
-    return result;
+    return await _extractThumbnails(value);
   }
 
   @override
@@ -119,10 +103,15 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Stream<double> get renderProgressStream {
-    return _progressChannel
-        .receiveBroadcastStream()
-        .map((event) => event as double);
+  void initializeStream() {
+    _progressChannel.receiveBroadcastStream().map((event) {
+      try {
+        return ProgressModel.fromMap(event);
+      } catch (e, stack) {
+        debugPrint('Error in fromMap: $e\n$stack');
+        return const ProgressModel(id: 'error', progress: 0);
+      }
+    }).listen(progressCtrl.add);
   }
 
   String _getFileExtension(Uint8List videoBytes) {

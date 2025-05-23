@@ -78,7 +78,7 @@ namespace pro_video_editor {
 				return;
 			}
 
-			pro_video_editor::HandleGetVideoInformation(*args, std::move(result));
+			pro_video_editor::HandleGetMetadata(*args, std::move(result));
 		}
 		else if (method_call.method_name().compare("createVideoThumbnails") == 0) {
 			result->NotImplemented();
