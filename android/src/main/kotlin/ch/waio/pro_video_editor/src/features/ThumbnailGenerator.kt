@@ -1,17 +1,23 @@
 package ch.waio.pro_video_editor.src.features
 
+import PACKAGE_TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.atomic.AtomicInteger
 
 class ThumbnailGenerator(private val context: Context) {
+    private val TAG = "$PACKAGE_TAG-ThumbnailGenerator"
 
     suspend fun getThumbnails(
         videoBytes: ByteArray,
@@ -20,11 +26,42 @@ class ThumbnailGenerator(private val context: Context) {
         boxFit: String,
         outputWidth: Int,
         outputHeight: Int,
-        timestampsUs: List<Long>
+        timestampsUs: List<Long> = emptyList(),
+        maxOutputFrames: Int? = 10,
+        onProgress: (Double) -> Unit,
     ): List<ByteArray> = withContext(Dispatchers.IO) {
-        val TAG = "CustomThumbnailGen"
+        when {
+            timestampsUs.isNotEmpty() -> {
+                getThumbnailsFromTimestamps(
+                    videoBytes, extension, outputFormat, boxFit,
+                    outputWidth, outputHeight, timestampsUs, onProgress
+                )
+            }
+
+            maxOutputFrames != null -> {
+                getKeyFrames(
+                    videoBytes, extension, outputFormat, boxFit,
+                    outputWidth, outputHeight, maxOutputFrames, onProgress
+                )
+            }
+
+            else -> emptyList() // fallback in case both are missing
+        }
+    }
+
+    private suspend fun getThumbnailsFromTimestamps(
+        videoBytes: ByteArray,
+        extension: String,
+        outputFormat: String,
+        boxFit: String,
+        outputWidth: Int,
+        outputHeight: Int,
+        timestampsUs: List<Long>,
+        onProgress: (Double) -> Unit,
+    ): List<ByteArray> = withContext(Dispatchers.IO) {
         val tempVideoFile = writeBytesToTempFile(videoBytes, extension)
         val thumbnails = MutableList<ByteArray?>(timestampsUs.size) { null }
+        val completed = AtomicInteger(0)
 
         val jobs = timestampsUs.mapIndexed { index, timeUs ->
             async {
@@ -45,7 +82,7 @@ class ThumbnailGenerator(private val context: Context) {
                         val duration = System.currentTimeMillis() - startTime
                         Log.d(
                             TAG,
-                            "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
+                            "✅ [$index]  ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
                         )
                     } else {
                         Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
@@ -54,30 +91,32 @@ class ThumbnailGenerator(private val context: Context) {
                     Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
                 } finally {
                     retriever?.release()
+                    val progress = completed.incrementAndGet().toDouble() / timestampsUs.size
+                    onProgress(progress)
                 }
             }
         }
 
         jobs.awaitAll()
         tempVideoFile.delete()
-        return@withContext thumbnails.filterNotNull()
+        thumbnails.filterNotNull()
     }
 
-
-    suspend fun getKeyFrames(
+    private suspend fun getKeyFrames(
         videoBytes: ByteArray,
         extension: String,
         outputFormat: String,
         boxFit: String,
         outputWidth: Int,
         outputHeight: Int,
-        maxOutputFrames: Int = 10
+        maxOutputFrames: Int = 10,
+        onProgress: (Double) -> Unit,
     ): List<ByteArray> = withContext(Dispatchers.IO) {
-        val TAG = "KeyframeThumbnailGen"
         val tempVideoFile = writeBytesToTempFile(videoBytes, extension)
         val keyframeTimestamps =
             extractKeyframeTimestamps(tempVideoFile.absolutePath, maxOutputFrames)
         val thumbnails = MutableList<ByteArray?>(keyframeTimestamps.size) { null }
+        val completed = AtomicInteger(0)
 
         val jobs = keyframeTimestamps.mapIndexed { index, timeUs ->
             async {
@@ -107,14 +146,17 @@ class ThumbnailGenerator(private val context: Context) {
                     Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
                 } finally {
                     retriever?.release()
+                    val progress = completed.incrementAndGet().toDouble() / keyframeTimestamps.size
+                    onProgress(progress)
                 }
             }
         }
 
         jobs.awaitAll()
         tempVideoFile.delete()
-        return@withContext thumbnails.filterNotNull()
+        thumbnails.filterNotNull()
     }
+
 
     private fun extractKeyframeTimestamps(videoPath: String, maxOutputFrames: Int): List<Long> {
         val extractor = MediaExtractor()
@@ -152,7 +194,6 @@ class ThumbnailGenerator(private val context: Context) {
         }
     }
 
-
     private fun resizeBitmapKeepingAspect(
         original: Bitmap,
         targetWidth: Int,
@@ -175,7 +216,6 @@ class ThumbnailGenerator(private val context: Context) {
 
         return Bitmap.createScaledBitmap(original, resizedWidth, resizedHeight, true)
     }
-
 
     private fun compressBitmap(bitmap: Bitmap, format: String): ByteArray {
         val stream = ByteArrayOutputStream()

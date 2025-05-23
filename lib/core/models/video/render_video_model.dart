@@ -18,15 +18,29 @@ class RenderVideoModel {
     this.startTime,
     this.endTime,
     this.blur,
+    this.bitrate,
     this.colorMatrixList = const [],
-  })  : assert(
+    String? id,
+  })  : id = id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+        assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
         ),
         assert(
           blur == null || blur >= 0,
-          'Blur must be greater than or equal to 0',
+          '[blur] must be greater than or equal to 0',
+        ),
+        assert(
+          playbackSpeed == null || playbackSpeed > 0,
+          '[playbackSpeed] must be greater than 0',
+        ),
+        assert(
+          bitrate == null || bitrate > 0,
+          '[bitrate] must be greater than 0',
         );
+
+  /// Unique ID for the task, useful when running multiple tasks at once.
+  final String id;
 
   /// The target format for the exported video.
   final VideoOutputFormat outputFormat;
@@ -67,9 +81,15 @@ class RenderVideoModel {
   /// Higher values result in a stronger blur effect.
   final double? blur;
 
+  /// The bitrate of the video in bits per second.
+  ///
+  /// This value is optional and may be `null` if the bitrate is not specified.
+  final int? bitrate;
+
   /// Converts the model into a serializable map.
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'videoBytes': videoBytes,
       'imageBytes': imageBytes,
       'rotateTurns': transform.rotateTurns,
@@ -88,7 +108,39 @@ class RenderVideoModel {
       'colorMatrixList': colorMatrixList,
       'outputFormat': outputFormat.name,
       'blur': blur,
+      'bitrate': bitrate,
     };
+  }
+
+  /// Creates a copy with updated values.
+  RenderVideoModel copyWith({
+    String? id,
+    VideoOutputFormat? outputFormat,
+    Uint8List? videoBytes,
+    Uint8List? imageBytes,
+    ExportTransform? transform,
+    bool? enableAudio,
+    double? playbackSpeed,
+    Duration? startTime,
+    Duration? endTime,
+    List<List<double>>? colorMatrixList,
+    double? blur,
+    int? bitrate,
+  }) {
+    return RenderVideoModel(
+      id: id ?? this.id,
+      outputFormat: outputFormat ?? this.outputFormat,
+      videoBytes: videoBytes ?? this.videoBytes,
+      imageBytes: imageBytes ?? this.imageBytes,
+      transform: transform ?? this.transform,
+      enableAudio: enableAudio ?? this.enableAudio,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      colorMatrixList: colorMatrixList ?? this.colorMatrixList,
+      blur: blur ?? this.blur,
+      bitrate: bitrate ?? this.bitrate,
+    );
   }
 }
 

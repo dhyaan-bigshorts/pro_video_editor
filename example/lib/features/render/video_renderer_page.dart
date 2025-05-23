@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
 import '/core/constants/example_filters.dart';
@@ -40,9 +41,11 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   final List<List<double>> _colorFilters = [];
   // kBasicFilterMatrix   kComplexFilterMatrix
 
-  VideoMetadata? _outputVideoInformation;
+  VideoMetadata? _outputMetadata;
 
   Uint8List? _temporaryVideoBytes;
+
+  String _taskId = DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   void initState() {
@@ -193,16 +196,19 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   }
 
   Future<void> _renderVideo(RenderVideoModel value) async {
+    _taskId = DateTime.now().microsecondsSinceEpoch.toString();
     setState(() => _isExporting = true);
 
     var sp = Stopwatch()..start();
 
-    final result = await VideoUtilsService.instance.renderVideo(value);
+    final result = await VideoUtilsService.instance.renderVideo(
+      value.copyWith(id: _taskId),
+    );
 
     _generationTime = sp.elapsed;
 
-    _outputVideoInformation = (await VideoUtilsService.instance
-        .getVideoInformation(EditorVideo(byteArray: result)));
+    _outputMetadata = (await VideoUtilsService.instance
+        .getMetadata(EditorVideo(byteArray: result)));
 
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();
@@ -229,7 +235,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
-          spacing: 16,
+          spacing: 20,
           children: [
             _buildDemoEditorContent(),
             _buildExportedVideo(),
@@ -241,101 +247,109 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   }
 
   Widget _buildDemoEditorContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 3,
-      children: [
-        const Text('Demo-Video'),
-        AspectRatio(
-          aspectRatio: 1280 / 720,
-          child: Stack(
-            children: [
-              ColorFilterGenerator(
-                filters: _colorFilters,
-                child: Video(controller: _controllerContent),
-              ),
-              IgnorePointer(
-                child: ClipRect(
-                  clipBehavior: Clip.hardEdge,
-                  child: BackdropFilter(
-                    filter: ui.ImageFilter.blur(
-                        sigmaX: _blurFactor, sigmaY: _blurFactor),
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: Colors.white.withValues(alpha: 0.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 5,
+        children: [
+          const Text('Demo-Video'),
+          AspectRatio(
+            aspectRatio: 1280 / 720,
+            child: Stack(
+              children: [
+                ColorFilterGenerator(
+                  filters: _colorFilters,
+                  child: Video(controller: _controllerContent),
+                ),
+                IgnorePointer(
+                  child: ClipRect(
+                    clipBehavior: Clip.hardEdge,
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(
+                          sigmaX: _blurFactor, sigmaY: _blurFactor),
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: Colors.white.withValues(alpha: 0.0),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              AspectRatio(
-                aspectRatio: 1280 / 720,
-                child: RepaintBoundary(
-                  key: _boundaryKey,
-                  child: const Stack(
-                    children: [
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        child: Text(
-                          '🤑',
-                          style: TextStyle(fontSize: 40),
-                        ),
+                IgnorePointer(
+                  child: AspectRatio(
+                    aspectRatio: 1280 / 720,
+                    child: RepaintBoundary(
+                      key: _boundaryKey,
+                      child: const Stack(
+                        children: [
+                          Positioned(
+                            top: 10,
+                            left: 10,
+                            child: Text(
+                              '🤑',
+                              style: TextStyle(fontSize: 40),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              '🚀',
+                              style: TextStyle(fontSize: 48),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: Text(
+                              '❤️',
+                              style: TextStyle(fontSize: 32),
+                            ),
+                          ),
+                        ],
                       ),
-                      Center(
-                        child: Text(
-                          '🚀',
-                          style: TextStyle(fontSize: 48),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Text(
-                          '❤️',
-                          style: TextStyle(fontSize: 32),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildExportedVideo() {
-    return Column(
-      children: _videoBytes == null
-          ? []
-          : [
-              const Text('Output-Video'),
-              AspectRatio(
-                aspectRatio: max(
-                  _outputVideoInformation?.resolution.aspectRatio ?? 0,
-                  1280 / 720,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 5,
+        children: _videoBytes == null
+            ? []
+            : [
+                const Text('Output-Video'),
+                AspectRatio(
+                  aspectRatio: max(
+                    _outputMetadata?.resolution.aspectRatio ?? 0,
+                    1280 / 720,
+                  ),
+                  child: Video(controller: _controllerPreview),
                 ),
-                child: Video(controller: _controllerPreview),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
+                Text(
                   'Result: ${formatBytes(_videoBytes!.lengthInBytes)} '
                   'bytes in ${_generationTime.inMilliseconds}ms',
                 ),
-              ),
-            ],
+              ],
+      ),
     );
   }
 
   Widget _buildOptions() {
     if (_isExporting) {
-      return StreamBuilder<double>(
-        stream: VideoUtilsService.instance.exportProgressStream,
+      return StreamBuilder<ProgressModel>(
+        stream: VideoUtilsService.instance.progressStream
+            .where((item) => item.id == _taskId),
         builder: (context, snapshot) {
-          double progress = snapshot.data ?? 0;
+          double progress = snapshot.data?.progress ?? 0;
 
           return TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: progress),

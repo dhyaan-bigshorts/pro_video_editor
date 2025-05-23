@@ -1,3 +1,8 @@
+## 0.0.14
+- **FIX**: Resolve various crop and rotation issues.
+- **REFACTOR**(android): Improve code quality.
+- **FEAT**(example): Add video-editor example.
+
 ## 0.0.13
 - **FIX**(crop): Resolve issues that crop not working.
 

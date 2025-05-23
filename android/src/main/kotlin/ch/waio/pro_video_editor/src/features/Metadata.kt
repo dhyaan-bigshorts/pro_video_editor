@@ -7,7 +7,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class VideoInformation(private val context: Context) {
+class Metadata(private val context: Context) {
 
     fun processVideo(videoData: ByteArray, extension: String): Map<String, Any> {
         val tempFile = createTempFile(videoData, extension)
@@ -20,6 +20,7 @@ class VideoInformation(private val context: Context) {
         var width = 0
         var height = 0
         var rotation = 0
+        var bitrate = 0
         var mimeType = "unknown"
 
         try {
@@ -41,11 +42,15 @@ class VideoInformation(private val context: Context) {
             val rotationStr = metadataRetriever.extractMetadata(
                 MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
             )
+            val bitrateStr = metadataRetriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_BITRATE
+            )
 
             durationMs = durationStr?.toDoubleOrNull() ?: 0.0
             width = widthStr?.toIntOrNull() ?: 0
             height = heightStr?.toIntOrNull() ?: 0
             rotation = rotationStr?.toIntOrNull() ?: 0
+            bitrate = bitrateStr?.toIntOrNull() ?: 0
 
         } catch (e: Exception) {
             return mapOf("error" to "Failed to retrieve metadata: ${e.message}")
@@ -58,7 +63,8 @@ class VideoInformation(private val context: Context) {
             "duration" to durationMs,
             "width" to width,
             "height" to height,
-            "rotation" to rotation
+            "rotation" to rotation,
+            "bitrate" to bitrate,
         )
     }
 

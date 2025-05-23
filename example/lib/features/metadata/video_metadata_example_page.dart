@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
 import '/core/constants/example_constants.dart';
@@ -20,10 +21,11 @@ class VideoMetadataExamplePage extends StatefulWidget {
 }
 
 class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
-  VideoMetadata? _informations;
+  VideoMetadata? _metadata;
+  final _numberFormatter = NumberFormat();
 
-  Future<void> _setVideoInformation() async {
-    _informations = await VideoUtilsService.instance.getVideoInformation(
+  Future<void> _setMetadata() async {
+    _metadata = await VideoUtilsService.instance.getMetadata(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
     setState(() {});
@@ -36,69 +38,47 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
       body: ListView(
         children: [
           ListTile(
-            onTap: _setVideoInformation,
+            onTap: _setMetadata,
             leading: const Icon(Icons.find_in_page_outlined),
             title: const Text('Read metadata'),
           ),
-          if (_informations != null)
+          if (_metadata != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Table(
-                columnWidths: const {
-                  0: IntrinsicColumnWidth(),
-                  1: FlexColumnWidth(),
-                },
-                children: [
-                  TableRow(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text('FileSize:'),
-                      ),
-                      Text(formatBytes(_informations!.fileSize)),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text('Format:'),
-                      ),
-                      Text(_informations!.extension),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text('Resolution:'),
-                      ),
-                      Text(_informations!.resolution.toString()),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text('Rotation:'),
-                      ),
-                      Text('${_informations!.rotation}deg'),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text('Duration:'),
-                      ),
-                      Text('${_informations!.duration.inSeconds}s'),
-                    ],
-                  ),
-                ],
-              ),
+              child: _buildTable(),
             )
         ],
       ),
+    );
+  }
+
+  Widget _buildTable() {
+    var meta = _metadata!;
+    return Table(
+      columnWidths: const {
+        0: IntrinsicColumnWidth(),
+        1: FlexColumnWidth(),
+      },
+      children: [
+        _buildMetadataRow('FileSize:', formatBytes(meta.fileSize)),
+        _buildMetadataRow('Format:', meta.extension),
+        _buildMetadataRow('Resolution:', meta.resolution.toString()),
+        _buildMetadataRow('Rotation:', '${meta.rotation}°'),
+        _buildMetadataRow('Duration:', '${meta.duration.inSeconds}s'),
+        _buildMetadataRow('Bitrate:', _numberFormatter.format(meta.bitrate)),
+      ],
+    );
+  }
+
+  TableRow _buildMetadataRow(String label, String value) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Text(label),
+        ),
+        Text(value),
+      ],
     );
   }
 }
