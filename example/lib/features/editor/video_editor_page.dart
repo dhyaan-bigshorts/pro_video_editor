@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -196,6 +197,8 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
     var videoBytes = await video.safeByteArray();
     _taskId = DateTime.now().toString();
+
+    unawaited(_videoController.pause());
 
     var exportModel = RenderVideoModel(
       id: _taskId,

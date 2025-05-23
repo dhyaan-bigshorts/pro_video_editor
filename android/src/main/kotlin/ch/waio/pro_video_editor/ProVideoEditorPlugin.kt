@@ -3,14 +3,14 @@ package ch.waio.pro_video_editor
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import ch.waio.pro_video_editor.src.features.Metadata
+import ch.waio.pro_video_editor.src.features.RenderVideo
+import ch.waio.pro_video_editor.src.features.ThumbnailGenerator
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import ch.waio.pro_video_editor.src.features.RenderVideo
-import ch.waio.pro_video_editor.src.features.Metadata
-import ch.waio.pro_video_editor.src.features.ThumbnailGenerator
 import kotlinx.coroutines.*
 
 /** ProVideoEditorPlugin */

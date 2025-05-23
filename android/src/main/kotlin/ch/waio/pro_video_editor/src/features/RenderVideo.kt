@@ -4,30 +4,30 @@ import PACKAGE_TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.*
-import androidx.media3.common.audio.SonicAudioProcessor
-import java.io.File
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.audio.SonicAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.BitmapOverlay
 import androidx.media3.effect.Crop
 import androidx.media3.effect.GaussianBlur
 import androidx.media3.effect.OverlayEffect
 import androidx.media3.effect.ScaleAndRotateTransformation
+import androidx.media3.effect.SingleColorLut
 import androidx.media3.effect.SpeedChangeEffect
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
-import androidx.media3.transformer.Effects
-import androidx.media3.effect.SingleColorLut
 import com.google.common.collect.ImmutableList
+import java.io.File
 
 @UnstableApi
 class RenderVideo(private val context: Context) {
@@ -78,7 +78,7 @@ class RenderVideo(private val context: Context) {
 
         // Apply flip
         if (flipX || flipY) {
-            Log.d(TAG, "Applying flip - flipX: $flipX, flipY: $flipY")
+            Log.d(TAG, "Applying flip: flipX: $flipX, flipY: $flipY")
             videoEffects += ScaleAndRotateTransformation.Builder()
                 .setScale(if (flipX) -1f else 1f, if (flipY) -1f else 1f)
                 .build()
@@ -97,18 +97,36 @@ class RenderVideo(private val context: Context) {
 
                 if (videoWidth > 0 && videoHeight > 0) {
                     // Default to full frame if values are not provided
-                    val cropX = cropX ?: 0
-                    val cropY = cropY ?: 0
+                    var cropX = cropX ?: 0
+                    var cropY = cropY ?: 0
                     var cropWidth = cropWidth ?: (videoWidth - cropX).toInt()
                     var cropHeight = cropHeight ?: (videoHeight - cropY).toInt()
 
                     //  Swap crop dimensions if rotated 90° or 270°
-                    when (rotationDegrees.toInt() % 360) {
+                    var rotation = rotationDegrees.toInt() % 360;
+                    when (rotation) {
                         90, 270 -> {
-                            val temp = cropWidth
+                            val tempWidth = cropWidth
                             cropWidth = cropHeight
-                            cropHeight = temp
+                            cropHeight = tempWidth
+
+                            val tempX = cropX
+                            cropX = cropY
+                            cropY = tempX
                         }
+                    }
+                    if (rotation == 90 || rotation == 180) {
+                        cropY = (videoHeight - cropHeight - cropY).toInt();
+                    }
+                    if (rotation == 270 || rotation == 180) {
+                        cropX = (videoWidth - cropWidth - cropX).toInt();
+                    }
+
+                    if (flipX) {
+                        cropX = (videoWidth - cropWidth - cropX).toInt()
+                    }
+                    if (flipY) {
+                        cropY = (videoHeight - cropHeight - cropY).toInt()
                     }
 
                     // Convert to NDC
@@ -119,7 +137,7 @@ class RenderVideo(private val context: Context) {
 
                     Log.d(
                         TAG,
-                        "Applying crop - left=$leftNDC, right=$rightNDC, top=$topNDC, bottom=$bottomNDC"
+                        "Applying crop: left=$leftNDC, right=$rightNDC, top=$topNDC, bottom=$bottomNDC"
                     )
                     videoEffects += Crop(leftNDC, rightNDC, bottomNDC, topNDC)
                 } else {
@@ -132,7 +150,7 @@ class RenderVideo(private val context: Context) {
 
         // Apply scale
         if (scaleX != null || scaleY != null) {
-            Log.d(TAG, "Applying scale - scaleX: $scaleX, scaleY: $scaleY")
+            Log.d(TAG, "Applying scale: scaleX: $scaleX, scaleY: $scaleY")
             videoEffects += ScaleAndRotateTransformation.Builder()
                 .setScale(scaleX ?: 1f, scaleY ?: 1f)
                 .build()
@@ -169,7 +187,7 @@ class RenderVideo(private val context: Context) {
 
         /// Apply blur
         if (blur != null && blur > 0.0) {
-            Log.d(TAG, "Applying Gaussian blur with sigma: $blur")
+            Log.d(TAG, "Applying Blur: Sigma: $blur")
 
             // Create a GaussianBlur effect with the specified sigma
             val blurEffect = GaussianBlur(blur.toFloat() * 2.5f)
@@ -191,7 +209,7 @@ class RenderVideo(private val context: Context) {
             if (scaleX != null) videoWidth = (videoWidth * scaleX).toInt()
             if (scaleY != null) videoHeight = (videoHeight * scaleY).toInt()
 
-            Log.d(TAG, "Applying layer image with the size $videoWidth x $videoHeight")
+            Log.d(TAG, "Applying Image-Layer: Size $videoWidth x $videoHeight")
 
             val overlayBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             val scaledOverlay =
@@ -208,7 +226,7 @@ class RenderVideo(private val context: Context) {
 
         // Apply playback speed
         if (playbackSpeed != null && playbackSpeed > 0f) {
-            Log.d(TAG, "Applying speed change: $playbackSpeed×")
+            Log.d(TAG, "Applying playback speed: $playbackSpeed×")
             videoEffects += SpeedChangeEffect(playbackSpeed)
 
             val audio = SonicAudioProcessor()
