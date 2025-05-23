@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import ch.waio.pro_video_editor.src.features.Metadata
-import ch.waio.pro_video_editor.src.features.RenderVideo
+import ch.waio.pro_video_editor.src.features.render.RenderVideo
 import ch.waio.pro_video_editor.src.features.ThumbnailGenerator
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
@@ -127,6 +127,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val cropHeight = call.argument<Number>("cropHeight")?.toInt()
                 val cropX = call.argument<Number>("cropX")?.toInt()
                 val cropY = call.argument<Number>("cropY")?.toInt()
+                val bitrate = call.argument<Number>("bitrate")?.toInt()
                 val scaleX = call.argument<Number>("scaleX")?.toFloat()
                 val scaleY = call.argument<Number>("scaleY")?.toFloat()
                 val blur = call.argument<Number>("blur")?.toDouble()
@@ -171,6 +172,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     endUs = endUs,
                     colorMatrixList = colorMatrixList,
                     blur = blur,
+                    bitrate = bitrate,
                     onProgress = { progress -> postProgress(id, progress) },
                     onComplete = { resultBytes ->
                         postProgress(id, 1.0)

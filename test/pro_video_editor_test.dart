@@ -27,6 +27,7 @@ class MockProVideoEditorPlatform
       fileSize: 1,
       resolution: Size.zero,
       rotation: 0,
+      bitrate: 0,
     ));
   }
 

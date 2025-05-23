@@ -22,10 +22,10 @@ class VideoEditorPage extends StatefulWidget {
 
 class _VideoEditorPageState extends State<VideoEditorPage> {
   /// The target format for the exported video.
-  final outputFormat = VideoOutputFormat.mp4;
+  final _outputFormat = VideoOutputFormat.mp4;
 
   /// Video editor configuration settings.
-  late final VideoEditorConfigs videoConfigs = const VideoEditorConfigs(
+  late final VideoEditorConfigs _videoConfigs = const VideoEditorConfigs(
     initialMuted: true,
     initialPlay: false,
     isAudioSupported: true,
@@ -33,36 +33,36 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   );
 
   /// Indicates whether a seek operation is in progress.
-  bool isSeeking = false;
+  bool _isSeeking = false;
 
   /// Stores the currently selected trim duration span.
-  TrimDurationSpan? durationSpan;
+  TrimDurationSpan? _durationSpan;
 
   /// Temporarily stores a pending trim duration span.
-  TrimDurationSpan? tempDurationSpan;
+  TrimDurationSpan? _tempDurationSpan;
 
   /// Controls video playback and trimming functionalities.
-  ProVideoController? proVideoController;
+  ProVideoController? _proVideoController;
 
   /// Stores generated thumbnails for the trimmer bar and filter background.
-  List<ImageProvider>? thumbnails;
+  List<ImageProvider>? _thumbnails;
 
   /// Holds information about the selected video.
   ///
   /// This will be populated via [setMetadata].
-  late VideoMetadata videoMetadata;
+  late VideoMetadata _videoMetadata;
 
   /// Number of thumbnails to generate across the video timeline.
-  final int thumbnailCount = 10;
+  final int _thumbnailCount = 10;
 
   /// The video currently loaded in the editor.
-  EditorVideo video = EditorVideo(assetPath: kVideoEditorExampleAssetPath);
+  final _video = EditorVideo(assetPath: kVideoEditorExampleAssetPath);
 
   /// The result of the video export process, if completed.
-  Uint8List? exportedVideo;
+  Uint8List? _exportedVideo;
 
   /// The duration it took to generate the exported video.
-  Duration videoGenerationTime = Duration.zero;
+  Duration _videoGenerationTime = Duration.zero;
   late VideoPlayerController _videoController;
 
   String _taskId = DateTime.now().toString();
@@ -79,27 +79,27 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
     super.dispose();
   }
 
-  /// Loads and sets [videoMetadata] for the given [video].
+  /// Loads and sets [_videoMetadata] for the given [_video].
   Future<void> setMetadata() async {
-    videoMetadata = await VideoUtilsService.instance.getMetadata(video);
+    _videoMetadata = await VideoUtilsService.instance.getMetadata(_video);
   }
 
-  /// Generates thumbnails for the given [video].
+  /// Generates thumbnails for the given [_video].
   void generateThumbnails() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       var imageWidth = MediaQuery.sizeOf(context).width /
-          thumbnailCount *
+          _thumbnailCount *
           MediaQuery.devicePixelRatioOf(context);
 
       /// `getKeyFrames` is faster than `getThumbnails` but the timestamp is
       /// more "random".
       var thumbnailList = await VideoUtilsService.instance.getKeyFrames(
         KeyFramesConfigs(
-          video: video,
+          video: _video,
           outputSize: Size.square(imageWidth),
           boxFit: ThumbnailBoxFit.cover,
-          maxOutputFrames: thumbnailCount,
+          maxOutputFrames: _thumbnailCount,
           outputFormat: ThumbnailFormat.jpeg,
         ),
       );
@@ -111,10 +111,10 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       var cacheList =
           temporaryThumbnails.map((item) => precacheImage(item, context));
       await Future.wait(cacheList);
-      thumbnails = temporaryThumbnails;
+      _thumbnails = temporaryThumbnails;
 
-      if (proVideoController != null) {
-        proVideoController!.thumbnails = thumbnails;
+      if (_proVideoController != null) {
+        _proVideoController!.thumbnails = _thumbnails;
       }
     });
   }
@@ -129,19 +129,19 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       setMetadata(),
       _videoController.initialize(),
       _videoController.setLooping(false),
-      _videoController.setVolume(videoConfigs.initialMuted ? 0 : 100),
-      videoConfigs.initialPlay
+      _videoController.setVolume(_videoConfigs.initialMuted ? 0 : 100),
+      _videoConfigs.initialPlay
           ? _videoController.play()
           : _videoController.pause(),
     ]);
     if (!mounted) return;
 
-    proVideoController = ProVideoController(
+    _proVideoController = ProVideoController(
       videoPlayer: _buildVideoPlayer(),
-      initialResolution: videoMetadata.resolution,
-      videoDuration: videoMetadata.duration,
-      fileSize: videoMetadata.fileSize,
-      thumbnails: thumbnails,
+      initialResolution: _videoMetadata.resolution,
+      videoDuration: _videoMetadata.duration,
+      fileSize: _videoMetadata.fileSize,
+      thumbnails: _thumbnails,
     );
 
     _videoController.addListener(_onDurationChange);
@@ -150,12 +150,12 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   }
 
   void _onDurationChange() {
-    var totalVideoDuration = videoMetadata.duration;
+    var totalVideoDuration = _videoMetadata.duration;
     var duration = _videoController.value.position;
-    proVideoController!.setPlayTime(duration);
+    _proVideoController!.setPlayTime(duration);
 
-    if (durationSpan != null && duration >= durationSpan!.end) {
-      _seekToPosition(durationSpan!);
+    if (_durationSpan != null && duration >= _durationSpan!.end) {
+      _seekToPosition(_durationSpan!);
     } else if (duration >= totalVideoDuration) {
       _seekToPosition(
         TrimDurationSpan(start: Duration.zero, end: totalVideoDuration),
@@ -164,26 +164,26 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   }
 
   Future<void> _seekToPosition(TrimDurationSpan span) async {
-    durationSpan = span;
+    _durationSpan = span;
 
-    if (isSeeking) {
-      tempDurationSpan = span; // Store the latest seek request
+    if (_isSeeking) {
+      _tempDurationSpan = span; // Store the latest seek request
       return;
     }
-    isSeeking = true;
+    _isSeeking = true;
 
-    proVideoController!.pause();
-    proVideoController!.setPlayTime(durationSpan!.start);
+    _proVideoController!.pause();
+    _proVideoController!.setPlayTime(_durationSpan!.start);
 
     await _videoController.pause();
     await _videoController.seekTo(span.start);
 
-    isSeeking = false;
+    _isSeeking = false;
 
     // Check if there's a pending seek request
-    if (tempDurationSpan != null) {
-      TrimDurationSpan nextSeek = tempDurationSpan!;
-      tempDurationSpan = null; // Clear the pending seek
+    if (_tempDurationSpan != null) {
+      TrimDurationSpan nextSeek = _tempDurationSpan!;
+      _tempDurationSpan = null; // Clear the pending seek
       await _seekToPosition(nextSeek); // Process the latest request
     }
   }
@@ -195,7 +195,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Future<void> generateVideo(CompleteParameters parameters) async {
     final stopwatch = Stopwatch()..start();
 
-    var videoBytes = await video.safeByteArray();
+    var videoBytes = await _video.safeByteArray();
     _taskId = DateTime.now().toString();
 
     unawaited(_videoController.pause());
@@ -203,8 +203,8 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
     var exportModel = RenderVideoModel(
       id: _taskId,
       videoBytes: videoBytes,
-      outputFormat: outputFormat,
-      enableAudio: proVideoController?.isAudioEnabled ?? true,
+      outputFormat: _outputFormat,
+      enableAudio: _proVideoController?.isAudioEnabled ?? true,
       imageBytes: parameters.image,
       blur: parameters.blur,
       colorMatrixList: parameters.colorFilters,
@@ -219,28 +219,30 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
         flipX: parameters.flipX,
         flipY: parameters.flipY,
       ),
+      bitrate: _videoMetadata.bitrate,
     );
-    exportedVideo = await VideoUtilsService.instance.renderVideo(exportModel);
-    videoGenerationTime = stopwatch.elapsed;
+    _exportedVideo = await VideoUtilsService.instance.renderVideo(exportModel);
+    _videoGenerationTime = stopwatch.elapsed;
   }
 
   /// Closes the video editor and opens a preview screen if a video was
   /// exported.
   ///
-  /// If [exportedVideo] is available, it navigates to [PreviewVideo].
+  /// If [_exportedVideo] is available, it navigates to [PreviewVideo].
   /// Afterwards, it pops the current editor page.
   void onCloseEditor(EditorMode editorMode) async {
     if (editorMode != EditorMode.main) return Navigator.pop(context);
-    if (exportedVideo != null) {
+    if (_exportedVideo != null) {
       await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PreviewVideo(
-            bytes: exportedVideo!,
-            generationTime: videoGenerationTime,
+            bytes: _exportedVideo!,
+            generationTime: _videoGenerationTime,
           ),
         ),
       );
+      _exportedVideo = null;
     } else {
       return Navigator.pop(context);
     }
@@ -250,7 +252,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 220),
-      child: proVideoController == null
+      child: _proVideoController == null
           ? const VideoInitializingWidget()
           : _buildEditor(),
     );
@@ -258,7 +260,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
   Widget _buildEditor() {
     return ProImageEditor.video(
-      proVideoController!,
+      _proVideoController!,
       callbacks: ProImageEditorCallbacks(
         onCompleteWithParameters: generateVideo,
         onCloseEditor: onCloseEditor,
@@ -270,7 +272,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
           },
           onTrimSpanUpdate: (durationSpan) {
             if (_videoController.value.isPlaying) {
-              proVideoController!.pause();
+              _proVideoController!.pause();
             }
           },
           onTrimSpanEnd: _seekToPosition,
@@ -299,7 +301,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
           enableModePixelate: false,
           enableModeBlur: false,
         ),
-        videoEditor: videoConfigs.copyWith(
+        videoEditor: _videoConfigs.copyWith(
           playTimeSmoothingDuration: const Duration(milliseconds: 600),
         ),
       ),

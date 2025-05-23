@@ -18,6 +18,7 @@ class RenderVideoModel {
     this.startTime,
     this.endTime,
     this.blur,
+    this.bitrate,
     this.colorMatrixList = const [],
     String? id,
   })  : id = id ?? DateTime.now().toString(),
@@ -72,6 +73,11 @@ class RenderVideoModel {
   /// Higher values result in a stronger blur effect.
   final double? blur;
 
+  /// The bitrate of the video in bits per second.
+  ///
+  /// This value is optional and may be `null` if the bitrate is not specified.
+  final int? bitrate;
+
   /// Converts the model into a serializable map.
   Map<String, dynamic> toMap() {
     return {
@@ -94,6 +100,7 @@ class RenderVideoModel {
       'colorMatrixList': colorMatrixList,
       'outputFormat': outputFormat.name,
       'blur': blur,
+      'bitrate': bitrate,
     };
   }
 
@@ -110,6 +117,7 @@ class RenderVideoModel {
     Duration? endTime,
     List<List<double>>? colorMatrixList,
     double? blur,
+    int? bitrate,
   }) {
     return RenderVideoModel(
       id: id ?? this.id,
@@ -123,6 +131,7 @@ class RenderVideoModel {
       endTime: endTime ?? this.endTime,
       colorMatrixList: colorMatrixList ?? this.colorMatrixList,
       blur: blur ?? this.blur,
+      bitrate: bitrate ?? this.bitrate,
     );
   }
 }

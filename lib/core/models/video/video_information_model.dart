@@ -3,18 +3,13 @@ import 'dart:ui';
 /// A class that holds metadata information about a video.
 class VideoMetadata {
   /// Creates a [VideoMetadata] instance.
-  ///
-  /// - [duration]: The total playback time of the video.
-  /// - [extension]: The file format of the video (e.g., "mp4", "avi").
-  /// - [fileSize]: The size of the video file in bytes.
-  /// - [resolution]: The width and height of the video in pixels.
-  /// - [rotation]: The rotation of the video in degrees.
   VideoMetadata({
     required this.duration,
     required this.extension,
     required this.fileSize,
     required this.resolution,
     required this.rotation,
+    required this.bitrate,
   });
 
   /// The size of the video file in bytes.
@@ -42,6 +37,14 @@ class VideoMetadata {
   /// The format of the video file, such as "mp4" or "avi".
   final String extension;
 
+  /// The bitrate of the video in bits per second.
+  ///
+  /// This value represents the amount of data processed per unit of time in
+  /// the video stream.
+  /// Higher bitrate generally result in better video quality, but also
+  /// larger file sizes.
+  final int bitrate;
+
   /// Returns a copy of this config with the given fields replaced.
   VideoMetadata copyWith({
     int? fileSize,
@@ -49,6 +52,7 @@ class VideoMetadata {
     Duration? duration,
     String? extension,
     int? rotation,
+    int? bitrate,
   }) {
     return VideoMetadata(
       fileSize: fileSize ?? this.fileSize,
@@ -56,6 +60,7 @@ class VideoMetadata {
       duration: duration ?? this.duration,
       extension: extension ?? this.extension,
       rotation: rotation ?? this.rotation,
+      bitrate: bitrate ?? this.bitrate,
     );
   }
 
