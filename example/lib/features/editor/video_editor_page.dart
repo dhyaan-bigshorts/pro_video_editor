@@ -65,7 +65,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Duration _videoGenerationTime = Duration.zero;
   late VideoPlayerController _videoController;
 
-  String _taskId = DateTime.now().toString();
+  final _taskId = DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   void initState() {
@@ -196,7 +196,6 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
     final stopwatch = Stopwatch()..start();
 
     var videoBytes = await _video.safeByteArray();
-    _taskId = DateTime.now().toString();
 
     unawaited(_videoController.pause());
 

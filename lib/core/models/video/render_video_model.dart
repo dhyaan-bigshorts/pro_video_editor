@@ -21,14 +21,22 @@ class RenderVideoModel {
     this.bitrate,
     this.colorMatrixList = const [],
     String? id,
-  })  : id = id ?? DateTime.now().toString(),
+  })  : id = id ?? DateTime.now().microsecondsSinceEpoch.toString(),
         assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
         ),
         assert(
           blur == null || blur >= 0,
-          'Blur must be greater than or equal to 0',
+          '[blur] must be greater than or equal to 0',
+        ),
+        assert(
+          playbackSpeed == null || playbackSpeed > 0,
+          '[playbackSpeed] must be greater than 0',
+        ),
+        assert(
+          bitrate == null || bitrate > 0,
+          '[bitrate] must be greater than 0',
         );
 
   /// Unique ID for the task, useful when running multiple tasks at once.

@@ -55,6 +55,12 @@ class _PreviewVideoState extends State<PreviewVideo> {
     _initializePlayer();
   }
 
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
   void _initializePlayer() async {
     var media = await Media.memory(widget.bytes);
     await _player.open(media, play: true);

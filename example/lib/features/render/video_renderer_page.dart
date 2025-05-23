@@ -45,7 +45,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
   Uint8List? _temporaryVideoBytes;
 
-  String _taskId = DateTime.now().toString();
+  String _taskId = DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   void initState() {
@@ -196,7 +196,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   }
 
   Future<void> _renderVideo(RenderVideoModel value) async {
-    _taskId = DateTime.now().toString();
+    _taskId = DateTime.now().microsecondsSinceEpoch.toString();
     setState(() => _isExporting = true);
 
     var sp = Stopwatch()..start();

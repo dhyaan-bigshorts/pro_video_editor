@@ -15,7 +15,7 @@ abstract class ThumbnailBase {
     this.outputFormat = ThumbnailFormat.jpeg,
     this.boxFit = ThumbnailBoxFit.cover,
     String? id,
-  }) : id = id ?? DateTime.now().toString();
+  }) : id = id ?? DateTime.now().microsecondsSinceEpoch.toString();
 
   /// Unique ID for the task, useful when running multiple tasks at once.
   final String id;
