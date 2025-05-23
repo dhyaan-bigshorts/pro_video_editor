@@ -12,7 +12,11 @@ dependencies:
   pro_video_editor:
     path: ../
 
+
+  intl: ^0.20.1
   cupertino_icons: ^1.0.8
+
+  pro_image_editor: ^9.9.2
 
   path_provider: ^2.1.5
   video_player: ^2.9.3

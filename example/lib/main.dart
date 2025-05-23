@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
+import 'package:pro_video_editor_example/features/editor/video_editor_page.dart';
 
 import 'features/metadata/video_metadata_example_page.dart';
 import 'features/render/video_renderer_page.dart';
@@ -51,6 +52,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _platformVersion = 'Unknown';
+  final List<_ExampleListItem> _exampleList = [
+    _ExampleListItem(
+      icon: Icons.info_outline,
+      title: 'Video-Metadata',
+      pageBuilder: () => const VideoMetadataExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.image_outlined,
+      title: 'Thumbnails',
+      pageBuilder: () => const ThumbnailExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.developer_board_outlined,
+      title: 'Video-Renderer',
+      pageBuilder: () => const VideoRendererPage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.edit,
+      title: 'Video-Editor',
+      pageBuilder: () => const VideoEditorPage(),
+    ),
+  ];
 
   @override
   void initState() {
@@ -88,44 +111,19 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             child: ListView(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('Video-Metadata'),
+              children: _exampleList.map((item) {
+                return ListTile(
+                  leading: Icon(item.icon),
+                  title: Text(item.title),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const VideoMetadataExamplePage()),
+                      MaterialPageRoute(builder: (_) => item.pageBuilder()),
                     );
                   },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.image_outlined),
-                  title: const Text('Thumbnails'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const ThumbnailExamplePage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.developer_board_outlined),
-                  title: const Text('Video-Renderer'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const VideoRendererPage()),
-                    );
-                  },
-                ),
-              ],
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 50),
@@ -134,4 +132,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class _ExampleListItem {
+  _ExampleListItem({
+    required this.icon,
+    required this.title,
+    required this.pageBuilder,
+  });
+  final IconData icon;
+  final String title;
+  final Widget Function() pageBuilder;
 }
