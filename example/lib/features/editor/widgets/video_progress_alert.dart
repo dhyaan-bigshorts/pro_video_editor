@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
-import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
 /// A dialog that displays real-time export progress for video generation.

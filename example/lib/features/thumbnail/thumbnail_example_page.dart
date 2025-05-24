@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import '/core/constants/example_constants.dart';
 

@@ -8,7 +8,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class Metadata(private val context: Context) {
-
     fun processVideo(videoData: ByteArray, extension: String): Map<String, Any> {
         val tempFile = createTempFile(videoData, extension)
             ?: return mapOf("error" to "Failed to create temp file")
