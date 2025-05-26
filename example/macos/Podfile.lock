@@ -11,6 +11,9 @@ PODS:
     - FlutterMacOS
   - pro_video_editor (0.0.1):
     - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - video_player_avfoundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -26,6 +29,7 @@ DEPENDENCIES:
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - pro_video_editor (from `Flutter/ephemeral/.symlinks/plugins/pro_video_editor/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - video_player_avfoundation (from `Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin`)
   - volume_controller (from `Flutter/ephemeral/.symlinks/plugins/volume_controller/macos`)
   - wakelock_plus (from `Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos`)
@@ -43,6 +47,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   pro_video_editor:
     :path: Flutter/ephemeral/.symlinks/plugins/pro_video_editor/macos
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   video_player_avfoundation:
     :path: Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin
   volume_controller:
@@ -57,6 +63,7 @@ SPEC CHECKSUMS:
   package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   pro_video_editor: 9a76a7e438e2d42965680599df7fbb4c0f688a83
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   volume_controller: 90a5978956cf18ebb7739bf5382fc1b0cfef66d0
   wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
