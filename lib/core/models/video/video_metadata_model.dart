@@ -1,5 +1,8 @@
 import 'dart:ui';
 
+import '/shared/utils/parser/double_parser.dart';
+import '/shared/utils/parser/int_parser.dart';
+
 /// A class that holds metadata information about a video.
 class VideoMetadata {
   /// Creates a [VideoMetadata] instance.
@@ -10,7 +13,57 @@ class VideoMetadata {
     required this.resolution,
     required this.rotation,
     required this.bitrate,
+    this.title = '',
+    this.artist = '',
+    this.author = '',
+    this.album = '',
+    this.albumArtist = '',
+    this.date,
   });
+
+  /// Creates a [VideoMetadata] instance from a map of data.
+  ///
+  /// The [value] map contains metadata values such as duration, resolution,
+  /// file size, and others.
+  /// The [extension] is the video file format (e.g., 'mp4').
+  factory VideoMetadata.fromMap(Map<dynamic, dynamic> value, String extension) {
+    return VideoMetadata(
+      duration: Duration(milliseconds: safeParseInt(value['duration'])),
+      extension: extension,
+      fileSize: value['fileSize'] ?? 0,
+      resolution: Size(
+        safeParseDouble(value['width']),
+        safeParseDouble(value['height']),
+      ),
+      rotation: safeParseInt(value['rotation']),
+      bitrate: safeParseInt(value['bitrate']),
+      title: value['title'],
+      artist: value['artist'],
+      author: value['author'],
+      album: value['album'],
+      albumArtist: value['albumArtist'],
+      date: value['date'] != '' ? DateTime.tryParse(value['date']) : null,
+    );
+  }
+
+  /// The title of the video (e.g., the name of the movie or video).
+  final String title;
+
+  /// The artist associated with the video (e.g., the creator or performer).
+  final String artist;
+
+  /// The author of the video content.
+  final String author;
+
+  /// The album the video belongs to (if applicable).
+  final String album;
+
+  /// The album artist, typically used when the album contains works from
+  /// multiple artists.
+  final String albumArtist;
+
+  /// The date when the video was created or released.
+  final DateTime? date;
 
   /// The size of the video file in bytes.
   final int fileSize;

@@ -5,14 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 
 import '/core/models/video/editor_video_model.dart';
-import '/shared/utils/parser/double_parser.dart';
-import '/shared/utils/parser/int_parser.dart';
 import 'core/models/thumbnail/key_frames_configs.model.dart';
 import 'core/models/thumbnail/thumbnail_base.abstract.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'core/models/video/progress_model.dart';
 import 'core/models/video/render_video_model.dart';
-import 'core/models/video/video_information_model.dart';
+import 'core/models/video/video_metadata_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
 /// An implementation of [ProVideoEditorPlatform] that uses method channels.
@@ -42,17 +40,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
             }) ??
             {};
 
-    return VideoMetadata(
-      duration: Duration(milliseconds: safeParseInt(response['duration'])),
-      extension: extension,
-      fileSize: response['fileSize'] ?? 0,
-      resolution: Size(
-        safeParseDouble(response['width']),
-        safeParseDouble(response['height']),
-      ),
-      rotation: safeParseInt(response['rotation']),
-      bitrate: safeParseInt(response['bitrate']),
-    );
+    return VideoMetadata.fromMap(response, extension);
   }
 
   Future<List<Uint8List>> _extractThumbnails(ThumbnailBase value) async {

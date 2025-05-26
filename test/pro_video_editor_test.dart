@@ -8,7 +8,7 @@ import 'package:pro_video_editor/core/models/thumbnail/thumbnail_configs.model.d
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/core/models/video/render_video_model.dart';
-import 'package:pro_video_editor/core/models/video/video_information_model.dart';
+import 'package:pro_video_editor/core/models/video/video_metadata_model.dart';
 import 'package:pro_video_editor/pro_video_editor_platform_interface.dart';
 
 class MockProVideoEditorPlatform

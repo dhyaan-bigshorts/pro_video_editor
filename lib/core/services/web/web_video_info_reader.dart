@@ -7,7 +7,7 @@ import 'package:web/web.dart' as web;
 
 import '../../../shared/utils/parser/double_parser.dart';
 import '../../../shared/utils/parser/int_parser.dart';
-import '../../models/video/video_information_model.dart';
+import '../../models/video/video_metadata_model.dart';
 import '../../utils/web_blob_utils.dart';
 
 /// A helper class that extracts video metadata in a Flutter Web environment.

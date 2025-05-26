@@ -194,6 +194,18 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     await _renderVideo(data);
   }
 
+  Future<void> _bitrate() async {
+    var videoBytes = await _getVideoBytes();
+
+    var data = RenderVideoModel(
+      outputFormat: VideoOutputFormat.mp4,
+      videoBytes: videoBytes,
+      bitrate: 1000000,
+    );
+
+    await _renderVideo(data);
+  }
+
   Future<void> _renderVideo(RenderVideoModel value) async {
     _taskId = DateTime.now().microsecondsSinceEpoch.toString();
     setState(() => _isExporting = true);
@@ -427,6 +439,11 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
           onTap: _multipleChanges,
           leading: const Icon(Icons.web_stories_outlined),
           title: const Text('Multiple changes'),
+        ),
+        ListTile(
+          onTap: _bitrate,
+          leading: const Icon(Icons.animation),
+          title: const Text('Bitrate'),
         ),
       ],
     );

@@ -3,6 +3,7 @@ package ch.waio.pro_video_editor.src.features.render
 import PACKAGE_TAG
 import RENDER_TAG
 import android.content.Context
+import android.media.MediaCodecInfo
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -20,6 +21,8 @@ import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.ProgressHolder
 import androidx.media3.transformer.Transformer
 import androidx.media3.transformer.VideoEncoderSettings
+import applyAudio
+import applyBitrate
 import applyBlur
 import applyColorMatrix
 import applyCrop
@@ -93,27 +96,14 @@ class RenderVideo(private val context: Context) {
 
         val editedMediaItemBuilder = EditedMediaItem.Builder(mediaItem).setEffects(effects)
 
-        // Remove Audio
-        if (!enableAudio) {
-            Log.d(RENDER_TAG, "Removing audio from video")
-            editedMediaItemBuilder.setRemoveAudio(true)
-        }
-
-        val editedMediaItem = editedMediaItemBuilder.build()
+        applyAudio(editedMediaItemBuilder, enableAudio)
 
         var shouldStopPolling = false
-
         val outputMimeType = mapFormatToMimeType(outputFormat)
-
+        var editedMediaItem = editedMediaItemBuilder.build()
         val encoderFactoryBuilder = DefaultEncoderFactory.Builder(context)
 
-        if (bitrate != null) {
-            encoderFactoryBuilder.setRequestedVideoEncoderSettings(
-                VideoEncoderSettings.Builder()
-                    .setBitrate(bitrate) // e.g. 5_000_000
-                    .build()
-            )
-        }
+        applyBitrate(encoderFactoryBuilder, outputMimeType, bitrate)
 
 
         val transformer = Transformer.Builder(context)
