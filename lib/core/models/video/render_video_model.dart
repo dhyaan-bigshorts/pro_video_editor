@@ -84,6 +84,11 @@ class RenderVideoModel {
   /// The bitrate of the video in bits per second.
   ///
   /// This value is optional and may be `null` if the bitrate is not specified.
+  ///
+  /// **WARNING:** Not all devices support CBR (Constant Bitrate) mode.
+  /// If unsupported, the encoder may silently fall back to VBR
+  /// (Variable Bitrate), and the actual bitrate may be constrained by
+  /// device-specific minimum and maximum limits.
   final int? bitrate;
 
   /// Converts the model into a serializable map.

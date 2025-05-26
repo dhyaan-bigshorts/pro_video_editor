@@ -66,6 +66,12 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
         _buildMetadataRow('Rotation:', '${meta.rotation}°'),
         _buildMetadataRow('Duration:', '${meta.duration.inSeconds}s'),
         _buildMetadataRow('Bitrate:', _numberFormatter.format(meta.bitrate)),
+        _buildMetadataRow('Date:', meta.date.toString()),
+        _buildMetadataRow('Title:', meta.title),
+        _buildMetadataRow('Artist:', meta.artist),
+        _buildMetadataRow('Author:', meta.author),
+        _buildMetadataRow('Album:', meta.album),
+        _buildMetadataRow('AlbumArtist:', meta.albumArtist),
       ],
     );
   }
@@ -77,7 +83,7 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
           padding: const EdgeInsets.only(right: 10),
           child: Text(label),
         ),
-        Text(value),
+        Text(value.isEmpty ? '-' : value),
       ],
     );
   }

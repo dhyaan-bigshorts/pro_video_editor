@@ -14,7 +14,7 @@ import 'core/models/thumbnail/key_frames_configs.model.dart';
 import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'core/models/video/editor_video_model.dart';
 import 'core/models/video/render_video_model.dart';
-import 'core/models/video/video_information_model.dart';
+import 'core/models/video/video_metadata_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
 /// A web implementation of the ProVideoEditorPlatform of the ProVideoEditor

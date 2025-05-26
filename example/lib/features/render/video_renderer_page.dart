@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
 import '/core/constants/example_filters.dart';
@@ -190,6 +189,18 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
       enableAudio: false,
       imageBytes: imageBytes,
       endTime: const Duration(seconds: 20),
+    );
+
+    await _renderVideo(data);
+  }
+
+  Future<void> _bitrate() async {
+    var videoBytes = await _getVideoBytes();
+
+    var data = RenderVideoModel(
+      outputFormat: VideoOutputFormat.mp4,
+      videoBytes: videoBytes,
+      bitrate: 1000000,
     );
 
     await _renderVideo(data);
@@ -428,6 +439,11 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
           onTap: _multipleChanges,
           leading: const Icon(Icons.web_stories_outlined),
           title: const Text('Multiple changes'),
+        ),
+        ListTile(
+          onTap: _bitrate,
+          leading: const Icon(Icons.animation),
+          title: const Text('Bitrate'),
         ),
       ],
     );

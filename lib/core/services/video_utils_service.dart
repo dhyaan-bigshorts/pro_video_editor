@@ -4,10 +4,10 @@ import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:pro_video_editor/core/models/video/render_video_model.dart';
 
 import '/core/models/video/editor_video_model.dart';
-import '/core/models/video/video_information_model.dart';
 import '/pro_video_editor_platform_interface.dart';
 import '../models/thumbnail/key_frames_configs.model.dart';
 import '../models/thumbnail/thumbnail_configs.model.dart';
+import '../models/video/video_metadata_model.dart';
 
 /// A utility service for video-related operations.
 ///

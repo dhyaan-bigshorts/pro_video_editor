@@ -1,6 +1,7 @@
 package ch.waio.pro_video_editor.src.features
 
 import PACKAGE_TAG
+import THUMBNAIL_TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaExtractor
@@ -17,7 +18,6 @@ import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicInteger
 
 class ThumbnailGenerator(private val context: Context) {
-    private val TAG = "$PACKAGE_TAG-ThumbnailGenerator"
 
     suspend fun getThumbnails(
         videoBytes: ByteArray,
@@ -81,14 +81,14 @@ class ThumbnailGenerator(private val context: Context) {
                         thumbnails[index] = bytes
                         val duration = System.currentTimeMillis() - startTime
                         Log.d(
-                            TAG,
-                            "✅ [$index]  ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
+                            THUMBNAIL_TAG,
+                            "✅ [$index]  Generated in $duration ms (${bytes.size} bytes)"
                         )
                     } else {
-                        Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
+                        Log.w(THUMBNAIL_TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
+                    Log.e(THUMBNAIL_TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
                 } finally {
                     retriever?.release()
                     val progress = completed.incrementAndGet().toDouble() / timestampsUs.size
@@ -136,14 +136,14 @@ class ThumbnailGenerator(private val context: Context) {
                         thumbnails[index] = bytes
                         val duration = System.currentTimeMillis() - startTime
                         Log.d(
-                            TAG,
+                            THUMBNAIL_TAG,
                             "[$index] ✅ ${timeUs / 1000} ms in $duration ms (${bytes.size} bytes)"
                         )
                     } else {
-                        Log.w(TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
+                        Log.w(THUMBNAIL_TAG, "[$index] ❌ Null frame at ${timeUs / 1000} ms")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
+                    Log.e(THUMBNAIL_TAG, "[$index] ❌ Exception at ${timeUs / 1000} ms: ${e.message}")
                 } finally {
                     retriever?.release()
                     val progress = completed.incrementAndGet().toDouble() / keyframeTimestamps.size

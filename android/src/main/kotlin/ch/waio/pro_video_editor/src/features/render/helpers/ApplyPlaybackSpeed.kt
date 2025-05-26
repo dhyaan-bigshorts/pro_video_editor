@@ -18,6 +18,5 @@ fun applyPlaybackSpeed(
 
     val audio = SonicAudioProcessor()
     audio.setSpeed(playbackSpeed)
-
     audioEffects += audio
 }
