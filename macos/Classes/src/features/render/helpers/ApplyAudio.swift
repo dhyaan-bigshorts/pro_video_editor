@@ -8,7 +8,7 @@ public func applyAudio(
     enableAudio: Bool
 ) async {
     guard enableAudio else {
-        print("[\(Tags.render)] 🔇 Removing audio from export")
+        print("[\(Tags.render)] Removing audio from export")
         return
     }
 

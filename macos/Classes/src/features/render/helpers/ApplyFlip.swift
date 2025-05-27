@@ -3,7 +3,8 @@ import CoreGraphics
 func applyFlip(
     _ transform: inout CGAffineTransform,
     flipX: Bool,
-    flipY: Bool
+    flipY: Bool,
+    size: CGSize
 ) {
     if !flipX && !flipY { return }
 
@@ -12,5 +13,12 @@ func applyFlip(
 
     print("[\(Tags.render)] Applying flip: flipX=\(flipX), flipY=\(flipY)")
 
-    transform = transform.scaledBy(x: scaleX, y: scaleY)
+    // Translate to center → scale (flip) → translate back
+    let center = CGPoint(x: size.width / 2, y: size.height / 2)
+
+    let flipTransform = CGAffineTransform(translationX: center.x, y: center.y)
+        .scaledBy(x: scaleX, y: scaleY)
+        .translatedBy(x: -center.x, y: -center.y)
+
+    transform = transform.concatenating(flipTransform)
 }

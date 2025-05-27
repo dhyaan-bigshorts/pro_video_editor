@@ -34,7 +34,7 @@ public func applyImageLayer(
         height = Int(Float(height) * sy)
     }
 
-    print("[\(Tags.render)]  Applying image overlay: size \(width)x\(height)")
+    print("[\(Tags.render)] Applying image overlay: size \(width)x\(height)")
 
     let overlayLayer = CALayer()
     overlayLayer.contents = cgImage

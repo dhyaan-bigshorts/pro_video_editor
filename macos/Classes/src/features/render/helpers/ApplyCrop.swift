@@ -3,54 +3,72 @@ import CoreGraphics
 
 public func applyCrop(
     _ transform: inout CGAffineTransform,
-    videoTrack: AVAssetTrack,
+    rotatedSize: CGSize,
     cropX: Int?,
     cropY: Int?,
     cropWidth: Int?,
-    cropHeight: Int?
-) async {
-    guard cropX != nil || cropY != nil || cropWidth != nil || cropHeight != nil else {
-        return
+    cropHeight: Int?,
+    rotateTurns: Int,
+    flipX: Bool,
+    flipY: Bool
+) -> CGSize {
+    let rotation = ((rotateTurns * 90) % 360 + 360) % 360
+
+    let videoWidth = rotatedSize.width
+    let videoHeight = rotatedSize.height
+    var cropW = cropWidth
+    var cropH = cropHeight
+
+    if rotation == 90 || rotation == 270 {
+        swap(&cropW, &cropH)
     }
 
-    let originalSize: CGSize
-    if #available(macOS 13.0, *) {
-        do {
-            originalSize = try await videoTrack.load(.naturalSize)
-        } catch {
-            print("[\(Tags.render)] Failed to load naturalSize: \(error.localizedDescription)")
-            return
-        }
-    } else {
-        originalSize = videoTrack.naturalSize
+    var x: CGFloat = CGFloat(cropX ?? 0)
+    var y: CGFloat = CGFloat(cropY ?? 0)
+    var width: CGFloat = CGFloat(cropW ?? Int(videoWidth - x))
+    var height: CGFloat = CGFloat(cropH ?? Int(videoHeight - y))
+
+    // Rotation-aware crop origin
+     if rotation == 90 || rotation == 270 {
+         swap(&x, &y)
+     }
+     if rotation == 90 || rotation == 180 {
+         y = videoHeight - height - y
+     }
+     if rotation == 270 || rotation == 180 {
+         x = videoWidth - width - x
+     }
+
+    // Flip-aware crop origin
+    if flipX {
+        x = videoWidth - width - x
     }
-
-    let cropXFloat = CGFloat(cropX ?? 0)
-    let cropYFloat = CGFloat(cropY ?? 0)
-
-    let cropWidthFloat: CGFloat
-    if let cropWidth = cropWidth {
-        cropWidthFloat = CGFloat(cropWidth)
-    } else {
-        cropWidthFloat = originalSize.width - cropXFloat
+    if flipY {
+        y = videoHeight - height - y
     }
+    /*
+    WORKING
+    Applying rotatedSize: width=720.0 height=1280.0
+    Applying crop: x=0.0 y=0.0 width=720.0 height=1280.0
+    Applying cropTranslate: x=-0.0 y=-0.0
+    
+    BROKEN
+    Applying rotatedSize: width=720.0 height=1280.0
+    Applying crop: x=0.0 y=0.0 width=1280.0 height=720.0
+    Applying cropTranslate: x=-0.0 y=-0.0
+     */
+    let cropRect = CGRect(x: x, y: y, width: width, height: height)
 
-    let cropHeightFloat: CGFloat
-    if let cropHeight = cropHeight {
-        cropHeightFloat = CGFloat(cropHeight)
-    } else {
-        cropHeightFloat = originalSize.height - cropYFloat
-    }
+    print("[\(Tags.render)] Applying rotatedSize: width=\(videoWidth) height=\(videoHeight)")
+    print("[\(Tags.render)] Applying crop: x=\(x) y=\(y) width=\(width) height=\(height)")
+    print(
+        "[\(Tags.render)] Applying cropTranslate: x=\(cropRect.origin.x * (flipX ? 1 : -1)) y=\(cropRect.origin.y * (flipY ? 1 : -1))"
+    )
+    // Crop by translating the transform
+    transform = transform.translatedBy(
+        x: -cropRect.origin.x,// * (flipX ? 1 : -1),
+        y: -cropRect.origin.y,// * (flipY ? 1 : -1),
+    )
 
-    guard cropWidthFloat > 0, cropHeightFloat > 0 else {
-        print("[\(Tags.render)] Skipping crop: invalid crop dimensions.")
-        return
-    }
-
-    let tx = -cropXFloat
-    let ty = -cropYFloat
-
-    print("[\(Tags.render)] Applying crop: x=\(cropXFloat), y=\(cropYFloat), width=\(cropWidthFloat), height=\(cropHeightFloat)")
-
-    transform = transform.translatedBy(x: tx, y: ty)
+    return cropRect.size
 }

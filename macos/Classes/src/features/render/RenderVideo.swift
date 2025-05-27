@@ -91,17 +91,31 @@ class RenderVideo {
                     let layerInstruction = AVMutableVideoCompositionLayerInstruction(
                         assetTrack: videoCompositionTrack)
 
-                    var transform = CGAffineTransform.identity
-                    applyRotation(&transform, rotateTurns: rotateTurns)
-                    applyFlip(&transform, flipX: flipX, flipY: flipY)
-                    await applyCrop(
-                        &transform, videoTrack: videoTrack, cropX: cropX, cropY: cropY,
-                        cropWidth: cropWidth, cropHeight: cropHeight)
+                    var transform = videoTrack.preferredTransform
+                    let rotatedSize = applyRotation(
+                        &transform, rotateTurns: rotateTurns, size: videoTrack.naturalSize)
+                    applyFlip(&transform, flipX: flipX, flipY: flipY, size: rotatedSize)
+
+                    // Apply crop and get final render size
+                    let croppedSize = applyCrop(
+                        &transform,
+                        rotatedSize: rotatedSize,
+                        cropX: cropX,
+                        cropY: cropY,
+                        cropWidth: cropWidth,
+                        cropHeight: cropHeight,
+                        rotateTurns: rotateTurns ?? 0,
+                        flipX: flipX,
+                        flipY: flipY,
+                    )
+
+                    // Update render size after crop
+                    videoComposition.renderSize = croppedSize
                     applyScale(&transform, scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
                     applyColorMatrix(to: videoComposition, matrixList: colorMatrixList)
                     applyBlur(to: videoComposition, sigma: blur)
-                    applyImageLayer(
+                    /* FIXME: applyImageLayer(
                         to: videoComposition,
                         imageData: imageData,
                         videoSize: videoTrack.naturalSize,
@@ -110,14 +124,11 @@ class RenderVideo {
                         cropHeight: cropHeight,
                         scaleX: scaleX,
                         scaleY: scaleY
-                    )
+                    ) */
 
                     layerInstruction.setTransform(transform, at: .zero)
                     instruction.layerInstructions = [layerInstruction]
                     videoComposition.instructions = [instruction]
-                    videoComposition.renderSize =
-                        CGRect(origin: .zero, size: videoTrack.naturalSize).applying(transform)
-                        .standardized.size
 
                     let preset = applyBitrate(requestedBitrate: bitrate, fileType: .mp4)
 
@@ -132,11 +143,20 @@ class RenderVideo {
                     export.outputFileType = .mp4
                     export.videoComposition = videoComposition
 
-                    let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
-                        let progress = export.progress
-                        DispatchQueue.global().async {
-                            onProgress(Double(progress))
+                    let checkInterval: TimeInterval = 0.1
+                    let nanoseconds = UInt64(checkInterval * 1_000_000_000)
+
+                    // Start export
+                    export.exportAsynchronously {}
+
+                    while export.status == .waiting || export.status == .exporting {
+                        if export.status == .exporting {
+                            let normalizedProgress = min(max(export.progress, 0), 1.0)
+                            onProgress(Double(normalizedProgress))
                         }
+
+                        // Sleep using async-safe method in Swift 6
+                        try await Task.sleep(nanoseconds: nanoseconds)
                     }
 
                     let finalize: () -> Void = {
@@ -145,7 +165,6 @@ class RenderVideo {
                     }
 
                     let handleCompletion: (Result<Data, Error>) -> Void = { result in
-                        timer.invalidate()
                         switch result {
                         case .success(let data): onComplete(data)
                         case .failure(let error): onError(error)
@@ -153,29 +172,21 @@ class RenderVideo {
                         finalize()
                     }
 
-                    if #available(macOS 15.0, *) {
-                        do {
-                            try await export.export(to: outputURL, as: .mp4)
-                            let data = try Data(contentsOf: outputURL)
-                            handleCompletion(.success(data))
-                        } catch {
-                            handleCompletion(.failure(error))
+                    // Final result
+                    do {
+                        guard export.status == .completed else {
+                            throw export.error
+                                ?? NSError(
+                                    domain: "RenderVideo", code: 4,
+                                    userInfo: [
+                                        NSLocalizedDescriptionKey:
+                                            "Export failed with status: \(export.status.rawValue)"
+                                    ])
                         }
-                    } else {
-                        export.exportAsynchronously {
-                            do {
-                                guard export.status == .completed else {
-                                    throw export.error
-                                        ?? NSError(
-                                            domain: "RenderVideo", code: 4,
-                                            userInfo: [NSLocalizedDescriptionKey: "Export failed"])
-                                }
-                                let data = try Data(contentsOf: outputURL)
-                                handleCompletion(.success(data))
-                            } catch {
-                                handleCompletion(.failure(error))
-                            }
-                        }
+                        let data = try Data(contentsOf: outputURL)
+                        handleCompletion(.success(data))
+                    } catch {
+                        handleCompletion(.failure(error))
                     }
                 } catch {
                     onError(error)

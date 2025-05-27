@@ -43,7 +43,6 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   VideoMetadata? _outputMetadata;
 
   Uint8List? _temporaryVideoBytes;
-
   String _taskId = DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
