@@ -212,7 +212,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       transform: ExportTransform(
         width: parameters.cropWidth,
         height: parameters.cropHeight,
-        rotateTurns: 4 - parameters.rotateTurns,
+        rotateTurns: parameters.rotateTurns,
         x: parameters.cropX,
         y: parameters.cropY,
         flipX: parameters.flipX,
