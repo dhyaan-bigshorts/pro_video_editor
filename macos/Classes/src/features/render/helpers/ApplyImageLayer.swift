@@ -5,10 +5,7 @@ import AppKit
 public func applyImageLayer(
     to composition: AVMutableVideoComposition,
     imageData: Data?,
-    videoSize: CGSize,
-    rotation: Int?,
-    cropWidth: Int?,
-    cropHeight: Int?,
+    croppedSize: CGSize,
     scaleX: Float?,
     scaleY: Float?
 ) {
@@ -18,15 +15,9 @@ public func applyImageLayer(
         return
     }
 
-    var width = Int(videoSize.width)
-    var height = Int(videoSize.height)
+    var width = Int(croppedSize.width)
+    var height = Int(croppedSize.height)
 
-    if let cropWidth = cropWidth {
-        width = cropWidth
-    }
-    if let cropHeight = cropHeight {
-        height = cropHeight
-    }
     if let sx = scaleX {
         width = Int(Float(width) * sx)
     }

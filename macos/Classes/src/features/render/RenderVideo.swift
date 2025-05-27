@@ -115,16 +115,13 @@ class RenderVideo {
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
                     applyColorMatrix(to: videoComposition, matrixList: colorMatrixList)
                     applyBlur(to: videoComposition, sigma: blur)
-                    /* FIXME: applyImageLayer(
+                    applyImageLayer(
                         to: videoComposition,
                         imageData: imageData,
-                        videoSize: videoTrack.naturalSize,
-                        rotation: rotateTurns,
-                        cropWidth: cropWidth,
-                        cropHeight: cropHeight,
+                        croppedSize: croppedSize,
                         scaleX: scaleX,
                         scaleY: scaleY
-                    ) */
+                    )
 
                     layerInstruction.setTransform(transform, at: .zero)
                     instruction.layerInstructions = [layerInstruction]
