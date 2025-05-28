@@ -1,47 +1,17 @@
 import AVFoundation
-import CoreImage
 import AppKit
+import CoreImage
 
-public func applyImageLayer(
+func applyImageLayer(
     to composition: AVMutableVideoComposition,
     imageData: Data?,
     croppedSize: CGSize,
     scaleX: Float?,
-    scaleY: Float?
+    scaleY: Float?,
+    transform: CGAffineTransform
 ) {
-    guard let imageData = imageData,
-          let nsImage = NSImage(data: imageData),
-          let cgImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-        return
+    if let data = imageData {
+        VideoCompositor.setOverlayImage(from: data)
+        print("[\(Tags.render)] Applying image overlay")
     }
-
-    var width = Int(croppedSize.width)
-    var height = Int(croppedSize.height)
-
-    if let sx = scaleX {
-        width = Int(Float(width) * sx)
-    }
-    if let sy = scaleY {
-        height = Int(Float(height) * sy)
-    }
-
-    print("[\(Tags.render)] Applying image overlay: size \(width)x\(height)")
-
-    let overlayLayer = CALayer()
-    overlayLayer.contents = cgImage
-    overlayLayer.frame = CGRect(x: 0, y: 0, width: width, height: height)
-    overlayLayer.masksToBounds = true
-
-    let videoLayer = CALayer()
-    videoLayer.frame = CGRect(x: 0, y: 0, width: width, height: height)
-
-    let parentLayer = CALayer()
-    parentLayer.frame = videoLayer.frame
-    parentLayer.addSublayer(videoLayer)
-    parentLayer.addSublayer(overlayLayer)
-
-    composition.animationTool = AVVideoCompositionCoreAnimationTool(
-        postProcessingAsVideoLayer: videoLayer,
-        in: parentLayer
-    )
 }

@@ -77,6 +77,7 @@ class RenderVideo {
 
                     try videoCompositionTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
 
+
                     // Apply audio track
                     await applyAudio(
                         from: asset, to: composition, timeRange: timeRange, enableAudio: enableAudio
@@ -111,6 +112,11 @@ class RenderVideo {
 
                     // Update render size after crop
                     videoComposition.renderSize = croppedSize
+                    layerInstruction.setTransform(transform, at: .zero)
+                    instruction.layerInstructions = [layerInstruction]
+                    videoComposition.instructions = [instruction]
+
+
                     applyScale(&transform, scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
                     applyColorMatrix(to: videoComposition, matrixList: colorMatrixList)
@@ -120,12 +126,11 @@ class RenderVideo {
                         imageData: imageData,
                         croppedSize: croppedSize,
                         scaleX: scaleX,
-                        scaleY: scaleY
+                        scaleY: scaleY,
+                        transform: transform,
                     )
+                    videoComposition.customVideoCompositorClass = VideoCompositor.self
 
-                    layerInstruction.setTransform(transform, at: .zero)
-                    instruction.layerInstructions = [layerInstruction]
-                    videoComposition.instructions = [instruction]
 
                     let preset = applyBitrate(requestedBitrate: bitrate, fileType: .mp4)
 
@@ -137,7 +142,7 @@ class RenderVideo {
                     }
 
                     export.outputURL = outputURL
-                    export.outputFileType = .mp4
+                    export.outputFileType =  .mp4 // TODO: set output type
                     export.videoComposition = videoComposition
 
                     let checkInterval: TimeInterval = 0.1

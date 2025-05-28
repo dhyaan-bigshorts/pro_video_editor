@@ -1,7 +1,7 @@
 import AVFoundation
 import CoreImage
 
-public func applyColorMatrix(
+func applyColorMatrix(
     to composition: AVMutableVideoComposition,
     matrixList: [[Double]],
     lutSize: Int = 33
@@ -21,8 +21,7 @@ public func applyColorMatrix(
         return
     }
 
-    LUTCompositor.setLUT(data: data, size: lutSize)
-    composition.customVideoCompositorClass = LUTCompositor.self
+    VideoCompositor.setLUT(data: data, size: lutSize)
 }
 
 // MARK: - Matrix Combination Logic
@@ -92,89 +91,4 @@ extension Double {
     fileprivate func clamped01() -> Double {
         return min(max(self, 0.0), 1.0)
     }
-}
-
-class LUTCompositor: NSObject, AVVideoCompositing {
-
-    // MARK: - Thread-safe LUT Storage
-
-    private static let lutQueue = DispatchQueue(label: "lut.queue")
-    private static var _lutData: Data?
-    private static var _lutSize: Int = 33
-
-    static func setLUT(data: Data, size: Int) {
-        lutQueue.sync {
-            _lutData = data
-            _lutSize = size
-        }
-    }
-
-    private static func getLUT() -> (data: Data?, size: Int) {
-        lutQueue.sync {
-            (_lutData, _lutSize)
-        }
-    }
-
-    // MARK: - AVVideoCompositing Protocol
-
-    private let context = CIContext(options: [
-        .workingColorSpace: NSNull(),  // Disable Core Image color space conversion
-        .outputColorSpace: CGColorSpace(name: CGColorSpace.sRGB)!,  // Force sRGB output
-    ])
-
-    var requiredPixelBufferAttributesForRenderContext: [String: Any] = [
-        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
-    ]
-
-    var sourcePixelBufferAttributes: [String: Any]? = [
-        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
-    ]
-
-    func renderContextChanged(_ newRenderContext: AVVideoCompositionRenderContext) {}
-
-    func startRequest(_ request: AVAsynchronousVideoCompositionRequest) {
-
-        guard let trackID = request.sourceTrackIDs.first?.int32Value else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -10, userInfo: nil))
-            return
-        }
-
-        guard let sourceBuffer = request.sourceFrame(byTrackID: trackID) else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -11, userInfo: nil))
-            return
-        }
-
-        guard let filter = CIFilter(name: "CIColorCube") else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -12, userInfo: nil))
-            return
-        }
-
-        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
-        let image = CIImage(cvPixelBuffer: sourceBuffer).oriented(forExifOrientation: 1)
-
-        let (lutData, lutSize) = Self.getLUT()
-        guard let lutData else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -13, userInfo: nil))
-            return
-        }
-
-        filter.setValue(lutSize, forKey: "inputCubeDimension")
-        filter.setValue(lutData, forKey: "inputCubeData")
-        filter.setValue(image, forKey: kCIInputImageKey)
-
-        guard let outputImage = filter.outputImage else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -14, userInfo: nil))
-            return
-        }
-
-        guard let dst = request.renderContext.newPixelBuffer() else {
-            request.finish(with: NSError(domain: "LUTCompositor", code: -15, userInfo: nil))
-            return
-        }
-
-        context.render(outputImage, to: dst, bounds: outputImage.extent, colorSpace: colorSpace)
-
-        request.finish(withComposedVideoFrame: dst)
-    }
-
 }
