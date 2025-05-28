@@ -77,7 +77,6 @@ class RenderVideo {
 
                     try videoCompositionTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
 
-
                     // Apply audio track
                     await applyAudio(
                         from: asset, to: composition, timeRange: timeRange, enableAudio: enableAudio
@@ -92,45 +91,26 @@ class RenderVideo {
                     let layerInstruction = AVMutableVideoCompositionLayerInstruction(
                         assetTrack: videoCompositionTrack)
 
-                    var transform = videoTrack.preferredTransform
-                    let rotatedSize = applyRotation(
-                        &transform, rotateTurns: rotateTurns, size: videoTrack.naturalSize)
-                    applyFlip(&transform, flipX: flipX, flipY: flipY, size: rotatedSize)
+                    instruction.layerInstructions = [layerInstruction]
+                    videoComposition.instructions = [instruction]
 
-                    // Apply crop and get final render size
                     let croppedSize = applyCrop(
-                        &transform,
-                        rotatedSize: rotatedSize,
+                        naturalSize: videoTrack.naturalSize,
                         cropX: cropX,
                         cropY: cropY,
                         cropWidth: cropWidth,
                         cropHeight: cropHeight,
-                        rotateTurns: rotateTurns ?? 0,
-                        flipX: flipX,
-                        flipY: flipY,
                     )
-
-                    // Update render size after crop
-                    videoComposition.renderSize = croppedSize
-                    layerInstruction.setTransform(transform, at: .zero)
-                    instruction.layerInstructions = [layerInstruction]
-                    videoComposition.instructions = [instruction]
-
-
-                    applyScale(&transform, scaleX: scaleX, scaleY: scaleY)
+                    applyRotation(rotateTurns: rotateTurns)
+                    applyFlip(flipX: flipX, flipY: flipY)
+                    applyScale(scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
                     applyColorMatrix(to: videoComposition, matrixList: colorMatrixList)
-                    applyBlur(to: videoComposition, sigma: blur)
-                    applyImageLayer(
-                        to: videoComposition,
-                        imageData: imageData,
-                        croppedSize: croppedSize,
-                        scaleX: scaleX,
-                        scaleY: scaleY,
-                        transform: transform,
-                    )
-                    videoComposition.customVideoCompositorClass = VideoCompositor.self
+                    applyBlur(sigma: blur)
+                    applyImageLayer(imageData: imageData)
 
+                    videoComposition.renderSize = croppedSize
+                    videoComposition.customVideoCompositorClass = VideoCompositor.self
 
                     let preset = applyBitrate(requestedBitrate: bitrate, fileType: .mp4)
 
@@ -142,10 +122,10 @@ class RenderVideo {
                     }
 
                     export.outputURL = outputURL
-                    export.outputFileType =  .mp4 // TODO: set output type
+                    export.outputFileType = .mp4  // TODO: set output type
                     export.videoComposition = videoComposition
 
-                    let checkInterval: TimeInterval = 0.1
+                    let checkInterval: TimeInterval = 0.2
                     let nanoseconds = UInt64(checkInterval * 1_000_000_000)
 
                     // Start export

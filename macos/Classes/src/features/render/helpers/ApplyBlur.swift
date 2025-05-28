@@ -1,14 +1,11 @@
 import AVFoundation
 
 func applyBlur(
-    to composition: AVMutableVideoComposition,
     sigma: Double?
 ) {
-    guard let sigma = sigma, sigma > 0 else { return }
+    VideoCompositor.blurSigma = (sigma ?? 0) * 2.5
 
-    print("[\(Tags.render)] Applying blur: sigma = \(sigma)")
+    if sigma == nil { return }
 
-    VideoCompositor.blurSigma = sigma * 2.5
+    print("[\(Tags.render)] Applying blur: sigma=\(sigma!)")
 }
-
-

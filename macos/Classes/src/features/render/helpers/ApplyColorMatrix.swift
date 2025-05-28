@@ -6,7 +6,11 @@ func applyColorMatrix(
     matrixList: [[Double]],
     lutSize: Int = 33
 ) {
-    guard !matrixList.isEmpty else { return }
+    guard !matrixList.isEmpty else {
+        VideoCompositor.clearLUT()
+
+        return
+    }
 
     let combined = combineColorMatrices(matrixList)
     guard combined.count == 20 else {
@@ -14,7 +18,7 @@ func applyColorMatrix(
         return
     }
 
-    print("[\(Tags.render)] Generating LUT...")
+    print("[\(Tags.render)]  Applying color matrix LUT...")
 
     guard let data = generateLUTData(from: combined, size: lutSize) else {
         print("[\(Tags.render)] Failed to generate LUT.")

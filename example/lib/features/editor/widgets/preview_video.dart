@@ -63,7 +63,7 @@ class _PreviewVideoState extends State<PreviewVideo> {
 
   void _initializePlayer() async {
     var media = await Media.memory(widget.bytes);
-    await _player.open(media, play: true);
+    await _player.open(media, play: false);
   }
 
   String formatBytes(int bytes, [int decimals = 2]) {
