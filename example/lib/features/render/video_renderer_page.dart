@@ -204,13 +204,13 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
     var sp = Stopwatch()..start();
 
-    final result = await VideoUtilsService.instance.renderVideo(
+    final result = await ProVideoEditor.instance.renderVideo(
       value.copyWith(id: _taskId),
     );
 
     _generationTime = sp.elapsed;
 
-    _outputMetadata = (await VideoUtilsService.instance
+    _outputMetadata = (await ProVideoEditor.instance
         .getMetadata(EditorVideo(byteArray: result)));
 
     await _playerPreview.open(await Media.memory(result));
@@ -349,8 +349,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Widget _buildOptions() {
     if (_isExporting) {
       return StreamBuilder<ProgressModel>(
-        stream: VideoUtilsService.instance.progressStream
-            .where((item) => item.id == _taskId),
+        stream: ProVideoEditor.instance.progressStreamById(_taskId),
         builder: (context, snapshot) {
           double progress = snapshot.data?.progress ?? 0;
 

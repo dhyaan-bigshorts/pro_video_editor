@@ -13,7 +13,7 @@ import 'package:pro_video_editor/pro_video_editor_platform_interface.dart';
 
 class MockProVideoEditorPlatform
     with MockPlatformInterfaceMixin
-    implements ProVideoEditorPlatform {
+    implements ProVideoEditor {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
@@ -31,6 +31,10 @@ class MockProVideoEditorPlatform
 
   @override
   Stream<ProgressModel> get progressStream => const Stream.empty();
+
+  @override
+  Stream<ProgressModel> progressStreamById(String taskId) =>
+      const Stream.empty();
 
   @override
   Future<Uint8List> renderVideo(RenderVideoModel value) {

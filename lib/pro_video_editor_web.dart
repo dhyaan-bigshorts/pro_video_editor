@@ -19,7 +19,7 @@ import 'pro_video_editor_platform_interface.dart';
 
 /// A web implementation of the ProVideoEditorPlatform of the ProVideoEditor
 /// plugin.
-class ProVideoEditorWeb extends ProVideoEditorPlatform {
+class ProVideoEditorWeb extends ProVideoEditor {
   /// Constructs a ProVideoEditorWeb
   ProVideoEditorWeb();
 
@@ -27,7 +27,7 @@ class ProVideoEditorWeb extends ProVideoEditorPlatform {
 
   /// Registers the web implementation of the ProVideoEditor platform interface.
   static void registerWith(Registrar registrar) {
-    ProVideoEditorPlatform.instance = ProVideoEditorWeb();
+    ProVideoEditor.instance = ProVideoEditorWeb();
   }
 
   /// Returns a [String] containing the version of the platform.

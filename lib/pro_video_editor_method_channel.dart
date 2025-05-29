@@ -13,8 +13,8 @@ import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_metadata_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
-/// An implementation of [ProVideoEditorPlatform] that uses method channels.
-class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
+/// An implementation of [ProVideoEditor] that uses method channels.
+class MethodChannelProVideoEditor extends ProVideoEditor {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('pro_video_editor');

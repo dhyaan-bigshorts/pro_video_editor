@@ -81,7 +81,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
   /// Loads and sets [_videoMetadata] for the given [_video].
   Future<void> setMetadata() async {
-    _videoMetadata = await VideoUtilsService.instance.getMetadata(_video);
+    _videoMetadata = await ProVideoEditor.instance.getMetadata(_video);
   }
 
   /// Generates thumbnails for the given [_video].
@@ -94,7 +94,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
       /// `getKeyFrames` is faster than `getThumbnails` but the timestamp is
       /// more "random".
-      var thumbnailList = await VideoUtilsService.instance.getKeyFrames(
+      var thumbnailList = await ProVideoEditor.instance.getKeyFrames(
         KeyFramesConfigs(
           video: _video,
           outputSize: Size.square(imageWidth),
@@ -218,7 +218,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       ),
       // bitrate: _videoMetadata.bitrate,
     );
-    _exportedVideo = await VideoUtilsService.instance.renderVideo(exportModel);
+    _exportedVideo = await ProVideoEditor.instance.renderVideo(exportModel);
     _videoGenerationTime = stopwatch.elapsed;
   }
 

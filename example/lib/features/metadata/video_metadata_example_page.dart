@@ -25,7 +25,7 @@ class _VideoMetadataExamplePageState extends State<VideoMetadataExamplePage> {
   final _numberFormatter = NumberFormat();
 
   Future<void> _setMetadata() async {
-    _metadata = await VideoUtilsService.instance.getMetadata(
+    _metadata = await ProVideoEditor.instance.getMetadata(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
     setState(() {});
