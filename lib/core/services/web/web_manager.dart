@@ -5,7 +5,7 @@ import '/core/models/thumbnail/thumbnail_configs.model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_metadata_model.dart';
 import '/core/services/web/web_thumbnail_generator.dart';
-import 'web_video_info_reader.dart';
+import 'web_meta_data_reader.dart';
 
 /// A platform-specific implementation for handling video operations on web.
 ///
@@ -26,15 +26,27 @@ class WebManager {
   ///
   /// Extracts frames from specified timestamps and returns them as a list of
   /// image data in [Uint8List] format.
-  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
-    return await WebThumbnailGenerator().getThumbnails(value);
+  Future<List<Uint8List>> getThumbnails(
+    ThumbnailConfigs value, {
+    void Function(double progress)? onProgress,
+  }) async {
+    return await WebThumbnailGenerator().getThumbnails(
+      value,
+      onProgress: onProgress,
+    );
   }
 
   /// Extracts evenly spaced key frames using the [KeyFramesConfigs] settings.
   ///
   /// Returns a list of [Uint8List] image data captured at calculated
   /// intervals throughout the video.
-  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
-    return await WebThumbnailGenerator().getKeyFrames(value);
+  Future<List<Uint8List>> getKeyFrames(
+    KeyFramesConfigs value, {
+    void Function(double progress)? onProgress,
+  }) async {
+    return await WebThumbnailGenerator().getKeyFrames(
+      value,
+      onProgress: onProgress,
+    );
   }
 }

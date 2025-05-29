@@ -55,7 +55,7 @@
 
 | Method                     | Android | iOS  | macOS  | Windows  | Linux  | Web   |
 |----------------------------|---------|------|--------|----------|--------|-------|
-| `Metadata`                 | ✅      | ❌  | ✅     | ✅      | ❌     | ✅   |
+| `Metadata`                 | ✅      | ❌  | ✅     | ✅      | ⚠️     | ✅   |
 | `Thumbnails`               | ✅      | ❌  | ✅     | ❌      | ❌     | ✅   |
 | `KeyFrames`                | ✅      | ❌  | ✅     | ❌      | ❌     | ✅   |
 | `Rotate`                   | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
@@ -76,6 +76,7 @@
 
 #### Legend
 - ✅ Supported with Native-Code 
+- ⚠️ Supported with Native-Code but not tested
 - 🧪 Supported but visual output can differs from Flutter
 - ❌ Not supported but planned
 - 🚫 Not supported and currently not planned
