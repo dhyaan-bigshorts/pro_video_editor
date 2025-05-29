@@ -85,10 +85,14 @@ class RenderVideoModel {
   ///
   /// This value is optional and may be `null` if the bitrate is not specified.
   ///
-  /// **WARNING:** Not all devices support CBR (Constant Bitrate) mode.
+  /// **WARNING Android:** Not all devices support CBR (Constant Bitrate) mode.
   /// If unsupported, the encoder may silently fall back to VBR
   /// (Variable Bitrate), and the actual bitrate may be constrained by
   /// device-specific minimum and maximum limits.
+  ///
+  /// **WARNING macOS iOS** It's not supported to directly set a specific
+  /// bitrate, instant it will choose a preset which is the most near to the
+  /// applied bitrate.
   final int? bitrate;
 
   /// Converts the model into a serializable map.
@@ -155,5 +159,12 @@ enum VideoOutputFormat {
   mp4,
 
   /// WebM format, optimized for web use.
+  ///
+  /// Only supported on android.
   webm,
+
+  /// mov format.
+  ///
+  /// Only supported on macos and ios.
+  mov,
 }
