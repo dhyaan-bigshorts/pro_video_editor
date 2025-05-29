@@ -13,6 +13,9 @@ import '../models/video/video_metadata_model.dart';
 ///
 /// This service provides a singleton interface for accessing platform-level
 /// functionality such as retrieving video metadata and generating thumbnails.
+///
+/// TODO: rename to `ProVideoEditor` or maybe use directly
+/// `ProVideoEditorPlatform` and rename
 class VideoUtilsService {
   /// Private constructor for singleton pattern.
   VideoUtilsService._();

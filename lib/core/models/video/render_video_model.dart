@@ -10,6 +10,8 @@ class RenderVideoModel {
   /// Creates a [RenderVideoModel] with the given parameters.
   RenderVideoModel({
     required this.outputFormat,
+
+    /// TODO: Use EditorVideo class instant
     required this.videoBytes,
     this.imageBytes,
     this.transform = const ExportTransform(),

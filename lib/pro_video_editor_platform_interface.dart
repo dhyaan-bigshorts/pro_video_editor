@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '/core/models/video/editor_video_model.dart';
@@ -73,6 +73,7 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
   /// Sets up the native progress stream connection.
   ///
   /// Must be implemented to receive progress updates from native code.
+  @protected
   void initializeStream() {
     throw UnimplementedError('[initializeStream()] has not been implemented.');
   }
