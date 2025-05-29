@@ -47,6 +47,7 @@ class RenderVideo {
             let asset = AVURLAsset(url: inputURL)
             let composition = AVMutableComposition()
 
+            /// TODO make class more readable
             Task {
                 do {
                     let videoTracks: [AVAssetTrack]
@@ -111,9 +112,10 @@ class RenderVideo {
                     applyImageLayer(imageData: imageData)
 
                     videoComposition.renderSize = croppedSize
+                    // TODO replace static video compositor
                     videoComposition.customVideoCompositorClass = VideoCompositor.self
 
-                    let preset = applyBitrate(requestedBitrate: bitrate, fileType: .mp4)
+                    let preset = applyBitrate(requestedBitrate: bitrate)
 
                     guard let export = AVAssetExportSession(asset: composition, presetName: preset)
                     else {
@@ -123,7 +125,8 @@ class RenderVideo {
                     }
 
                     export.outputURL = outputURL
-                    export.outputFileType = .mp4  // TODO: set output type
+
+                    export.outputFileType = mapFormatToMimeType(format: outputFormat)
                     export.videoComposition = videoComposition
 
                     let checkInterval: TimeInterval = 0.2
