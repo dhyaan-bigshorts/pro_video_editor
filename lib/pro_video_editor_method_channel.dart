@@ -71,7 +71,11 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<Uint8List> renderVideo(RenderVideoModel value) async {
-    var extension = lookupMimeType('', headerBytes: value.videoBytes);
+    final renderData = await value.toAsyncMap();
+    var extension = lookupMimeType(
+      '',
+      headerBytes: await value.video.safeByteArray(),
+    );
     String inputFormat = 'mp4';
     List<String>? sp = extension?.split('/');
     if (sp?.length == 1) inputFormat = sp![1];
@@ -79,7 +83,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
       'renderVideo',
       {
-        ...value.toMap(),
+        ...renderData,
         'inputFormat': inputFormat,
       },
     );

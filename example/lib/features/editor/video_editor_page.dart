@@ -195,13 +195,11 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Future<void> generateVideo(CompleteParameters parameters) async {
     final stopwatch = Stopwatch()..start();
 
-    var videoBytes = await _video.safeByteArray();
-
     unawaited(_videoController.pause());
 
     var exportModel = RenderVideoModel(
       id: _taskId,
-      videoBytes: videoBytes,
+      video: _video,
       outputFormat: _outputFormat,
       enableAudio: _proVideoController?.isAudioEnabled ?? true,
       imageBytes: parameters.image,
