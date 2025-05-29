@@ -81,73 +81,25 @@ class VideoCompositor: NSObject, AVVideoCompositing {
 
         // Cropping
         if Self.cropX != 0 || Self.cropY != 0 || Self.cropWidth != nil || Self.cropHeight != nil {
-            let rotation = Self.rotateTurns % 4
             let inputExtent = outputImage.extent
             let videoWidth = inputExtent.width
             let videoHeight = inputExtent.height
 
-            var cropW = Self.cropWidth
-            var cropH = Self.cropHeight
-
-            if rotation == 1 || rotation == 3 {
-                swap(&cropW, &cropH)
-            }
-
-            var x = Self.cropX
+            let x = Self.cropX
             var y = Self.cropY
-            let width = cropW ?? (videoWidth - x)
-            let height = cropH ?? (videoHeight - y)
+            let width = Self.cropWidth ?? (videoWidth - x)
+            let height = Self.cropHeight ?? (videoHeight - y)
 
-            var flipOutputX = false
-            var flipOutputY = false
-/* 
-            switch rotation {
-            case 1:
-                y = videoWidth - width - y
-                flipOutputY.toggle()
-            case 2:
-                x = videoWidth - width - x
-                y = videoHeight - height - y
-                flipOutputX.toggle()
-                flipOutputY.toggle()
-            case 3:
-                x = videoHeight - height - x
-                flipOutputX.toggle()
-            default:
-                break
-            }
 
-            if Self.flipX {
-                if rotation == 1 || rotation == 3 {
-                    y = videoWidth - width - y
-                    flipOutputY.toggle()
-                } else {
-                    x = videoWidth - width - x
-                    flipOutputX.toggle()
-                }
-            }
-            if Self.flipY {
-                if rotation == 1 || rotation == 3 {
-                    x = videoHeight - height - x
-                    flipOutputX.toggle()
-                } else {
-                    y = videoHeight - height - y
-                    flipOutputY.toggle()
-                }
-            }
- */
-            /* Applying crop: x=68.0 y=0.0 width=1212.0 height=720.0 rotation=0 */
-            /* Applying crop: x=0.0 y=0.0 width=1212.0 height=720.0 rotation=0 */
+            y = videoHeight - height - y
 
             let cropRect = CGRect(x: x, y: y, width: width, height: height)
-            print(
-                "[\(Tags.render)] Applying crop: xs=\(Self.cropX) xc=\(cropRect.origin.x) x=\(x) y=\(y) width=\(width) videoWidth=\(videoWidth) height=\(height) rotation=\(rotation)"
-            )
+           
             outputImage = outputImage.cropped(to: cropRect)
             outputImage = outputImage.transformed(
                 by: CGAffineTransform(
-                    translationX: -cropRect.origin.x * (flipOutputX ? -1 : 1),
-                    y: -cropRect.origin.y * (flipOutputY ? 1 : -1),
+                    translationX: -cropRect.origin.x ,
+                    y: -cropRect.origin.y ,
 
                 ))
             center = CGPoint(x: outputImage.extent.midX, y: outputImage.extent.midY)

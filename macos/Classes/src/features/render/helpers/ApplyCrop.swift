@@ -3,6 +3,7 @@ import CoreGraphics
 
 public func applyCrop(
     naturalSize: CGSize,
+    rotateTurns: Int?,
     cropX: Int?,
     cropY: Int?,
     cropWidth: Int?,
@@ -25,10 +26,15 @@ public func applyCrop(
     }
 
     let cropRect = CGRect(x: x, y: y, width: width, height: height)
-   
-   /// TODO swap when rotated
-    return cropRect.size
-    /* 
+
+    let turns = 4 - (rotateTurns ?? 0) % 4
+
+    let isPortraitRotation = turns % 2 == 1
+    return isPortraitRotation
+        ? CGSize(width: cropRect.size.height, height: cropRect.size.width)
+        : cropRect.size
+
+    /*
     let rotation = ((rotateTurns * 90) % 360 + 360) % 360
     let videoWidth = rotatedSize.width
     let videoHeight = rotatedSize.height
@@ -97,6 +103,6 @@ public func applyCrop(
         y: cropRect.origin.y * (flipOutputY ? 1 : -1),
     )
     
-    return cropRect.size 
+    return cropRect.size
     */
 }

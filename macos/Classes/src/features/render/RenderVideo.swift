@@ -96,6 +96,7 @@ class RenderVideo {
 
                     let croppedSize = applyCrop(
                         naturalSize: videoTrack.naturalSize,
+                        rotateTurns: rotateTurns,
                         cropX: cropX,
                         cropY: cropY,
                         cropWidth: cropWidth,
