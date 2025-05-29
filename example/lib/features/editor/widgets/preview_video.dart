@@ -49,9 +49,9 @@ class _PreviewVideoState extends State<PreviewVideo> {
   void initState() {
     super.initState();
 
-    _videoMetadata = VideoUtilsService.instance.getMetadata(EditorVideo(
-      byteArray: widget.bytes,
-    ));
+    _videoMetadata = ProVideoEditor.instance.getMetadata(
+      EditorVideo.memory(widget.bytes),
+    );
     _initializePlayer();
   }
 
@@ -63,7 +63,7 @@ class _PreviewVideoState extends State<PreviewVideo> {
 
   void _initializePlayer() async {
     var media = await Media.memory(widget.bytes);
-    await _player.open(media, play: true);
+    await _player.open(media, play: false);
   }
 
   String formatBytes(int bytes, [int decimals = 2]) {

@@ -57,17 +57,17 @@
 |----------------------------|---------|------|--------|----------|--------|-------|
 | `Metadata`                 | ✅      | ❌  | ✅     | ✅      | ❌     | ✅   |
 | `Thumbnails`               | ✅      | ❌  | ✅     | ❌      | ❌     | ✅   |
-| `KeyFrames`                | ✅      | ❌  | ❌     | ❌      | ❌     | ✅   |
-| `Rotate`                   | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Flip`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Crop`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Scale`                    | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Trim`                     | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Playback-Speed`           | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Remove-Audio`             | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Overlay Layers`           | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Multiple ColorMatrix 4x5` | ✅      | ❌  | ❌     | ❌      | ❌     | 🚫   |
-| `Blur background`          | 🧪      | ❌  | ❌     | ❌      | ❌     | 🚫   |
+| `KeyFrames`                | ✅      | ❌  | ✅     | ❌      | ❌     | ✅   |
+| `Rotate`                   | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Flip`                     | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Crop`                     | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Scale`                    | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Trim`                     | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Playback-Speed`           | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Remove-Audio`             | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Overlay Layers`           | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Multiple ColorMatrix 4x5` | ✅      | ❌  | ✅     | ❌      | ❌     | 🚫   |
+| `Blur background`          | 🧪      | ❌  | 🧪     | ❌      | ❌     | 🚫   |
 | `Custom Audio Tracks`      | ❌      | ❌  | ❌     | ❌      | ❌     | 🚫   |
 | `Merge Videos`             | ❌      | ❌  | ❌     | ❌      | ❌     | 🚫   |
 | `Censor-Layers "Pixelate"` | ❌      | ❌  | ❌     | ❌      | ❌     | 🚫   |
@@ -89,27 +89,17 @@ No additional setup required.
 ## Usage
 #### Metadata
 ```dart
-VideoMetadata result = await VideoUtilsService.instance.getMetadata(
-    EditorVideo(
-        assetPath: 'assets/my-video.mp4',
-        /// byteArray: ,
-        /// file: ,
-        /// networkUrl: ,
-        ),
+VideoMetadata result = await ProVideoEditor.instance.getMetadata(
+    video: EditorVideo.asset('assets/my-video.mp4'),
 );
 ```
 
 #### Thumbnails 
 
 ```dart
-List<Uint8List> result = await VideoUtilsService.instance.getThumbnails(
+List<Uint8List> result = await ProVideoEditor.instance.getThumbnails(
     ThumbnailConfigs(
-        video: EditorVideo(
-            assetPath: 'assets/my-video.mp4',
-            /// byteArray: ,
-            /// file: ,
-            /// networkUrl: ,
-        ),
+        video: EditorVideo.asset('assets/my-video.mp4'),
         outputFormat: ThumbnailFormat.jpeg,
         timestamps: const [
             Duration(seconds: 10),
@@ -125,14 +115,9 @@ List<Uint8List> result = await VideoUtilsService.instance.getThumbnails(
 #### Keyframes
 
 ```dart
-List<Uint8List> result = await VideoUtilsService.instance.getKeyFrames(
+List<Uint8List> result = await ProVideoEditor.instance.getKeyFrames(
     KeyFramesConfigs(
-        video: EditorVideo(
-            assetPath: 'assets/my-video.mp4',
-            /// byteArray: ,
-            /// file: ,
-            /// networkUrl: ,
-        ),
+        video: EditorVideo.asset('assets/my-video.mp4'),
         outputFormat: ThumbnailFormat.jpeg,
         maxOutputFrames: 20,
         outputSize: const Size(200, 200),
@@ -143,19 +128,15 @@ List<Uint8List> result = await VideoUtilsService.instance.getKeyFrames(
 
 #### Render
 ```dart
-var video = EditorVideo(
-    assetPath: 'assets/my-video.mp4',
-    /// byteArray: ,
-    /// file: ,
-    /// networkUrl: ,
-);
-
 /// Every option except videoBytes is optional.
 var data = RenderVideoModel(
-    videoBytes: await video.safeByteArray(),
-
-    /// A image "Layer" which will overlay the video.
-    imageBytes: imageBytes,
+    video: EditorVideo.asset('assets/my-video.mp4'),
+    // Other supported constructors:
+    // video: EditorVideo.file(File('/path/to/video.mp4')),
+    // video: EditorVideo.network('https://example.com/video.mp4'),
+    // video: EditorVideo.memory(videoBytes),
+    
+    imageBytes: imageBytes, /// A image "Layer" which will overlay the video.
     outputFormat: VideoOutputFormat.mp4,
     transform: const ExportTransform(
         flipX: true,
@@ -179,7 +160,7 @@ var data = RenderVideoModel(
     blur: 10,
 );
 
-Uint8List result = await VideoUtilsService.instance.renderVideo(data);
+Uint8List result = await ProVideoEditor.instance.renderVideo(data);
 ```
 
 

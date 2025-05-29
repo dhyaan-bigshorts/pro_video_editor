@@ -28,8 +28,21 @@ fun applyImageLayer(
         rotationDegrees
     )
 
-    if (cropWidth != null) videoWidth = cropWidth;
-    if (cropHeight != null) videoHeight = cropHeight;
+    var isRotated90Deg = videoRotation == 90 || videoRotation == 270;
+    if (cropWidth != null) {
+        if (isRotated90Deg) {
+            videoHeight = cropWidth;
+        } else {
+            videoWidth = cropWidth;
+        }
+    }
+    if (cropHeight != null) {
+        if (isRotated90Deg) {
+            videoWidth = cropHeight;
+        } else {
+            videoHeight = cropHeight;
+        }
+    }
 
     if (scaleX != null) videoWidth = (videoWidth * scaleX).toInt()
     if (scaleY != null) videoHeight = (videoHeight * scaleY).toInt()

@@ -27,7 +27,7 @@ fun getRotatedVideoDimensions(
             widthRaw to heightRaw
         }
 
-        Triple(width, height, rotation)
+        Triple(width, height, normalizedRotation)
     } catch (e: Exception) {
         Triple(0, 0, 0)
     } finally {

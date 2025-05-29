@@ -42,14 +42,15 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
   VideoMetadata? _outputMetadata;
 
-  Uint8List? _temporaryVideoBytes;
-
   String _taskId = DateTime.now().microsecondsSinceEpoch.toString();
+
+  late final EditorVideo _video;
 
   @override
   void initState() {
     super.initState();
     _playerContent.open(Media('asset:///assets/demo.mp4'), play: true);
+    _video = EditorVideo.asset('assets/demo.mp4');
   }
 
   @override
@@ -59,17 +60,10 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     super.dispose();
   }
 
-  Future<Uint8List> _getVideoBytes() async {
-    if (_temporaryVideoBytes != null) return _temporaryVideoBytes!;
-    final videoBytes = await loadAssetImageAsUint8List('assets/demo.mp4');
-    _temporaryVideoBytes = videoBytes;
-    return videoBytes;
-  }
-
   Future<void> _rotate() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       transform: const ExportTransform(
         rotateTurns: 1,
       ),
@@ -81,7 +75,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _flip() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       transform: const ExportTransform(
         flipX: true,
       ),
@@ -93,7 +87,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _crop() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       transform: const ExportTransform(
         x: 100,
         y: 250,
@@ -108,7 +102,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _scale() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       transform: const ExportTransform(scaleX: 0.2, scaleY: 0.2),
     );
 
@@ -118,7 +112,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _trim() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       startTime: const Duration(seconds: 7),
       endTime: const Duration(seconds: 20),
     );
@@ -129,7 +123,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _changeSpeed() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       playbackSpeed: 2,
     );
 
@@ -139,7 +133,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _removeAudio() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       enableAudio: false,
     );
 
@@ -150,7 +144,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     final imageBytes = await _captureLayerContent();
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       imageBytes: imageBytes,
     );
 
@@ -160,7 +154,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _colorMatrix() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       colorMatrixList: kComplexFilterMatrix,
     );
 
@@ -170,7 +164,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Future<void> _blur() async {
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       blur: 5,
     );
 
@@ -181,7 +175,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
     final imageBytes = await _captureLayerContent();
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: await _getVideoBytes(),
+      video: _video,
       transform: const ExportTransform(
         flipX: true,
       ),
@@ -195,11 +189,9 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   }
 
   Future<void> _bitrate() async {
-    var videoBytes = await _getVideoBytes();
-
     var data = RenderVideoModel(
       outputFormat: VideoOutputFormat.mp4,
-      videoBytes: videoBytes,
+      video: _video,
       bitrate: 1000000,
     );
 
@@ -212,14 +204,15 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
     var sp = Stopwatch()..start();
 
-    final result = await VideoUtilsService.instance.renderVideo(
+    final result = await ProVideoEditor.instance.renderVideo(
       value.copyWith(id: _taskId),
     );
 
     _generationTime = sp.elapsed;
 
-    _outputMetadata = (await VideoUtilsService.instance
-        .getMetadata(EditorVideo(byteArray: result)));
+    _outputMetadata = await ProVideoEditor.instance.getMetadata(
+      EditorVideo.memory(result),
+    );
 
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();
@@ -357,8 +350,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   Widget _buildOptions() {
     if (_isExporting) {
       return StreamBuilder<ProgressModel>(
-        stream: VideoUtilsService.instance.progressStream
-            .where((item) => item.id == _taskId),
+        stream: ProVideoEditor.instance.progressStreamById(_taskId),
         builder: (context, snapshot) {
           double progress = snapshot.data?.progress ?? 0;
 

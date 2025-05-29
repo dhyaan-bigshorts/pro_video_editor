@@ -26,8 +26,8 @@ class ThumbnailConfigs extends ThumbnailBase {
       'id': id,
       'boxFit': boxFit.name,
       'outputFormat': outputFormat.name,
-      'outputWidth': outputSize.width,
-      'outputHeight': outputSize.height,
+      'outputWidth': outputSize.width.round(),
+      'outputHeight': outputSize.height.round(),
       'timestamps': timestamps
           .map(
             (timestamp) => timestamp.inMicroseconds,

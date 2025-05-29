@@ -13,8 +13,8 @@ import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_metadata_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
-/// An implementation of [ProVideoEditorPlatform] that uses method channels.
-class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
+/// An implementation of [ProVideoEditor] that uses method channels.
+class MethodChannelProVideoEditor extends ProVideoEditor {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('pro_video_editor');
@@ -71,7 +71,11 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<Uint8List> renderVideo(RenderVideoModel value) async {
-    var extension = lookupMimeType('', headerBytes: value.videoBytes);
+    final renderData = await value.toAsyncMap();
+    var extension = lookupMimeType(
+      '',
+      headerBytes: await value.video.safeByteArray(),
+    );
     String inputFormat = 'mp4';
     List<String>? sp = extension?.split('/');
     if (sp?.length == 1) inputFormat = sp![1];
@@ -79,7 +83,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
       'renderVideo',
       {
-        ...value.toMap(),
+        ...renderData,
         'inputFormat': inputFormat,
       },
     );

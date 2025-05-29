@@ -7,5 +7,7 @@ enum ThumbnailFormat {
   png,
 
   /// WebP format (modern, efficient, may not be supported on all platforms).
+  ///
+  /// Only supported on android.
   webp,
 }

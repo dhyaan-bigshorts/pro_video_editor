@@ -27,8 +27,8 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   final _keyFramesTaskId = 'KeyFramesTaskId';
 
   Future<void> _setMetadata() async {
-    _informations = await VideoUtilsService.instance.getMetadata(
-      EditorVideo(assetPath: kVideoEditorExampleAssetPath),
+    _informations = await ProVideoEditor.instance.getMetadata(
+      EditorVideo.asset(kVideoEditorExampleAssetPath),
     );
     setState(() {});
   }
@@ -38,10 +38,10 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
 
     if (_informations == null) await _setMetadata();
 
-    var raw = await VideoUtilsService.instance.getThumbnails(
+    var raw = await ProVideoEditor.instance.getThumbnails(
       ThumbnailConfigs(
         id: _thumbnailTaskId,
-        video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
+        video: EditorVideo.asset(kVideoEditorExampleAssetPath),
         outputFormat: _thumbnailFormat,
         timestamps: List.generate(
           _exampleImageCount,
@@ -64,10 +64,10 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   void _generateKeyFrames() async {
     var outputSize = _imageSize * MediaQuery.devicePixelRatioOf(context);
 
-    var raw = await VideoUtilsService.instance.getKeyFrames(
+    var raw = await ProVideoEditor.instance.getKeyFrames(
       KeyFramesConfigs(
         id: _keyFramesTaskId,
-        video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
+        video: EditorVideo.asset(kVideoEditorExampleAssetPath),
         outputFormat: _thumbnailFormat,
         maxOutputFrames: _exampleImageCount,
         outputSize: Size(outputSize, outputSize),
@@ -129,8 +129,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
     return FittedBox(
       child: StreamBuilder<ProgressModel>(
         key: ValueKey(taskId),
-        stream: VideoUtilsService.instance.progressStream
-            .where((item) => item.id == taskId),
+        stream: ProVideoEditor.instance.progressStreamById(taskId),
         builder: (context, snapshot) {
           double progress = snapshot.data?.progress ?? 0;
 

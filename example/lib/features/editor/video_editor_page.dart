@@ -56,7 +56,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   final int _thumbnailCount = 10;
 
   /// The video currently loaded in the editor.
-  final _video = EditorVideo(assetPath: kVideoEditorExampleAssetPath);
+  final _video = EditorVideo.asset(kVideoEditorExampleAssetPath);
 
   /// The result of the video export process, if completed.
   Uint8List? _exportedVideo;
@@ -81,7 +81,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
   /// Loads and sets [_videoMetadata] for the given [_video].
   Future<void> setMetadata() async {
-    _videoMetadata = await VideoUtilsService.instance.getMetadata(_video);
+    _videoMetadata = await ProVideoEditor.instance.getMetadata(_video);
   }
 
   /// Generates thumbnails for the given [_video].
@@ -94,7 +94,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
       /// `getKeyFrames` is faster than `getThumbnails` but the timestamp is
       /// more "random".
-      var thumbnailList = await VideoUtilsService.instance.getKeyFrames(
+      var thumbnailList = await ProVideoEditor.instance.getKeyFrames(
         KeyFramesConfigs(
           video: _video,
           outputSize: Size.square(imageWidth),
@@ -195,13 +195,11 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   Future<void> generateVideo(CompleteParameters parameters) async {
     final stopwatch = Stopwatch()..start();
 
-    var videoBytes = await _video.safeByteArray();
-
     unawaited(_videoController.pause());
 
     var exportModel = RenderVideoModel(
       id: _taskId,
-      videoBytes: videoBytes,
+      video: _video,
       outputFormat: _outputFormat,
       enableAudio: _proVideoController?.isAudioEnabled ?? true,
       imageBytes: parameters.image,
@@ -212,15 +210,15 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
       transform: ExportTransform(
         width: parameters.cropWidth,
         height: parameters.cropHeight,
-        rotateTurns: 4 - parameters.rotateTurns,
+        rotateTurns: parameters.rotateTurns,
         x: parameters.cropX,
         y: parameters.cropY,
         flipX: parameters.flipX,
         flipY: parameters.flipY,
       ),
-      bitrate: _videoMetadata.bitrate,
+      // bitrate: _videoMetadata.bitrate,
     );
-    _exportedVideo = await VideoUtilsService.instance.renderVideo(exportModel);
+    _exportedVideo = await ProVideoEditor.instance.renderVideo(exportModel);
     _videoGenerationTime = stopwatch.elapsed;
   }
 

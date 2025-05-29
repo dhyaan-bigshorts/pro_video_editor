@@ -73,7 +73,7 @@ class RenderVideo(private val context: Context) {
         val audioEffects = mutableListOf<AudioProcessor>()
         val mediaItemBuilder = MediaItem.Builder().setUri(Uri.fromFile(inputFile))
 
-        val rotationDegrees = (rotateTurns ?: 0) * 90f
+        val rotationDegrees = (4 - (rotateTurns ?: 0)) * 90f
 
         applyRotation(videoEffects, rotationDegrees)
         applyFlip(videoEffects, flipX, flipY)

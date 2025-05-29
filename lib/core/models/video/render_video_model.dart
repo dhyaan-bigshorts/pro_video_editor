@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '/core/models/video/export_transform_model.dart';
+import 'editor_video_model.dart';
 
 /// A model describing settings for rendering or exporting a video.
 ///
@@ -10,7 +11,7 @@ class RenderVideoModel {
   /// Creates a [RenderVideoModel] with the given parameters.
   RenderVideoModel({
     required this.outputFormat,
-    required this.videoBytes,
+    required this.video,
     this.imageBytes,
     this.transform = const ExportTransform(),
     this.enableAudio = true,
@@ -45,8 +46,12 @@ class RenderVideoModel {
   /// The target format for the exported video.
   final VideoOutputFormat outputFormat;
 
-  /// The original video data in bytes.
-  final Uint8List videoBytes;
+  /// A model that encapsulates various ways to load and represent a video.
+  ///
+  /// This class supports videos from in-memory bytes, file system, network,
+  /// or asset bundle. It provides convenience methods for identifying the
+  /// source type and safely retrieving video bytes.
+  final EditorVideo video;
 
   /// A transparent image which will overlay the video.
   final Uint8List? imageBytes;
@@ -85,17 +90,21 @@ class RenderVideoModel {
   ///
   /// This value is optional and may be `null` if the bitrate is not specified.
   ///
-  /// **WARNING:** Not all devices support CBR (Constant Bitrate) mode.
+  /// **WARNING Android:** Not all devices support CBR (Constant Bitrate) mode.
   /// If unsupported, the encoder may silently fall back to VBR
   /// (Variable Bitrate), and the actual bitrate may be constrained by
   /// device-specific minimum and maximum limits.
+  ///
+  /// **WARNING macOS iOS** It's not supported to directly set a specific
+  /// bitrate, instant it will choose a preset which is the most near to the
+  /// applied bitrate.
   final int? bitrate;
 
   /// Converts the model into a serializable map.
-  Map<String, dynamic> toMap() {
+  Future<Map<String, dynamic>> toAsyncMap() async {
     return {
       'id': id,
-      'videoBytes': videoBytes,
+      'videoBytes': await video.safeByteArray(),
       'imageBytes': imageBytes,
       'rotateTurns': transform.rotateTurns,
       'flipX': transform.flipX,
@@ -121,7 +130,7 @@ class RenderVideoModel {
   RenderVideoModel copyWith({
     String? id,
     VideoOutputFormat? outputFormat,
-    Uint8List? videoBytes,
+    EditorVideo? video,
     Uint8List? imageBytes,
     ExportTransform? transform,
     bool? enableAudio,
@@ -135,7 +144,7 @@ class RenderVideoModel {
     return RenderVideoModel(
       id: id ?? this.id,
       outputFormat: outputFormat ?? this.outputFormat,
-      videoBytes: videoBytes ?? this.videoBytes,
+      video: video ?? this.video,
       imageBytes: imageBytes ?? this.imageBytes,
       transform: transform ?? this.transform,
       enableAudio: enableAudio ?? this.enableAudio,
@@ -155,5 +164,12 @@ enum VideoOutputFormat {
   mp4,
 
   /// WebM format, optimized for web use.
+  ///
+  /// Only supported on android.
   webm,
+
+  /// mov format.
+  ///
+  /// Only supported on macos and ios.
+  mov,
 }

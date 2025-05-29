@@ -48,8 +48,7 @@ class VideoProgressAlert extends StatelessWidget {
 
   Widget _buildProgressBody() {
     return StreamBuilder<ProgressModel>(
-        stream: VideoUtilsService.instance.progressStream
-            .where((item) => item.id == taskId || taskId.isEmpty),
+        stream: ProVideoEditor.instance.progressStreamById(taskId),
         builder: (context, snapshot) {
           var progress = snapshot.data?.progress ?? 0;
           return TweenAnimationBuilder<double>(
