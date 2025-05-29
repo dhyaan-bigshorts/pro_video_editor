@@ -56,7 +56,7 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   final int _thumbnailCount = 10;
 
   /// The video currently loaded in the editor.
-  final _video = EditorVideo(assetPath: kVideoEditorExampleAssetPath);
+  final _video = EditorVideo.asset(kVideoEditorExampleAssetPath);
 
   /// The result of the video export process, if completed.
   Uint8List? _exportedVideo;

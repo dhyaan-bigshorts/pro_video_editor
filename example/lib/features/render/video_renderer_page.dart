@@ -50,7 +50,7 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   void initState() {
     super.initState();
     _playerContent.open(Media('asset:///assets/demo.mp4'), play: true);
-    _video = EditorVideo(assetPath: 'assets/demo.mp4');
+    _video = EditorVideo.asset('assets/demo.mp4');
   }
 
   @override
@@ -210,8 +210,9 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
 
     _generationTime = sp.elapsed;
 
-    _outputMetadata = (await ProVideoEditor.instance
-        .getMetadata(EditorVideo(byteArray: result)));
+    _outputMetadata = await ProVideoEditor.instance.getMetadata(
+      EditorVideo.memory(result),
+    );
 
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();

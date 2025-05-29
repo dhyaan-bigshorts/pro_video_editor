@@ -15,7 +15,7 @@ class EditorVideo {
   ///
   /// At least one of `byteArray`, `file`, `networkUrl`, or `assetPath`
   /// must not be null.
-  EditorVideo({
+  EditorVideo._({
     this.byteArray,
     this.networkUrl,
     this.assetPath,
@@ -29,6 +29,73 @@ class EditorVideo {
           'At least one of bytes, file, networkUrl, or assetPath must not '
           'be null.',
         );
+
+  /// Creates an [EditorVideo] instance from any supported source.
+  ///
+  /// Provide one of [byteArray], [networkUrl], [assetPath], or [file].
+  /// Useful for dynamically choosing the video input at runtime.
+  ///
+  /// Example:
+  /// ```dart
+  /// final video = EditorVideo.autoSource(file: pickedFile);
+  /// ```
+  factory EditorVideo.autoSource({
+    Uint8List? byteArray,
+    String? networkUrl,
+    String? assetPath,
+    dynamic file,
+  }) {
+    return EditorVideo._(
+      byteArray: byteArray,
+      networkUrl: networkUrl,
+      assetPath: assetPath,
+      file: file,
+    );
+  }
+
+  /// Creates an [EditorVideo] from in-memory bytes.
+  ///
+  /// Suitable when you already have the video content loaded as a [Uint8List],
+  /// such as from a download or blob.
+  ///
+  /// Example:
+  /// ```dart
+  /// final video = EditorVideo.memory(videoBytes);
+  /// ```
+  factory EditorVideo.memory(Uint8List bytes) =>
+      EditorVideo._(byteArray: bytes);
+
+  /// Creates an [EditorVideo] from a bundled asset path.
+  ///
+  /// Ideal for loading videos packaged with the app, such as demo or template
+  /// videos.
+  ///
+  /// Example:
+  /// ```dart
+  /// final video = EditorVideo.asset('assets/videos/sample.mp4');
+  /// ```
+  factory EditorVideo.asset(String name) => EditorVideo._(assetPath: name);
+
+  /// Creates an [EditorVideo] from a local file.
+  ///
+  /// [file] can be a `File` or the path as string to the file.
+  ///
+  /// Example:
+  /// ```dart
+  /// final video = EditorVideo.file(File('/path/to/video.mp4'));
+  /// final video = EditorVideo.file('/path/to/video.mp4');
+  /// ```
+  factory EditorVideo.file(dynamic file) => EditorVideo._(file: file);
+
+  /// Creates an [EditorVideo] from a network URL.
+  ///
+  /// Useful for streaming or downloading video content from the web.
+  ///
+  /// Example:
+  /// ```dart
+  /// final video = EditorVideo.network('https://example.com/video.mp4');
+  /// ```
+  factory EditorVideo.network(String src) => EditorVideo._(networkUrl: src);
 
   /// A byte array representing the video data.
   Uint8List? byteArray;
@@ -100,7 +167,7 @@ class EditorVideo {
     String? networkUrl,
     String? assetPath,
   }) {
-    return EditorVideo(
+    return EditorVideo.autoSource(
       byteArray: byteArray ?? this.byteArray,
       file: file ?? this.file,
       networkUrl: networkUrl ?? this.networkUrl,
