@@ -11,9 +11,9 @@ import 'package:pro_video_editor/core/platform/io/io_helper.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:video_player/video_player.dart';
 
-import '../widgets/demo_build_stickers.dart';
 import '/core/constants/example_constants.dart';
 import '/features/editor/widgets/video_initializing_widget.dart';
+import '../widgets/demo_build_stickers.dart';
 import '../widgets/preview_video.dart';
 import '../widgets/video_progress_alert.dart';
 
