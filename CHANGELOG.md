@@ -1,3 +1,6 @@
+## 0.1.1
+- **DOCS**: Updated README with new examples and images.
+
 ## 0.1.0* 
 - **FEAT**(iOS): Added render functions for iOS.
 - **FEAT**(macOS): Added render functions for macOS.
