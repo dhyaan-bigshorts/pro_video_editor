@@ -1,5 +1,5 @@
 import AVFoundation
-import AppKit
+import UIKit
 
 class ThumbnailGenerator {
 
@@ -68,9 +68,7 @@ class ThumbnailGenerator {
                     resultData[index] = data
 
                     let elapsed = Int((Date().timeIntervalSince1970 - start) * 1000)
-                    print(
-                        "[\(index)] ✅ \(Int(key * 1000)) ms in \(elapsed) ms (\(data.count) bytes)"
-                    )
+                    print("[\(index)] ✅ \(Int(key * 1000)) ms in \(elapsed) ms (\(data.count) bytes)")
                 } else {
                     let message = error?.localizedDescription ?? "Unknown error"
                     print("[\(index)] ❌ Failed at \(Int(key * 1000)) ms: \(message)")
@@ -127,25 +125,21 @@ class ThumbnailGenerator {
     }
 
     private static func compressCGImage(_ cgImage: CGImage, format: String) -> Data {
-        let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-        let imageType: NSBitmapImageRep.FileType = {
-            switch format.lowercased() {
-            case "png": return .png
-            case "jpeg", "jpg":
-                return .jpeg
-            default:
-                print("⚠️ Format \(format) not supported, falling back to JPEG")
-                return .jpeg
-            }
-        }()
-        return bitmapRep.representation(using: imageType, properties: [.compressionFactor: 0.9])
-            ?? Data()
+        let image = UIImage(cgImage: cgImage)
+        switch format.lowercased() {
+        case "png":
+            return image.pngData() ?? Data()
+        case "jpeg", "jpg":
+            return image.jpegData(compressionQuality: 1) ?? Data()
+        default:
+            print("⚠️ Format \(format) not supported, falling back to JPEG")
+            return image.jpegData(compressionQuality: 1) ?? Data()
+        }
     }
 
-    private static func extractKeyframeTimestamps(asset: AVAsset, maxFrames: Int) async -> [NSValue]
-    {
+    private static func extractKeyframeTimestamps(asset: AVAsset, maxFrames: Int) async -> [NSValue] {
         let duration: CMTime
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             do {
                 duration = try await asset.load(.duration)
             } catch {
@@ -179,5 +173,4 @@ class ThumbnailGenerator {
             return nil
         }
     }
-
 }

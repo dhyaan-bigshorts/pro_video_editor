@@ -20,7 +20,10 @@ class WebThumbnailGenerator {
   ///
   /// Returns a list of [Uint8List] images corresponding to the given
   /// timestamps.
-  Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) async {
+  Future<List<Uint8List>> getThumbnails(
+    ThumbnailConfigs value, {
+    void Function(double progress)? onProgress,
+  }) async {
     final setup = await _prepareVideoRendering(
       videoBytes: await value.video.safeByteArray(),
       outputWidth: value.outputSize.width.toInt(),
@@ -32,7 +35,9 @@ class WebThumbnailGenerator {
 
     await video.onLoadedData.first;
 
-    for (final t in value.timestamps) {
+    final total = value.timestamps.length;
+    for (int i = 0; i < total; i++) {
+      final t = value.timestamps[i];
       video.currentTime = t.inSeconds;
       await video.onSeeked.first;
       await Future.delayed(const Duration(milliseconds: 1));
@@ -40,6 +45,8 @@ class WebThumbnailGenerator {
       ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
       final blob = await canvas.toBlobAsync('image/${value.outputFormat}');
       thumbnails.add(await _blobToUint8List(blob));
+
+      onProgress?.call((i + 1) / total);
     }
 
     video.remove();
@@ -55,7 +62,10 @@ class WebThumbnailGenerator {
   /// spaced time intervals throughout the video's duration.
   ///
   /// Returns a list of [Uint8List] images.
-  Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) async {
+  Future<List<Uint8List>> getKeyFrames(
+    KeyFramesConfigs value, {
+    void Function(double progress)? onProgress,
+  }) async {
     final setup = await _prepareVideoRendering(
       videoBytes: await value.video.safeByteArray(),
       outputWidth: value.outputSize.width.toInt(),
@@ -81,6 +91,8 @@ class WebThumbnailGenerator {
       ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
       final blob = await canvas.toBlobAsync('image/${value.outputFormat}');
       frames.add(await _blobToUint8List(blob));
+
+      onProgress?.call((i + 1) / value.maxOutputFrames);
     }
 
     video.remove();

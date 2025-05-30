@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:pro_video_editor/core/models/video/progress_model.dart';
 import 'package:web/web.dart' as web;
 
 import '/core/services/web/web_manager.dart';
@@ -44,12 +45,18 @@ class ProVideoEditorWeb extends ProVideoEditor {
 
   @override
   Future<List<Uint8List>> getThumbnails(ThumbnailConfigs value) {
-    return _manager.getThumbnails(value);
+    return _manager.getThumbnails(
+      value,
+      onProgress: (progress) => _updateProgress(value.id, progress),
+    );
   }
 
   @override
   Future<List<Uint8List>> getKeyFrames(KeyFramesConfigs value) {
-    return _manager.getKeyFrames(value);
+    return _manager.getKeyFrames(
+      value,
+      onProgress: (progress) => _updateProgress(value.id, progress),
+    );
   }
 
   @override
@@ -59,4 +66,8 @@ class ProVideoEditorWeb extends ProVideoEditor {
 
   @override
   void initializeStream() {}
+
+  void _updateProgress(String taskId, double progress) {
+    progressCtrl.add(ProgressModel(id: taskId, progress: progress));
+  }
 }

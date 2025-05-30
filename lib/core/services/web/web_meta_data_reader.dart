@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:mime/mime.dart';
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
@@ -24,22 +23,19 @@ class WebMetaDataReader {
     EditorVideo editorVideo, {
     String? fileName,
   }) async {
-    var videoBytes = await editorVideo.safeByteArray();
-
+    final videoBytes = await editorVideo.safeByteArray();
     final blob = Blob.fromUint8List(videoBytes);
-
     final objectUrl = web.URL.createObjectURL(blob);
+
     final video = web.HTMLVideoElement()
       ..src = objectUrl
       ..preload = 'metadata';
 
     final completer = Completer<Map<String, dynamic>>();
-
     void cleanup() => web.URL.revokeObjectURL(objectUrl);
 
-    var mimeType = lookupMimeType('', headerBytes: videoBytes);
-    var sp = mimeType?.split('/') ?? [];
-    var extension = sp.length == 2 ? sp[1] : 'mp4';
+    final mimeType = lookupMimeType('', headerBytes: videoBytes);
+    final extension = mimeType?.split('/').elementAtOrNull(1) ?? 'mp4';
 
     video.onLoadedMetadata.listen((_) {
       final result = {
@@ -50,6 +46,12 @@ class WebMetaDataReader {
         'extension': extension,
         'rotation': 0,
         'bitrate': 0,
+        'title': '',
+        'artist': '',
+        'author': '',
+        'album': '',
+        'albumArtist': '',
+        'date': null,
       };
       cleanup();
       completer.complete(result);
@@ -60,7 +62,7 @@ class WebMetaDataReader {
       completer.complete({'error': 'Failed to load video metadata'});
     });
 
-    var result = await completer.future;
+    final result = await completer.future;
 
     return VideoMetadata(
       duration: Duration(milliseconds: safeParseInt(result['duration'])),
@@ -72,6 +74,12 @@ class WebMetaDataReader {
       ),
       rotation: safeParseInt(result['rotation']),
       bitrate: safeParseInt(result['bitrate']),
+      title: result['title'] ?? '',
+      artist: result['artist'] ?? '',
+      author: result['author'] ?? '',
+      album: result['album'] ?? '',
+      albumArtist: result['albumArtist'] ?? '',
+      date: result['date'],
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/features/editor/video_editor_page.dart';
+import 'package:pro_video_editor_example/features/editor/pages/video_editor_basic_example_page.dart';
 
 import 'features/metadata/video_metadata_example_page.dart';
 import 'features/render/video_renderer_page.dart';
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
     _ExampleListItem(
       icon: Icons.edit,
       title: 'Video-Editor',
-      pageBuilder: () => const VideoEditorPage(),
+      pageBuilder: () => const VideoEditorBasicExamplePage(),
     ),
   ];
 

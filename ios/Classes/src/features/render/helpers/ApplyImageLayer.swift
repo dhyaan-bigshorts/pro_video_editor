@@ -1,5 +1,4 @@
 import AVFoundation
-import AppKit
 import CoreImage
 
 func applyImageLayer(
@@ -9,5 +8,5 @@ func applyImageLayer(
     config.overlayImage = imageData
     guard imageData != nil else { return }
 
-    print("[\(Tags.render)] Applying overlay image")
+    print("[Render] Applying overlay image")
 }

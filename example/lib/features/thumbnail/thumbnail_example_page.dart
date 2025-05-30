@@ -48,7 +48,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
           (i) => Duration(
             milliseconds: (_informations!.duration.inMilliseconds /
                     _exampleImageCount *
-                    (i + 1))
+                    i)
                 .toInt(),
           ),
         ),

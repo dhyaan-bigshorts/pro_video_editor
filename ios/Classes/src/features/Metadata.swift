@@ -21,7 +21,7 @@ class VideoMetadata {
 
         // Duration
         let duration: CMTime
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             duration = try await asset.load(.duration)
         } else {
             duration = asset.duration
@@ -33,7 +33,7 @@ class VideoMetadata {
         var height = 0
         var rotation = 0
         var bitrate = 0
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             let videoTracks = try await asset.loadTracks(withMediaType: .video)
             if let track = videoTracks.first {
                 let size = try await track.load(.naturalSize)
@@ -67,7 +67,7 @@ class VideoMetadata {
         let album: String
         let albumArtist: String
 
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             let metadata = try await asset.load(.commonMetadata)
             title = try await loadMetadataString(from: metadata, key: "title")
             artist = try await loadMetadataString(from: metadata, key: "artist")
@@ -85,7 +85,7 @@ class VideoMetadata {
 
         // Creation date
         var dateStr = ""
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             if let creationItem = try await asset.load(.creationDate) {
                 if let creationDate = try? await creationItem.load(.dateValue) {
                     dateStr = ISO8601DateFormatter().string(from: creationDate)
@@ -126,7 +126,7 @@ class VideoMetadata {
         }
     }
 
-    @available(macOS 13.0, *)
+    @available(iOS 15.0, *)
     private static func loadMetadataString(from metadata: [AVMetadataItem], key: String) async throws -> String {
         if let item = metadata.first(where: { $0.commonKey?.rawValue == key }) {
             return try await item.load(.stringValue) ?? ""

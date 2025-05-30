@@ -1,6 +1,6 @@
 import AVFoundation
-import AppKit
 import CoreImage
+import UIKit
 
 class VideoCompositor: NSObject, AVVideoCompositing {
     var blurSigma: Double = 0.0
@@ -46,13 +46,12 @@ class VideoCompositor: NSObject, AVVideoCompositing {
 
     func setOverlayImage(from data: Data?) {
         guard let data,
-            let nsImage = NSImage(data: data),
-            let cgImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil)
+            let uiImage = UIImage(data: data),
+            let cgImage = uiImage.cgImage
         else {
             overlayImage = nil
             return
         }
-
         overlayImage = CIImage(cgImage: cgImage)
     }
 

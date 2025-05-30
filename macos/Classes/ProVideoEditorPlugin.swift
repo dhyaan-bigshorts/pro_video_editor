@@ -13,7 +13,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
         eventChannel.setStreamHandler(instance)
     }
 
-    let metadata = VideoProcessor()
+    let metadata = VideoMetadata()
     let renderQueue = DispatchQueue(label: "RenderQueue")
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -31,7 +31,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
 
             Task {
                 do {
-                    let meta = try await VideoProcessor.processVideo(videoData: videoBytes.data, ext: extensionStr)
+                    let meta = try await VideoMetadata.processVideo(videoData: videoBytes.data, ext: extensionStr)
                     result(meta)
                 } catch {
                     result(FlutterError(code: "METADATA_ERROR", message: error.localizedDescription, details: nil))

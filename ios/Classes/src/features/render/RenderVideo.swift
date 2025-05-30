@@ -1,5 +1,4 @@
 import AVFoundation
-import AppKit
 import CoreImage
 import Foundation
 
@@ -87,13 +86,14 @@ class RenderVideo {
                         cropWidth: cropWidth,
                         cropHeight: cropHeight,
                     )
-                    applyRotation(config: &config,rotateTurns: rotateTurns)
-                    applyFlip(config: &config,flipX: flipX, flipY: flipY)
+                    applyRotation(config: &config, rotateTurns: rotateTurns)
+                    applyFlip(config: &config, flipX: flipX, flipY: flipY)
                     applyScale(config: &config, scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
-                    applyColorMatrix(config: &config,to: videoComposition, matrixList: colorMatrixList)
+                    applyColorMatrix(
+                        config: &config, to: videoComposition, matrixList: colorMatrixList)
                     applyBlur(config: &config, sigma: blur)
-                    applyImageLayer(config: &config,imageData: imageData)
+                    applyImageLayer(config: &config, imageData: imageData)
 
                     videoComposition.renderSize = croppedSize
 
@@ -151,7 +151,7 @@ class RenderVideo {
     }
 
     private static func loadVideoTrack(from asset: AVAsset) async throws -> AVAssetTrack {
-        if #available(macOS 13.0, *) {
+        if #available(iOS 15.0, *) {
             let tracks = try await asset.loadTracks(withMediaType: .video)
             guard let track = tracks.first else {
                 throw NSError(
@@ -194,7 +194,7 @@ class RenderVideo {
         duration: CMTime
     ) async throws -> AVMutableVideoComposition {
         let composition: AVMutableVideoComposition
-        if #available(macOS 15.0, *) {
+        if #available(iOS 16.0, *) {
             composition = try await AVMutableVideoComposition.videoComposition(
                 withPropertiesOf: asset)
         } else {
