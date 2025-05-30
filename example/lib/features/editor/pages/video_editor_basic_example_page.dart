@@ -1,26 +1,29 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:pro_video_editor/core/platform/io/io_helper.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:video_player/video_player.dart';
 
 import '/core/constants/example_constants.dart';
 import '/features/editor/widgets/video_initializing_widget.dart';
-import 'widgets/preview_video.dart';
-import 'widgets/video_progress_alert.dart';
+import '../widgets/preview_video.dart';
+import '../widgets/video_progress_alert.dart';
 
 /// A sample page demonstrating how to use the video-editor.
-class VideoEditorPage extends StatefulWidget {
-  /// Creates a [VideoEditorPage] widget.
-  const VideoEditorPage({super.key});
+class VideoEditorBasicExamplePage extends StatefulWidget {
+  /// Creates a [VideoEditorBasicExamplePage] widget.
+  const VideoEditorBasicExamplePage({super.key});
 
   @override
-  State<VideoEditorPage> createState() => _VideoEditorPageState();
+  State<VideoEditorBasicExamplePage> createState() =>
+      _VideoEditorBasicExamplePageState();
 }
 
-class _VideoEditorPageState extends State<VideoEditorPage> {
+class _VideoEditorBasicExamplePageState
+    extends State<VideoEditorBasicExamplePage> {
   /// The target format for the exported video.
   final _outputFormat = VideoOutputFormat.mp4;
 
@@ -49,11 +52,11 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
 
   /// Holds information about the selected video.
   ///
-  /// This will be populated via [setMetadata].
+  /// This will be populated via [_setMetadata].
   late VideoMetadata _videoMetadata;
 
   /// Number of thumbnails to generate across the video timeline.
-  final int _thumbnailCount = 10;
+  final int _thumbnailCount = 7;
 
   /// The video currently loaded in the editor.
   final _video = EditorVideo.asset(kVideoEditorExampleAssetPath);
@@ -80,29 +83,50 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   }
 
   /// Loads and sets [_videoMetadata] for the given [_video].
-  Future<void> setMetadata() async {
+  Future<void> _setMetadata() async {
     _videoMetadata = await ProVideoEditor.instance.getMetadata(_video);
   }
 
   /// Generates thumbnails for the given [_video].
-  void generateThumbnails() {
+  void _generateThumbnails() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       var imageWidth = MediaQuery.sizeOf(context).width /
           _thumbnailCount *
           MediaQuery.devicePixelRatioOf(context);
 
-      /// `getKeyFrames` is faster than `getThumbnails` but the timestamp is
-      /// more "random".
-      var thumbnailList = await ProVideoEditor.instance.getKeyFrames(
-        KeyFramesConfigs(
-          video: _video,
-          outputSize: Size.square(imageWidth),
-          boxFit: ThumbnailBoxFit.cover,
-          maxOutputFrames: _thumbnailCount,
-          outputFormat: ThumbnailFormat.jpeg,
-        ),
-      );
+      List<Uint8List> thumbnailList = [];
+
+      /// On android `getKeyFrames` is a way faster than `getThumbnails` but
+      /// the timestamps are more "random". If you want the best results i
+      /// recommend you to use only `getThumbnails`.
+      if (!kIsWeb && Platform.isAndroid) {
+        thumbnailList = await ProVideoEditor.instance.getKeyFrames(
+          KeyFramesConfigs(
+            video: _video,
+            outputSize: Size.square(imageWidth),
+            boxFit: ThumbnailBoxFit.cover,
+            maxOutputFrames: _thumbnailCount,
+            outputFormat: ThumbnailFormat.jpeg,
+          ),
+        );
+      } else {
+        final duration = _videoMetadata.duration;
+        final segmentDuration = duration.inMilliseconds / _thumbnailCount;
+
+        thumbnailList = await ProVideoEditor.instance.getThumbnails(
+          ThumbnailConfigs(
+            video: _video,
+            outputSize: Size.square(imageWidth),
+            boxFit: ThumbnailBoxFit.cover,
+            timestamps: List.generate(_thumbnailCount, (i) {
+              final midpointMs = (i + 0.5) * segmentDuration;
+              return Duration(milliseconds: midpointMs.round());
+            }),
+            outputFormat: ThumbnailFormat.jpeg,
+          ),
+        );
+      }
 
       List<ImageProvider> temporaryThumbnails =
           thumbnailList.map(MemoryImage.new).toList();
@@ -120,13 +144,13 @@ class _VideoEditorPageState extends State<VideoEditorPage> {
   }
 
   void _initializePlayer() async {
-    generateThumbnails();
+    await _setMetadata();
+    _generateThumbnails();
 
     _videoController =
         VideoPlayerController.asset(kVideoEditorExampleAssetPath);
 
     await Future.wait([
-      setMetadata(),
       _videoController.initialize(),
       _videoController.setLooping(false),
       _videoController.setVolume(_videoConfigs.initialMuted ? 0 : 100),
