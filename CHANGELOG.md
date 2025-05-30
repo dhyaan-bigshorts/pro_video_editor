@@ -1,3 +1,7 @@
+## 0.1.0* 
+- **FEAT**(iOS): Added render functions for iOS.
+- **FEAT**(macOS): Added render functions for macOS.
+
 ## 0.0.14
 - **FIX**: Resolve various crop and rotation issues.
 - **REFACTOR**(android): Improve code quality.

@@ -226,22 +226,25 @@ class _VideoEditorBasicExamplePageState
       video: _video,
       outputFormat: _outputFormat,
       enableAudio: _proVideoController?.isAudioEnabled ?? true,
-      imageBytes: parameters.image,
+      imageBytes: parameters.layers.isNotEmpty ? parameters.image : null,
       blur: parameters.blur,
       colorMatrixList: parameters.colorFilters,
       startTime: parameters.startTime,
       endTime: parameters.endTime,
-      transform: ExportTransform(
-        width: parameters.cropWidth,
-        height: parameters.cropHeight,
-        rotateTurns: parameters.rotateTurns,
-        x: parameters.cropX,
-        y: parameters.cropY,
-        flipX: parameters.flipX,
-        flipY: parameters.flipY,
-      ),
+      transform: parameters.isTransformed
+          ? ExportTransform(
+              width: parameters.cropWidth,
+              height: parameters.cropHeight,
+              rotateTurns: parameters.rotateTurns,
+              x: parameters.cropX,
+              y: parameters.cropY,
+              flipX: parameters.flipX,
+              flipY: parameters.flipY,
+            )
+          : null,
       // bitrate: _videoMetadata.bitrate,
     );
+
     _exportedVideo = await ProVideoEditor.instance.renderVideo(exportModel);
     _videoGenerationTime = stopwatch.elapsed;
   }

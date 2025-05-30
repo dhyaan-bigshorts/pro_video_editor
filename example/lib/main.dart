@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:pro_video_editor_example/features/editor/pages/video_editor_basic_example_page.dart';
+import 'package:pro_video_editor_example/features/editor/pages/video_editor_grounded_example_page.dart';
 
 import 'features/metadata/video_metadata_example_page.dart';
 import 'features/render/video_renderer_page.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -72,6 +74,11 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.edit,
       title: 'Video-Editor',
       pageBuilder: () => const VideoEditorBasicExamplePage(),
+    ),
+    _ExampleListItem(
+      icon: Icons.grass_outlined,
+      title: 'Video-Editor Grounded-Design',
+      pageBuilder: () => const VideoEditorGroundedExamplePage(),
     ),
   ];
 
