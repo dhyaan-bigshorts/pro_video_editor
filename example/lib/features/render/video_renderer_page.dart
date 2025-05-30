@@ -239,10 +239,31 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 20,
           children: [
-            _buildDemoEditorContent(),
-            _buildExportedVideo(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.center,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 360,
+                    ),
+                    child: _buildDemoEditorContent(),
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 360,
+                    ),
+                    child: _buildExportedVideo(),
+                  ),
+                ],
+              ),
+            ),
             _buildOptions(),
           ],
         ),
@@ -251,99 +272,93 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   }
 
   Widget _buildDemoEditorContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 5,
-        children: [
-          const Text('Demo-Video'),
-          AspectRatio(
-            aspectRatio: 1280 / 720,
-            child: Stack(
-              children: [
-                ColorFilterGenerator(
-                  filters: _colorFilters,
-                  child: Video(controller: _controllerContent),
-                ),
-                IgnorePointer(
-                  child: ClipRect(
-                    clipBehavior: Clip.hardEdge,
-                    child: BackdropFilter(
-                      filter: ui.ImageFilter.blur(
-                          sigmaX: _blurFactor, sigmaY: _blurFactor),
-                      child: Container(
-                        alignment: Alignment.center,
-                        color: Colors.white.withValues(alpha: 0.0),
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 5,
+      children: [
+        const Text('Demo-Video'),
+        AspectRatio(
+          aspectRatio: 1280 / 720,
+          child: Stack(
+            children: [
+              ColorFilterGenerator(
+                filters: _colorFilters,
+                child: Video(controller: _controllerContent),
+              ),
+              IgnorePointer(
+                child: ClipRect(
+                  clipBehavior: Clip.hardEdge,
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(
+                        sigmaX: _blurFactor, sigmaY: _blurFactor),
+                    child: Container(
+                      alignment: Alignment.center,
+                      color: Colors.white.withValues(alpha: 0.0),
                     ),
                   ),
                 ),
-                IgnorePointer(
-                  child: AspectRatio(
-                    aspectRatio: 1280 / 720,
-                    child: RepaintBoundary(
-                      key: _boundaryKey,
-                      child: const Stack(
-                        children: [
-                          Positioned(
-                            top: 10,
-                            left: 10,
-                            child: Text(
-                              '🤑',
-                              style: TextStyle(fontSize: 40),
-                            ),
+              ),
+              IgnorePointer(
+                child: AspectRatio(
+                  aspectRatio: 1280 / 720,
+                  child: RepaintBoundary(
+                    key: _boundaryKey,
+                    child: const Stack(
+                      children: [
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Text(
+                            '🤑',
+                            style: TextStyle(fontSize: 40),
                           ),
-                          Center(
-                            child: Text(
-                              '🚀',
-                              style: TextStyle(fontSize: 48),
-                            ),
+                        ),
+                        Center(
+                          child: Text(
+                            '🚀',
+                            style: TextStyle(fontSize: 48),
                           ),
-                          Positioned(
-                            bottom: 10,
-                            right: 10,
-                            child: Text(
-                              '❤️',
-                              style: TextStyle(fontSize: 32),
-                            ),
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Text(
+                            '❤️',
+                            style: TextStyle(fontSize: 32),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildExportedVideo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 5,
-        children: _videoBytes == null
-            ? []
-            : [
-                const Text('Output-Video'),
-                AspectRatio(
-                  aspectRatio: max(
-                    _outputMetadata?.resolution.aspectRatio ?? 0,
-                    1280 / 720,
-                  ),
-                  child: Video(controller: _controllerPreview),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 5,
+      children: _videoBytes == null
+          ? []
+          : [
+              const Text('Output-Video'),
+              AspectRatio(
+                aspectRatio: max(
+                  _outputMetadata?.resolution.aspectRatio ?? 0,
+                  1280 / 720,
                 ),
-                Text(
-                  'Result: ${formatBytes(_videoBytes!.lengthInBytes)} '
-                  'bytes in ${_generationTime.inMilliseconds}ms',
-                ),
-              ],
-      ),
+                child: Video(controller: _controllerPreview),
+              ),
+              Text(
+                'Result: ${formatBytes(_videoBytes!.lengthInBytes)} '
+                'bytes in ${_generationTime.inMilliseconds}ms',
+              ),
+            ],
     );
   }
 
