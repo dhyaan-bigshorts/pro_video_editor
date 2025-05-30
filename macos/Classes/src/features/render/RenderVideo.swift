@@ -54,6 +54,7 @@ class RenderVideo {
 
                     let asset = AVURLAsset(url: inputURL)
                     let composition = AVMutableComposition()
+                    var config = VideoCompositorConfig()
 
                     let videoTrack = try await loadVideoTrack(from: asset)
 
@@ -78,6 +79,7 @@ class RenderVideo {
                     )
 
                     let croppedSize = applyCrop(
+                        config: &config,
                         naturalSize: videoTrack.naturalSize,
                         rotateTurns: rotateTurns,
                         cropX: cropX,
@@ -85,17 +87,18 @@ class RenderVideo {
                         cropWidth: cropWidth,
                         cropHeight: cropHeight,
                     )
-                    applyRotation(rotateTurns: rotateTurns)
-                    applyFlip(flipX: flipX, flipY: flipY)
-                    applyScale(scaleX: scaleX, scaleY: scaleY)
+                    applyRotation(config: &config,rotateTurns: rotateTurns)
+                    applyFlip(config: &config,flipX: flipX, flipY: flipY)
+                    applyScale(config: &config, scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
-                    applyColorMatrix(to: videoComposition, matrixList: colorMatrixList)
-                    applyBlur(sigma: blur)
-                    applyImageLayer(imageData: imageData)
+                    applyColorMatrix(config: &config,to: videoComposition, matrixList: colorMatrixList)
+                    applyBlur(config: &config, sigma: blur)
+                    applyImageLayer(config: &config,imageData: imageData)
 
                     videoComposition.renderSize = croppedSize
-                    // TODO replace static video compositor
-                    videoComposition.customVideoCompositorClass = VideoCompositor.self
+
+                    let compositorClass = makeVideoCompositorSubclass(with: config)
+                    videoComposition.customVideoCompositorClass = compositorClass
 
                     let preset = applyBitrate(requestedBitrate: bitrate)
 
@@ -120,14 +123,31 @@ class RenderVideo {
 
     // MARK: - Helper Methods
 
+    private static func makeVideoCompositorSubclass(with config: VideoCompositorConfig)
+        -> AVVideoCompositing.Type
+    {
+        class CustomCompositor: VideoCompositor {}
+        CustomCompositor.config = config
+        return CustomCompositor.self
+    }
+
+    private static func uniqueFilename(prefix: String, extension ext: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmss_SSS"
+        let timestamp = formatter.string(from: Date())
+        return "\(prefix)_\(timestamp).\(ext)"
+    }
+
     private static func writeInputVideo(_ data: Data, format: String) throws -> URL {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("input.\(format)")
+        let filename = uniqueFilename(prefix: "input", extension: format)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         try data.write(to: url)
         return url
     }
 
     private static func temporaryURL(for format: String) -> URL {
-        FileManager.default.temporaryDirectory.appendingPathComponent("output.\(format)")
+        let filename = uniqueFilename(prefix: "output", extension: format)
+        return FileManager.default.temporaryDirectory.appendingPathComponent(filename)
     }
 
     private static func loadVideoTrack(from asset: AVAsset) async throws -> AVAssetTrack {

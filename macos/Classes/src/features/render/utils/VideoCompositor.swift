@@ -3,25 +3,48 @@ import AppKit
 import CoreImage
 
 class VideoCompositor: NSObject, AVVideoCompositing {
-    static var blurSigma: Double = 0.0
-    static var overlayImage: CIImage?
+    var blurSigma: Double = 0.0
+    var overlayImage: CIImage?
 
-    static var rotateRadians: Double = 0
-    static var rotateTurns: Int = 0
-    static var flipX: Bool = false
-    static var flipY: Bool = false
-    static var cropX: CGFloat = 0
-    static var cropY: CGFloat = 0
-    static var scaleX: CGFloat = 1
-    static var scaleY: CGFloat = 1
-    static var cropWidth: CGFloat?
-    static var cropHeight: CGFloat?
+    var rotateRadians: Double = 0
+    var rotateTurns: Int = 0
+    var flipX: Bool = false
+    var flipY: Bool = false
+    var cropX: CGFloat = 0
+    var cropY: CGFloat = 0
+    var scaleX: CGFloat = 1
+    var scaleY: CGFloat = 1
+    var cropWidth: CGFloat?
+    var cropHeight: CGFloat?
 
-    private static let lutQueue = DispatchQueue(label: "lut.queue")
-    private static var _lutData: Data?
-    private static var _lutSize: Int = 33
+    private let lutQueue = DispatchQueue(label: "lut.queue")
+    private var _lutData: Data?
+    private var _lutSize: Int = 33
 
-    static func setOverlayImage(from data: Data?) {
+    static var config = VideoCompositorConfig()
+
+    required override init() {
+        super.init()
+        apply(Self.config)
+    }
+
+    func apply(_ config: VideoCompositorConfig) {
+        self.blurSigma = config.blurSigma
+        self.rotateRadians = config.rotateRadians
+        self.rotateTurns = config.rotateTurns
+        self.flipX = config.flipX
+        self.flipY = config.flipY
+        self.cropX = config.cropX
+        self.cropY = config.cropY
+        self.cropWidth = config.cropWidth
+        self.cropHeight = config.cropHeight
+        self.scaleX = config.scaleX
+        self.scaleY = config.scaleY
+        self.setOverlayImage(from: config.overlayImage)
+        self.setLUT(data: config.lutData, size: config.lutSize)
+    }
+
+    func setOverlayImage(from data: Data?) {
         guard let data,
             let nsImage = NSImage(data: data),
             let cgImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil)
@@ -33,19 +56,19 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         overlayImage = CIImage(cgImage: cgImage)
     }
 
-    static func clearLUT() {
+    func clearLUT() {
         lutQueue.sync {
             _lutData = nil
         }
     }
-    static func setLUT(data: Data, size: Int) {
+    func setLUT(data: Data?, size: Int) {
         lutQueue.sync {
             _lutData = data
             _lutSize = size
         }
     }
 
-    private static func getLUT() -> (data: Data?, size: Int) {
+    private func getLUT() -> (data: Data?, size: Int) {
         lutQueue.sync {
             (_lutData, _lutSize)
         }
@@ -80,35 +103,34 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         var transform = CGAffineTransform.identity
 
         // Cropping
-        if Self.cropX != 0 || Self.cropY != 0 || Self.cropWidth != nil || Self.cropHeight != nil {
+        if cropX != 0 || cropY != 0 || cropWidth != nil || cropHeight != nil {
             let inputExtent = outputImage.extent
             let videoWidth = inputExtent.width
             let videoHeight = inputExtent.height
 
-            let x = Self.cropX
-            var y = Self.cropY
-            let width = Self.cropWidth ?? (videoWidth - x)
-            let height = Self.cropHeight ?? (videoHeight - y)
-
+            let x = cropX
+            var y = cropY
+            let width = cropWidth ?? (videoWidth - x)
+            let height = cropHeight ?? (videoHeight - y)
 
             y = videoHeight - height - y
 
             let cropRect = CGRect(x: x, y: y, width: width, height: height)
-           
+
             outputImage = outputImage.cropped(to: cropRect)
             outputImage = outputImage.transformed(
                 by: CGAffineTransform(
-                    translationX: -cropRect.origin.x ,
-                    y: -cropRect.origin.y ,
+                    translationX: -cropRect.origin.x,
+                    y: -cropRect.origin.y,
 
                 ))
             center = CGPoint(x: outputImage.extent.midX, y: outputImage.extent.midY)
         }
 
         // Rotation
-        if Self.rotateRadians != 0 {
+        if rotateRadians != 0 {
             // Rotate the image
-            let rotation = CGAffineTransform(rotationAngle: Self.rotateRadians)
+            let rotation = CGAffineTransform(rotationAngle: rotateRadians)
             let rotatedImage = outputImage.transformed(by: rotation)
 
             // Get the new bounding box after rotation
@@ -122,9 +144,9 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         }
 
         // Flipping
-        if Self.flipX || Self.flipY {
-            let scaleX: CGFloat = Self.flipX ? -1 : 1
-            let scaleY: CGFloat = Self.flipY ? -1 : 1
+        if flipX || flipY {
+            let scaleX: CGFloat = flipX ? -1 : 1
+            let scaleY: CGFloat = flipY ? -1 : 1
 
             let flipTransform = CGAffineTransform(translationX: center.x, y: center.y)
                 .scaledBy(x: scaleX, y: scaleY)
@@ -134,14 +156,14 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         }
 
         // Apply Scale
-        if Self.scaleX != 1 || Self.scaleY != 1 {
-            transform = transform.scaledBy(x: Self.scaleX, y: Self.scaleY)
+        if scaleX != 1 || scaleY != 1 {
+            transform = transform.scaledBy(x: scaleX, y: scaleY)
         }
 
         outputImage = outputImage.transformed(by: transform)
 
         // Apply LUT
-        let (lutData, lutSize) = Self.getLUT()
+        let (lutData, lutSize) = getLUT()
         if let lutData,
             let lutFilter = CIFilter(name: "CIColorCube")
         {
@@ -154,12 +176,12 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         }
 
         // Apply blur
-        if Self.blurSigma > 0 {
-            outputImage = outputImage.applyingGaussianBlur(sigma: Self.blurSigma)
+        if blurSigma > 0 {
+            outputImage = outputImage.applyingGaussianBlur(sigma: blurSigma)
         }
 
         // Apply overlay image
-        if let overlay = Self.overlayImage {
+        if let overlay = overlayImage {
             let imageRect = outputImage.extent
             let scaledOverlay = overlay.transformed(
                 by: CGAffineTransform(

@@ -1,9 +1,10 @@
 import AVFoundation
 
 func applyBlur(
+    config: inout VideoCompositorConfig,
     sigma: Double?
 ) {
-    VideoCompositor.blurSigma = (sigma ?? 0) * 2.5
+    config.blurSigma = (sigma ?? 0) * 2.5
 
     if sigma == nil { return }
 

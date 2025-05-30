@@ -2,13 +2,12 @@ import AVFoundation
 import CoreImage
 
 func applyColorMatrix(
+    config: inout VideoCompositorConfig,
     to composition: AVMutableVideoComposition,
     matrixList: [[Double]],
     lutSize: Int = 33
 ) {
     guard !matrixList.isEmpty else {
-        VideoCompositor.clearLUT()
-
         return
     }
 
@@ -25,7 +24,8 @@ func applyColorMatrix(
         return
     }
 
-    VideoCompositor.setLUT(data: data, size: lutSize)
+    config.lutData = data
+    config.lutSize = lutSize
 }
 
 // MARK: - Matrix Combination Logic

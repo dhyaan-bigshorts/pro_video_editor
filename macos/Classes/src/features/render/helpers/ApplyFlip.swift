@@ -1,8 +1,12 @@
 import CoreGraphics
 
-func applyFlip(flipX: Bool, flipY: Bool, ) {
-  VideoCompositor.flipX = flipX
-  VideoCompositor.flipY = flipY
+func applyFlip(
+  config: inout VideoCompositorConfig,
+  flipX: Bool,
+  flipY: Bool,
+) {
+  config.flipX = flipX
+  config.flipY = flipY
 
   if !flipX && !flipY { return }
 

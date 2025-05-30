@@ -166,8 +166,12 @@ class ThumbnailGenerator {
     }
 
     private static func createTempFile(videoData: Data, ext: String) -> URL? {
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "video_input.\(ext)")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmss_SSS"
+        let timestamp = formatter.string(from: Date())
+        let filename = "video_input_\(timestamp).\(ext)"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+
         do {
             try videoData.write(to: tempURL)
             return tempURL
@@ -175,4 +179,5 @@ class ThumbnailGenerator {
             return nil
         }
     }
+
 }

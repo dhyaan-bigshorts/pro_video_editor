@@ -1,7 +1,8 @@
 import AVFoundation
 import CoreGraphics
 
-public func applyCrop(
+func applyCrop(
+    config: inout VideoCompositorConfig,
     naturalSize: CGSize,
     rotateTurns: Int?,
     cropX: Int?,
@@ -14,10 +15,10 @@ public func applyCrop(
     let width = CGFloat(cropWidth ?? Int(naturalSize.width) - Int(x))
     let height = CGFloat(cropHeight ?? Int(naturalSize.height) - Int(y))
 
-    VideoCompositor.cropX = x
-    VideoCompositor.cropY = y
-    VideoCompositor.cropWidth = width
-    VideoCompositor.cropHeight = height
+    config.cropX = x
+    config.cropY = y
+    config.cropWidth = width
+    config.cropHeight = height
 
     if cropX != 0 || cropY != 0 || cropWidth != nil || cropHeight != nil {
         print(
