@@ -13,7 +13,7 @@ class RenderVideoModel {
     required this.outputFormat,
     required this.video,
     this.imageBytes,
-    this.transform = const ExportTransform(),
+    this.transform,
     this.enableAudio = true,
     this.playbackSpeed,
     this.startTime,
@@ -60,7 +60,7 @@ class RenderVideoModel {
   ///
   /// Used to control how the video or image is positioned and modified during
   /// export.
-  final ExportTransform transform;
+  final ExportTransform? transform;
 
   /// Whether to include audio in the exported video.
   ///
@@ -102,6 +102,8 @@ class RenderVideoModel {
 
   /// Converts the model into a serializable map.
   Future<Map<String, dynamic>> toAsyncMap() async {
+    var transform = this.transform ?? const ExportTransform();
+
     return {
       'id': id,
       'videoBytes': await video.safeByteArray(),
