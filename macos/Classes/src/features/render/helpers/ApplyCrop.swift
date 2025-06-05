@@ -8,7 +8,7 @@ func applyCrop(
     cropX: Int?,
     cropY: Int?,
     cropWidth: Int?,
-    cropHeight: Int?,
+    cropHeight: Int?
 ) -> CGSize {
     let x = CGFloat(cropX ?? 0)
     let y = CGFloat(cropY ?? 0)
