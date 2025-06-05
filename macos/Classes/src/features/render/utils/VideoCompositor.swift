@@ -17,6 +17,8 @@ class VideoCompositor: NSObject, AVVideoCompositing {
     var cropWidth: CGFloat?
     var cropHeight: CGFloat?
 
+    var originalNaturalSize: CGSize = .zero
+
     private let lutQueue = DispatchQueue(label: "lut.queue")
     private var _lutData: Data?
     private var _lutSize: Int = 33
@@ -27,6 +29,9 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         super.init()
         apply(Self.config)
     }
+
+    var videoRotationDegrees: Double = 0.0
+    var shouldApplyOrientationCorrection: Bool = false
 
     func apply(_ config: VideoCompositorConfig) {
         self.blurSigma = config.blurSigma
@@ -40,6 +45,12 @@ class VideoCompositor: NSObject, AVVideoCompositing {
         self.cropHeight = config.cropHeight
         self.scaleX = config.scaleX
         self.scaleY = config.scaleY
+
+        // Apply rotation metadata properties
+        self.videoRotationDegrees = config.videoRotationDegrees
+        self.shouldApplyOrientationCorrection = config.shouldApplyOrientationCorrection
+        self.originalNaturalSize = config.originalNaturalSize
+
         self.setOverlayImage(from: config.overlayImage)
         self.setLUT(data: config.lutData, size: config.lutSize)
     }
@@ -97,6 +108,36 @@ class VideoCompositor: NSObject, AVVideoCompositing {
             return
         }
         var outputImage = CIImage(cvPixelBuffer: sourceBuffer)
+
+        if shouldApplyOrientationCorrection {
+            let correctionAngle: Double
+
+            switch Int(videoRotationDegrees.rounded()) {
+            case 90:
+                correctionAngle = -.pi / 2
+            case -90, 270:
+                correctionAngle = .pi / 2
+            case 180, -180:
+                correctionAngle = .pi
+            default:
+                correctionAngle = 0
+            }
+
+            if correctionAngle != 0 {
+                let correctionTransform = CGAffineTransform(rotationAngle: correctionAngle)
+                outputImage = outputImage.transformed(by: correctionTransform)
+
+                let transformedExtent = outputImage.extent
+                if transformedExtent.origin.x < 0 || transformedExtent.origin.y < 0 {
+                    let translation = CGAffineTransform(
+                        translationX: -transformedExtent.origin.x,
+                        y: -transformedExtent.origin.y
+                    )
+                    outputImage = outputImage.transformed(by: translation)
+                }
+            }
+        }
+
         var center = CGPoint(x: outputImage.extent.midX, y: outputImage.extent.midY)
 
         // Transformations
