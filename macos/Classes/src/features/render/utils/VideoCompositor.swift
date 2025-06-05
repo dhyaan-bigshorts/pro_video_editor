@@ -121,7 +121,7 @@ class VideoCompositor: NSObject, AVVideoCompositing {
             outputImage = outputImage.transformed(
                 by: CGAffineTransform(
                     translationX: -cropRect.origin.x,
-                    y: -cropRect.origin.y,
+                    y: -cropRect.origin.y
 
                 ))
             center = CGPoint(x: outputImage.extent.midX, y: outputImage.extent.midY)

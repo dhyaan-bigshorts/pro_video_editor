@@ -84,7 +84,7 @@ class RenderVideo {
                         cropX: cropX,
                         cropY: cropY,
                         cropWidth: cropWidth,
-                        cropHeight: cropHeight,
+                        cropHeight: cropHeight
                     )
                     applyRotation(config: &config, rotateTurns: rotateTurns)
                     applyFlip(config: &config, flipX: flipX, flipY: flipY)
