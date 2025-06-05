@@ -102,10 +102,29 @@ class RenderVideo {
                     applyBlur(config: &config, sigma: blur)
                     applyImageLayer(config: &config, imageData: imageData)
 
+                    var finalRenderSize = videoComposition.renderSize
+
                     // Only update renderSize if cropping was actually applied
                     if cropWidth != nil || cropHeight != nil {
-                        videoComposition.renderSize = croppedSize
+                        finalRenderSize = croppedSize
                     }
+
+                    let effectiveScaleX = scaleX ?? 1.0
+                    let effectiveScaleY = scaleY ?? 1.0
+
+                    if effectiveScaleX != 1.0 || effectiveScaleY != 1.0 {
+                        finalRenderSize = CGSize(
+                            width: finalRenderSize.width * CGFloat(effectiveScaleX),
+                            height: finalRenderSize.height * CGFloat(effectiveScaleY)
+                        )
+                    } else if config.scaleX != 1.0 || config.scaleY != 1.0 {
+                        finalRenderSize = CGSize(
+                            width: finalRenderSize.width * config.scaleX,
+                            height: finalRenderSize.height * config.scaleY
+                        )
+                    }
+
+                    videoComposition.renderSize = finalRenderSize
 
                     let compositorClass = makeVideoCompositorSubclass(with: config)
                     videoComposition.customVideoCompositorClass = compositorClass
