@@ -85,15 +85,16 @@ class RenderVideo {
                         cropX: cropX,
                         cropY: cropY,
                         cropWidth: cropWidth,
-                        cropHeight: cropHeight,
+                        cropHeight: cropHeight
                     )
-                    applyRotation(config: &config,rotateTurns: rotateTurns)
-                    applyFlip(config: &config,flipX: flipX, flipY: flipY)
+                    applyRotation(config: &config, rotateTurns: rotateTurns)
+                    applyFlip(config: &config, flipX: flipX, flipY: flipY)
                     applyScale(config: &config, scaleX: scaleX, scaleY: scaleY)
                     applyPlaybackSpeed(composition: composition, speed: playbackSpeed)
-                    applyColorMatrix(config: &config,to: videoComposition, matrixList: colorMatrixList)
+                    applyColorMatrix(
+                        config: &config, to: videoComposition, matrixList: colorMatrixList)
                     applyBlur(config: &config, sigma: blur)
-                    applyImageLayer(config: &config,imageData: imageData)
+                    applyImageLayer(config: &config, imageData: imageData)
 
                     videoComposition.renderSize = croppedSize
 

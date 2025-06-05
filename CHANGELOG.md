@@ -1,3 +1,6 @@
+## 0.1.3-dev.1
+- **FIX**(iOS, macOS): Resolved multiple issue where, in some Swift versions, a trailing comma in the constructor caused an error.
+
 ## 0.1.2
 - **FIX**(iOS, macOS): Resolved an issue where, in some Swift versions, a trailing comma in the constructor caused an error.
 
