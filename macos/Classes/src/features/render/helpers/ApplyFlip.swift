@@ -3,7 +3,7 @@ import CoreGraphics
 func applyFlip(
   config: inout VideoCompositorConfig,
   flipX: Bool,
-  flipY: Bool,
+  flipY: Bool
 ) {
   config.flipX = flipX
   config.flipY = flipY
