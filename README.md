@@ -15,7 +15,7 @@
     </a> 
 </p>
 
-`pro_video_editor` is an upcoming Flutter package designed to provide advanced video editing capabilities. This package will serve as an extension for the [pro_image_editor](https://pub.dev/packages/pro_image_editor).
+The ProVideoEditor is a Flutter widget designed for video editing within your application. It provides a flexible and convenient way to integrate video editing capabilities into your Flutter project.
 
 
 ## Table of contents
@@ -153,7 +153,7 @@
 - ⚠️ Supported with Native-Code but not tested
 - 🧪 Supported but visual output can differs from Flutter
 - ❌ Not supported but planned
-- 🚫 Not supported and currently not planned
+- 🚫 Not supported and not planned
 
 ## Setup
 

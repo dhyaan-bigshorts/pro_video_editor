@@ -11,6 +11,7 @@ import 'package:pro_video_editor/pro_video_editor.dart';
 import '/core/constants/example_filters.dart';
 import '/shared/utils/bytes_formatter.dart';
 import '/shared/widgets/filter_generator.dart';
+import '../../core/constants/example_constants.dart';
 
 /// A page that handles the video export workflow.
 ///
@@ -49,8 +50,11 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
   @override
   void initState() {
     super.initState();
-    _playerContent.open(Media('asset:///assets/demo.mp4'), play: true);
-    _video = EditorVideo.asset('assets/demo.mp4');
+    _playerContent.open(
+      Media('asset:///$kVideoEditorExampleAssetPath'),
+      play: true,
+    );
+    _video = EditorVideo.asset(kVideoEditorExampleAssetPath);
   }
 
   @override
