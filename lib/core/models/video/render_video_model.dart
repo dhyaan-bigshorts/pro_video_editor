@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import '/core/models/video/export_transform_model.dart';
-import 'editor_video_model.dart';
+import 'package:pro_video_editor/pro_video_editor.dart';
 
 /// A model describing settings for rendering or exporting a video.
 ///
@@ -99,6 +97,16 @@ class RenderVideoModel {
   /// bitrate, instant it will choose a preset which is the most near to the
   /// applied bitrate.
   final int? bitrate;
+
+  /// Returns a [Stream] of [ProgressModel] objects that provides updates on
+  /// the progress of the video rendering process associated with this model's
+  /// [id].
+  ///
+  /// The stream is obtained from the [ProVideoEditor] singleton instance and
+  /// is specific to the current video's identifier.
+  Stream<ProgressModel> get progressStream {
+    return ProVideoEditor.instance.progressStreamById(id);
+  }
 
   /// Converts the model into a serializable map.
   Future<Map<String, dynamic>> toAsyncMap() async {
