@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
@@ -197,6 +198,15 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
       outputFormat: VideoOutputFormat.mp4,
       video: _video,
       bitrate: 1000000,
+    );
+
+    await _renderVideo(data);
+  }
+
+  Future<void> _generateMov() async {
+    var data = RenderVideoModel(
+      outputFormat: VideoOutputFormat.mov,
+      video: _video,
     );
 
     await _renderVideo(data);
@@ -456,6 +466,12 @@ class _VideoRendererPageState extends State<VideoRendererPage> {
           leading: const Icon(Icons.animation),
           title: const Text('Bitrate'),
         ),
+        if (!kIsWeb && (Platform.isIOS || Platform.isMacOS))
+          ListTile(
+            onTap: _generateMov,
+            leading: const Icon(Icons.video_file_outlined),
+            title: const Text('Output-Format "mov"'),
+          ),
       ],
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../pro_video_editor_platform_interface.dart';
 import '../video/editor_video_model.dart';
+import '../video/progress_model.dart';
 import 'thumbnail_box_fit.model.dart';
 import 'thumbnail_format.model.dart';
 
@@ -38,4 +40,13 @@ abstract class ThumbnailBase {
 
   /// Converts the model into a serializable map.
   Map<String, dynamic> toMap();
+
+  /// Returns a [Stream] of [ProgressModel] objects that provides updates on
+  /// the progress of the generation associated with this model's [id].
+  ///
+  /// The stream is obtained from the [ProVideoEditor] singleton instance and
+  /// is specific to the current video's identifier.
+  Stream<ProgressModel> get progressStream {
+    return ProVideoEditor.instance.progressStreamById(id);
+  }
 }
