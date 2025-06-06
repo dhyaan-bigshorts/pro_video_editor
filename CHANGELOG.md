@@ -1,3 +1,8 @@
+## 0.1.5
+- **FIX**(window, linux): Correct bitrate extraction from metadata. 
+- **FIX**(android): Remove unsupported WebM output format; Android only supports MP4 generation. 
+- **TEST**: Add integration tests for all core functionalities.
+
 ## 0.1.4
 - **FIX**(iOS, macOS): Fixed AVFoundation -11841 "Operation Stopped" errors when exporting videos selected via image_picker package
 - **FIX**(iOS, macOS): Fixed video rotation metadata not being properly handled, causing incorrect orientation in exported videos
