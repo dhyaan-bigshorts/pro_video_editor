@@ -1,3 +1,6 @@
+## X.X.X
+- **FIX**(iOS, macOS): Fixed rotation transforms not properly swapping render dimensions for 90°/270° rotations, resolving squeezed video output with black bars
+
 ## 0.1.5
 - **FIX**(window, linux, iOS, macOS): Correct bitrate extraction from metadata. 
 - **FIX**(android): Remove unsupported WebM output format; Android only supports MP4 generation. 

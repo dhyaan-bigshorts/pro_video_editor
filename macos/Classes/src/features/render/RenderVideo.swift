@@ -107,6 +107,16 @@ class RenderVideo {
                     // Only update renderSize if cropping was actually applied
                     if cropWidth != nil || cropHeight != nil {
                         finalRenderSize = croppedSize
+                    } else {
+                        if let rotateTurns = rotateTurns {
+                            let normalizedRotation = (rotateTurns % 4 + 4) % 4
+                            if normalizedRotation == 1 || normalizedRotation == 3 {
+                                finalRenderSize = CGSize(
+                                    width: finalRenderSize.height,
+                                    height: finalRenderSize.width
+                                )
+                            }
+                        }
                     }
 
                     let effectiveScaleX = scaleX ?? 1.0
