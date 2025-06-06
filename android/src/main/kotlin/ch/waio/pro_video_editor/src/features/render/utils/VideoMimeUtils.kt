@@ -5,7 +5,7 @@ import androidx.media3.common.util.UnstableApi
 fun mapFormatToMimeType(format: String): String {
     return when (format.lowercase()) {
         "mp4" -> MimeTypes.VIDEO_H264 // Codec for MP4
-        "webm" -> MimeTypes.VIDEO_VP9 // Codec for WebM
+        // "webm" -> MimeTypes.VIDEO_VP9 // Codec for WebM
         "h264" -> MimeTypes.VIDEO_H264
         "h265", "hevc" -> MimeTypes.VIDEO_H265
         "av1" -> MimeTypes.VIDEO_AV1

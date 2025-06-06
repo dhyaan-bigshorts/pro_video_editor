@@ -33,6 +33,12 @@ class VideoMetadata {
         var height = 0
         var rotation = 0
         var bitrate = 0
+
+        if durationMs > 0 {
+            let fileSizeBits = fileSize * 8
+            bitrate = Int(Double(fileSizeBits) * 1000 / durationMs)
+        }
+
         if #available(iOS 15.0, *) {
             let videoTracks = try await asset.loadTracks(withMediaType: .video)
             if let track = videoTracks.first {
@@ -44,8 +50,6 @@ class VideoMetadata {
 
                 let angle = atan2(transform.b, transform.a)
                 rotation = (Int(round(angle * 180 / .pi)) + 360) % 360
-
-                bitrate = Int(try await track.load(.estimatedDataRate))
             }
         } else {
             if let track = asset.tracks(withMediaType: .video).first {
@@ -55,8 +59,6 @@ class VideoMetadata {
 
                 let angle = atan2(track.preferredTransform.b, track.preferredTransform.a)
                 rotation = (Int(round(angle * 180 / .pi)) + 360) % 360
-
-                bitrate = Int(track.estimatedDataRate)
             }
         }
 
@@ -77,10 +79,15 @@ class VideoMetadata {
         } else {
             let metadata = asset.commonMetadata
             title = metadata.first(where: { $0.commonKey?.rawValue == "title" })?.stringValue ?? ""
-            artist = metadata.first(where: { $0.commonKey?.rawValue == "artist" })?.stringValue ?? ""
-            author = metadata.first(where: { $0.commonKey?.rawValue == "author" })?.stringValue ?? ""
-            album = metadata.first(where: { $0.commonKey?.rawValue == "albumName" })?.stringValue ?? ""
-            albumArtist = metadata.first(where: { $0.commonKey?.rawValue == "albumArtist" })?.stringValue ?? ""
+            artist =
+                metadata.first(where: { $0.commonKey?.rawValue == "artist" })?.stringValue ?? ""
+            author =
+                metadata.first(where: { $0.commonKey?.rawValue == "author" })?.stringValue ?? ""
+            album =
+                metadata.first(where: { $0.commonKey?.rawValue == "albumName" })?.stringValue ?? ""
+            albumArtist =
+                metadata.first(where: { $0.commonKey?.rawValue == "albumArtist" })?.stringValue
+                ?? ""
         }
 
         // Creation date
@@ -94,7 +101,8 @@ class VideoMetadata {
         }
         if dateStr.isEmpty {
             if let attr = try? FileManager.default.attributesOfItem(atPath: tempFileURL.path),
-               let fileCreationDate = attr[.creationDate] as? Date {
+                let fileCreationDate = attr[.creationDate] as? Date
+            {
                 dateStr = ISO8601DateFormatter().string(from: fileCreationDate)
             }
         }
@@ -127,7 +135,9 @@ class VideoMetadata {
     }
 
     @available(iOS 15.0, *)
-    private static func loadMetadataString(from metadata: [AVMetadataItem], key: String) async throws -> String {
+    private static func loadMetadataString(from metadata: [AVMetadataItem], key: String)
+        async throws -> String
+    {
         if let item = metadata.first(where: { $0.commonKey?.rawValue == key }) {
             return try await item.load(.stringValue) ?? ""
         }

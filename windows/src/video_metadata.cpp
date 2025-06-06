@@ -128,9 +128,9 @@ void HandleGetMetadata(
     if (SUCCEEDED(hr) && media_type) {
         MFGetAttributeSize(media_type, MF_MT_FRAME_SIZE, &width, &height);
 
-        UINT32 avg_bitrate = 0;
-        if (SUCCEEDED(media_type->GetUINT32(MF_MT_AVG_BITRATE, &avg_bitrate))) {
-            bitrate = static_cast<int>(avg_bitrate);
+        int64_t fileSizeInBits = file_size.QuadPart * 8;
+        if (duration_ms > 0.0) {
+            bitrate = static_cast<int>(fileSizeInBits / (duration_ms / 1000.0));
         }
 
         UINT32 rotationVal = 0;

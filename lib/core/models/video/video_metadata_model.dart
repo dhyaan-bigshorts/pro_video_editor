@@ -37,12 +37,13 @@ class VideoMetadata {
       ),
       rotation: safeParseInt(value['rotation']),
       bitrate: safeParseInt(value['bitrate']),
-      title: value['title'],
-      artist: value['artist'],
-      author: value['author'],
-      album: value['album'],
-      albumArtist: value['albumArtist'],
-      date: value['date'] != '' ? DateTime.tryParse(value['date']) : null,
+      title: value['title'] ?? '',
+      artist: value['artist'] ?? '',
+      author: value['author'] ?? '',
+      album: value['album'] ?? '',
+      albumArtist: value['albumArtist'] ?? '',
+      date:
+          (value['date'] ?? '') != '' ? DateTime.tryParse(value['date']) : null,
     );
   }
 

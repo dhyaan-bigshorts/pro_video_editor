@@ -17,8 +17,7 @@ namespace pro_video_editor {
 void HandleGetMetadata(
     const flutter::EncodableMap& args,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-
-    // Get videoBytes
+    
     auto itVideo = args.find(flutter::EncodableValue("videoBytes"));
     if (itVideo == args.end()) {
         result->Error("InvalidArgument", "Missing videoBytes");
@@ -30,7 +29,6 @@ void HandleGetMetadata(
         return;
     }
 
-    // Get extension
     auto itExt = args.find(flutter::EncodableValue("extension"));
     if (itExt == args.end()) {
         result->Error("InvalidArgument", "Missing extension");
@@ -42,7 +40,6 @@ void HandleGetMetadata(
         return;
     }
 
-    // Write to temp file
     char tempName[] = "/tmp/pro_video_XXXXXX";
     int fd = mkstemp(tempName);
     if (fd == -1) {
@@ -52,9 +49,8 @@ void HandleGetMetadata(
     write(fd, videoBytes->data(), videoBytes->size());
     close(fd);
 
-    // Get file size and creation time
     struct stat file_stat;
-    int fileSize = 0;
+    int64_t fileSize = 0;
     std::string dateStr;
     if (stat(tempName, &file_stat) == 0) {
         fileSize = file_stat.st_size;
@@ -65,7 +61,6 @@ void HandleGetMetadata(
         dateStr = buffer;
     }
 
-    // Init GStreamer
     gst_init(nullptr, nullptr);
 
     GstDiscoverer* discoverer = gst_discoverer_new(5 * GST_SECOND, nullptr);
@@ -87,8 +82,9 @@ void HandleGetMetadata(
     const GstDiscovererStreamInfo* streamInfo = gst_discoverer_info_get_stream_info(info);
     const GstCaps* caps = gst_discoverer_stream_info_get_caps(streamInfo);
 
-    int width = 0, height = 0, bitrate = 0, rotation = 0;
+    int width = 0, height = 0, rotation = 0;
     double duration_ms = 0.0;
+    int bitrate = 0;
 
     if (caps) {
         const GstStructure* s = gst_caps_get_structure(caps, 0);
@@ -96,9 +92,13 @@ void HandleGetMetadata(
         gst_structure_get_int(s, "height", &height);
     }
 
-    duration_ms = (double)gst_discoverer_info_get_duration(info) / GST_MSECOND;
+    gint64 duration_ns = gst_discoverer_info_get_duration(info);
+    duration_ms = static_cast<double>(duration_ns) / GST_MSECOND;
 
-    // Metadata (title, artist, etc.)
+    if (duration_ms > 0.0) {
+        bitrate = static_cast<int>((fileSize * 8) / (duration_ms / 1000.0));
+    }
+
     const GstTagList* tags = gst_discoverer_info_get_tags(info);
     gchar* title = nullptr;
     if (tags) {

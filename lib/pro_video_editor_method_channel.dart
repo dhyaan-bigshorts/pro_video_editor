@@ -11,6 +11,7 @@ import 'core/models/thumbnail/thumbnail_configs.model.dart';
 import 'core/models/video/progress_model.dart';
 import 'core/models/video/render_video_model.dart';
 import 'core/models/video/video_metadata_model.dart';
+import 'core/platform/io/io_helper.dart';
 import 'pro_video_editor_platform_interface.dart';
 
 /// An implementation of [ProVideoEditor] that uses method channels.
@@ -97,6 +98,7 @@ class MethodChannelProVideoEditor extends ProVideoEditor {
 
   @override
   void initializeStream() {
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) return;
     _progressChannel.receiveBroadcastStream().map((event) {
       try {
         return ProgressModel.fromMap(event);

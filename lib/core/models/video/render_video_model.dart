@@ -173,11 +173,6 @@ enum VideoOutputFormat {
   /// MPEG-4 Part 14, widely supported.
   mp4,
 
-  /// WebM format, optimized for web use.
-  ///
-  /// Only supported on android.
-  webm,
-
   /// mov format.
   ///
   /// Only supported on macos and ios.
