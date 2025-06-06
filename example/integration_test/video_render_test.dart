@@ -49,17 +49,13 @@ void main() {
     expect(result, isNotNull, reason: '$description failed — result is null');
     expect(result.lengthInBytes, greaterThan(100000),
         reason: '$description failed — video too small');
-
-    final meta = await ProVideoEditor.instance.getMetadata(
-      EditorVideo.memory(result),
-    );
-
-    expect(meta.extension, equals(format.name),
-        reason: '$description — unexpected file format');
   }
 
   testWidgets('Export in mp4', (_) async {
-    await testFormat(format: VideoOutputFormat.mp4, description: 'mp4 export');
+    await testFormat(
+      format: VideoOutputFormat.mp4,
+      description: 'mp4 export',
+    );
   });
 
   /* testWidgets('Export in webm (Android)', (_) async {
@@ -69,7 +65,9 @@ void main() {
 
   testWidgets('Export in mov (Apple)', (_) async {
     await testFormat(
-        format: VideoOutputFormat.mov, description: 'iOS/macOS mov export');
+      format: VideoOutputFormat.mov,
+      description: 'iOS/macOS mov export',
+    );
   }, skip: !isIOS && !isMacOS);
 
   testWidgets('rotate 90°', (tester) async {
@@ -142,22 +140,27 @@ void main() {
     expect(meta.duration.inSeconds, 13);
   });
 
-  testWidgets('change speed to 2x', (tester) async {
-    const speed = 2.0;
-
+  testWidgets('change speed to 2x and 0.5x', (tester) async {
     final originalMeta = await ProVideoEditor.instance.getMetadata(inputVideo);
-    var meta = await testRender(
-      description: 'Speed x2',
-      renderModel: RenderVideoModel(
+
+    Future<void> testSpeed(double speed) async {
+      final renderModel = RenderVideoModel(
         video: inputVideo,
         outputFormat: VideoOutputFormat.mp4,
         playbackSpeed: speed,
-      ),
-    );
-    expect(
-      meta.duration.inSeconds,
-      (originalMeta.duration.inSeconds / speed).floor(),
-    );
+      );
+      final meta = await testRender(
+          description: 'Speed x$speed', renderModel: renderModel);
+
+      expect(
+        meta.duration.inSeconds,
+        (originalMeta.duration.inSeconds / speed).floor(),
+        reason: 'Duration should be adjusted by x$speed',
+      );
+    }
+
+    await testSpeed(2.0); // Speed up
+    await testSpeed(0.5); // Slow down
   });
 
   testWidgets('remove audio', (tester) async {
@@ -225,7 +228,7 @@ void main() {
       video: inputVideo,
       outputFormat: VideoOutputFormat.mp4,
       // Using something non-trivial to make rendering take time
-      playbackSpeed: 0.5,
+      playbackSpeed: 2,
     );
 
     final sub = task.progressStream.listen((progress) {

@@ -20,6 +20,8 @@ void main() {
   const outputWidth = 160.0;
   const outputHeight = 90.0;
 
+  final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+
   for (final format in ThumbnailFormat.values) {
     testWidgets(
       'getThumbnails with $format returns correct mime and size',
@@ -54,8 +56,7 @@ void main() {
           expect(image.height, equals(outputHeight));
         }
       },
-      skip: format == ThumbnailFormat.webp &&
-          defaultTargetPlatform != TargetPlatform.android,
+      skip: format == ThumbnailFormat.webp && !isAndroid,
     );
 
     testWidgets(
@@ -88,8 +89,7 @@ void main() {
           expect(image.height, equals(outputHeight));
         }
       },
-      skip: format == ThumbnailFormat.webp &&
-          defaultTargetPlatform != TargetPlatform.android,
+      skip: format == ThumbnailFormat.webp && !isAndroid,
     );
   }
 
