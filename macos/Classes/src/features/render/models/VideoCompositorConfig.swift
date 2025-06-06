@@ -19,4 +19,10 @@ struct VideoCompositorConfig {
 
     var lutData: Data? = nil
     var lutSize: Int = 33
+
+    var videoRotationDegrees: Double = 0.0
+    var shouldApplyOrientationCorrection: Bool = false
+
+    var preferredTransform: CGAffineTransform = .identity
+    var originalNaturalSize: CGSize = .zero
 }

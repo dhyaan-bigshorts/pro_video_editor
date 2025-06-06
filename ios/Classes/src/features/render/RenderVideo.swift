@@ -70,22 +70,29 @@ class RenderVideo {
                         from: asset, to: composition, timeRange: timeRange, enableAudio: enableAudio
                     )
 
-                    // Video composition setup
-                    let videoComposition = try await createVideoComposition(
-                        asset: asset,
-                        track: videoCompositionTrack,
-                        duration: composition.duration
-                    )
+                    // Enhanced video composition with orientation handling
+                    let (videoComposition, correctedNaturalSize, preferredTransform) =
+                        try await createVideoComposition(
+                            asset: asset,
+                            track: videoCompositionTrack,
+                            duration: composition.duration
+                        )
+
+                    let videoRotationDegrees = extractRotationFromTransform(preferredTransform)
+                    config.videoRotationDegrees = videoRotationDegrees
+                    config.shouldApplyOrientationCorrection = abs(videoRotationDegrees) > 1.0
+                    config.originalNaturalSize = videoTrack.naturalSize
 
                     let croppedSize = applyCrop(
                         config: &config,
-                        naturalSize: videoTrack.naturalSize,
+                        naturalSize: correctedNaturalSize,
                         rotateTurns: rotateTurns,
                         cropX: cropX,
                         cropY: cropY,
                         cropWidth: cropWidth,
                         cropHeight: cropHeight
                     )
+
                     applyRotation(config: &config, rotateTurns: rotateTurns)
                     applyFlip(config: &config, flipX: flipX, flipY: flipY)
                     applyScale(config: &config, scaleX: scaleX, scaleY: scaleY)
@@ -95,7 +102,29 @@ class RenderVideo {
                     applyBlur(config: &config, sigma: blur)
                     applyImageLayer(config: &config, imageData: imageData)
 
-                    videoComposition.renderSize = croppedSize
+                    var finalRenderSize = videoComposition.renderSize
+
+                    // Only update renderSize if cropping was actually applied
+                    if cropWidth != nil || cropHeight != nil {
+                        finalRenderSize = croppedSize
+                    }
+
+                    let effectiveScaleX = scaleX ?? 1.0
+                    let effectiveScaleY = scaleY ?? 1.0
+
+                    if effectiveScaleX != 1.0 || effectiveScaleY != 1.0 {
+                        finalRenderSize = CGSize(
+                            width: finalRenderSize.width * CGFloat(effectiveScaleX),
+                            height: finalRenderSize.height * CGFloat(effectiveScaleY)
+                        )
+                    } else if config.scaleX != 1.0 || config.scaleY != 1.0 {
+                        finalRenderSize = CGSize(
+                            width: finalRenderSize.width * config.scaleX,
+                            height: finalRenderSize.height * config.scaleY
+                        )
+                    }
+
+                    videoComposition.renderSize = finalRenderSize
 
                     let compositorClass = makeVideoCompositorSubclass(with: config)
                     videoComposition.customVideoCompositorClass = compositorClass
@@ -192,21 +221,59 @@ class RenderVideo {
         asset: AVAsset,
         track: AVCompositionTrack,
         duration: CMTime
-    ) async throws -> AVMutableVideoComposition {
-        let composition: AVMutableVideoComposition
-        if #available(iOS 16.0, *) {
-            composition = try await AVMutableVideoComposition.videoComposition(
-                withPropertiesOf: asset)
+    ) async throws -> (AVMutableVideoComposition, CGSize, CGAffineTransform) {
+        // Get the original video track to extract properties
+        let originalVideoTracks: [AVAssetTrack]
+        if #available(iOS 15.0, *) {
+            originalVideoTracks = try await asset.loadTracks(withMediaType: .video)
         } else {
-            composition = AVMutableVideoComposition(propertiesOf: asset)
+            originalVideoTracks = asset.tracks(withMediaType: .video)
         }
+
+        guard let originalVideoTrack = originalVideoTracks.first else {
+            throw NSError(
+                domain: "RenderVideo", code: 150,
+                userInfo: [NSLocalizedDescriptionKey: "No original video track found"])
+        }
+
+        // Get video properties
+        let naturalSize: CGSize
+        let nominalFrameRate: Float
+        let preferredTransform: CGAffineTransform
+
+        if #available(iOS 15.0, *) {
+            naturalSize = try await originalVideoTrack.load(.naturalSize)
+            nominalFrameRate = try await originalVideoTrack.load(.nominalFrameRate)
+            preferredTransform = try await originalVideoTrack.load(.preferredTransform)
+        } else {
+            naturalSize = originalVideoTrack.naturalSize
+            nominalFrameRate = originalVideoTrack.nominalFrameRate
+            preferredTransform = originalVideoTrack.preferredTransform
+        }
+
+        // Calculate display size after applying transform (handles rotation)
+        let displaySize = naturalSize.applying(preferredTransform)
+        let correctedSize = CGSize(width: abs(displaySize.width), height: abs(displaySize.height))
+
+        let composition = AVMutableVideoComposition()
+        composition.frameDuration = CMTime(value: 1, timescale: Int32(max(30, nominalFrameRate)))
+        composition.renderSize = correctedSize
 
         let instruction = AVMutableVideoCompositionInstruction()
         instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+        instruction.backgroundColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
+
         let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+
         instruction.layerInstructions = [layerInstruction]
         composition.instructions = [instruction]
-        return composition
+
+        return (composition, correctedSize, preferredTransform)
+    }
+
+    private static func extractRotationFromTransform(_ transform: CGAffineTransform) -> Double {
+        let rotationAngle = atan2(transform.b, transform.a)
+        return rotationAngle * 180 / Double.pi
     }
 
     private static func prepareExportSession(
@@ -233,7 +300,7 @@ class RenderVideo {
     ) async throws {
         let updateInterval: TimeInterval = 0.2
         /*  if #available(macOS 15.0, *) {
-        
+
              for try await state in export.states(updateInterval: updateInterval) {
                  switch state {
                  case .waiting:
