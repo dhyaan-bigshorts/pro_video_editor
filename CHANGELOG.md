@@ -1,5 +1,5 @@
 ## 0.1.5
-- **FIX**(window, linux): Correct bitrate extraction from metadata. 
+- **FIX**(window, linux, iOS, macOS): Correct bitrate extraction from metadata. 
 - **FIX**(android): Remove unsupported WebM output format; Android only supports MP4 generation. 
 - **TEST**: Add integration tests for all core functionalities.
 
