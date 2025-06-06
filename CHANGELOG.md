@@ -1,3 +1,9 @@
+## 0.1.4
+- **FIX**(iOS, macOS): Fixed AVFoundation -11841 "Operation Stopped" errors when exporting videos selected via image_picker package
+- **FIX**(iOS, macOS): Fixed video rotation metadata not being properly handled, causing incorrect orientation in exported videos
+- **FIX**(iOS, macOS): Fixed random video loading failures from image_picker package due to complex transform metadata
+- **FIX**(iOS, macOS): Enhanced video composition pipeline to properly process iPhone camera orientation transforms
+
 ## 0.1.3
 - **FIX**(iOS, macOS): Resolved multiple issue where, in some Swift versions, a trailing comma in the constructor caused an error.
 
