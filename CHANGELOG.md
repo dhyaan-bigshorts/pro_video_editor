@@ -1,4 +1,4 @@
-## X.X.X
+## 0.1.6
 - **FIX**(iOS, macOS): Fixed rotation transforms not properly swapping render dimensions for 90°/270° rotations, resolving squeezed video output with black bars
 
 ## 0.1.5
